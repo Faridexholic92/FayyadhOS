@@ -67,14 +67,15 @@ public class DashboardActivity extends Activity {
   header.addView(time,new FrameLayout.LayoutParams(d(310),-2,Gravity.CENTER_HORIZONTAL|Gravity.TOP));
   LinearLayout actions=new LinearLayout(this);actions.setGravity(Gravity.CENTER_VERTICAL);
   TextView net=button("●  Jarvis",()->showJarvis());net.setContentDescription("Open Jarvis network diagnostics and AI assistance");net.setId(R.id.btnWifi);actions.addView(net,lp(d(82),d(44)));
-  View divider=new View(this);divider.setBackgroundColor(0x66ffffff);actions.addView(divider,lp(d(1),d(24)));
+  View divider=new View(this);divider.setBackgroundColor(Color.TRANSPARENT);actions.addView(divider,lp(d(8),d(24)));
   TextView settings=button("Settings",()->settings());android.graphics.drawable.Drawable gear=getDrawable(R.drawable.ic_settings);gear.setBounds(0,0,d(18),d(18));settings.setCompoundDrawables(gear,null,null,null);
   settings.setCompoundDrawablePadding(d(5));settings.setPadding(d(10),0,d(5),0);settings.setId(R.id.btnSettings);actions.addView(settings,lp(d(100),d(44)));
   header.addView(actions,new FrameLayout.LayoutParams(-2,d(44),Gravity.END|Gravity.TOP));
   LinearLayout intro=vertical();place(body,intro,40,148,470,118);
   greeting=text("",32,GlassUi.WHITE);greeting.setTypeface(null,Typeface.BOLD);greeting.setTag("greeting");intro.addView(greeting);
-  TextView caption=text("",17,GlassUi.WHITE);caption.setMaxLines(2);caption.setTag("daily-quote");LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);TextView credit=text("",10,GlassUi.MUTED);credit.setTag("quote-credit");LinearLayout.LayoutParams cp=lp(-1,-2);cp.topMargin=d(6);intro.addView(credit,cp);quotes=new DailyQuotes(this,caption,credit);
-  grid=new LoopCarousel(this);grid.setId(R.id.grid);grid.setClipToPadding(false);grid.setPadding(d(3),d(6),d(3),d(6));
+  TextView caption=text("",17,GlassUi.WHITE);caption.setMaxLines(2);caption.setTag("daily-quote");LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);TextView credit=text("",10,GlassUi.MUTED);credit.setTag("quote-credit");credit.setMinHeight(d(28));credit.setGravity(Gravity.CENTER_VERTICAL);credit.setPadding(d(8),0,d(8),0);LinearLayout.LayoutParams cp=lp(-2,-2);cp.topMargin=d(6);intro.addView(credit,cp);quotes=new DailyQuotes(this,caption,credit);
+  View dock=new View(this);dock.setTag("glass-dock");dock.setBackground(new GlassMaterial(this,GlassMaterial.DOCK,false,false));dock.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);place(body,dock,34,382,892,142);
+  grid=new LoopCarousel(this);grid.setId(R.id.grid);grid.setClipToPadding(false);grid.setPadding(d(3),d(18),d(3),d(8));
   grid.setItemAnimator(null);
   grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,40,390,880,126);
   empty=text("No visible apps. Open Settings to unhide apps or install TV apps.",16,GlassUi.WHITE);empty.setGravity(Gravity.CENTER_VERTICAL);place(body,empty,46,396,868,108);
@@ -105,7 +106,7 @@ public class DashboardActivity extends Activity {
  }
 
 
- private TextView button(String label,Runnable click){TextView t=text(label,13,GlassUi.WHITE);t.setGravity(Gravity.CENTER);t.setSingleLine(true);GlassUi.focusShortcut(t);t.setOnClickListener(v->click.run());return t;}
+ private TextView button(String label,Runnable click){TextView t=text(label,13,GlassUi.WHITE);t.setGravity(Gravity.CENTER);t.setSingleLine(true);GlassUi.focus(t);t.setOnClickListener(v->click.run());return t;}
  void updateClock(){LocalDateTime now=LocalDateTime.now();clock.setText(now.format(DateTimeFormatter.ofLocalizedTime(java.time.format.FormatStyle.SHORT).withLocale(Locale.getDefault())));date.setText(now.format(DateTimeFormatter.ofPattern("EEEE, d MMM yyyy",Locale.getDefault())));greeting.setText(greeting(now.getHour()));}
  boolean automaticWallpaper(){return getSharedPreferences("fayyadh-wallpaper",0).getBoolean("automatic_weather",true);}
  void weatherWallpaper(WeatherForecast.State state){wallpaperState=state;loadWallpaper();}
@@ -138,9 +139,10 @@ public class DashboardActivity extends Activity {
     getSharedPreferences("fayyadh-wallpaper",0).edit().putString("selected",FayyadhWallpapers.FILES[i]).putBoolean("automatic_weather",false).apply();loadWallpaper();d.dismiss();})
    .setNeutralButton(automaticWallpaper()?"Cuaca auto: OFF":"Cuaca auto: ON",(d,i)->{setAutomaticWallpaper(!automaticWallpaper());})
    .setNegativeButton("Close",null));}
- void settings(){handler.removeCallbacks(welcomeTask);welcome.cancel();show(new AlertDialog.Builder(this).setTitle("FayyadhOS · Settings").setItems(new String[]{"Wallpaper","Hide / unhide apps","Rearrange apps","Jarvis · Network & AI","Prayer zone & options","Android settings","Set default Home",getString(R.string.rain_settings_entry),"Azan · Lima waktu","Cuaca · Keadaan semasa",DimService.enabled(this)?"Dim 35%: ON":"Dim 35%: OFF","Artwork · Banner / icon pack","Daily quotes · "+(DailyQuotes.enabled(this)?"ON":"OFF")},(d,i)->{
-  if(i==12){quotes.details();}else if(i==11){artwork.settings(this,()->reload());}else if(i==10){toggleDim();}else if(i==9){d.dismiss();handler.post(()->hourly.settings());}else if(i==8){startActivity(new Intent(this,AzanSettingsActivity.class));}else if(i==0)wallpapers();else if(i==1)hidden();else if(i==2)message("Rearrange apps","Hold OK on an app > Move. Use the arrow keys to rearrange. Press OK or Back to finish. Your order is saved automatically.");else if(i==3)showJarvis();else if(i==4)prayer.performClick();else if(i==7){d.dismiss();handler.post(()->rain.showSettings());}else system(i==6?Settings.ACTION_HOME_SETTINGS:Settings.ACTION_SETTINGS);
+ void settings(){handler.removeCallbacks(welcomeTask);welcome.cancel();show(new AlertDialog.Builder(this).setTitle("FayyadhOS · Settings").setItems(new String[]{"Wallpaper","Hide / unhide apps","Rearrange apps","Jarvis · Network & AI","Prayer zone & options","Android settings","Set default Home",getString(R.string.rain_settings_entry),"Azan · Lima waktu","Cuaca · Keadaan semasa",DimService.enabled(this)?"Dim 35%: ON":"Dim 35%: OFF","Artwork · Banner / icon pack","Daily quotes · "+(DailyQuotes.enabled(this)?"ON":"OFF"),"Glass appearance · "+GlassOptions.label(this)},(d,i)->{
+  if(i==13){GlassOptions.settings(this,this::refreshGlass);}else if(i==12){quotes.details();}else if(i==11){artwork.settings(this,()->reload());}else if(i==10){toggleDim();}else if(i==9){d.dismiss();handler.post(()->hourly.settings());}else if(i==8){startActivity(new Intent(this,AzanSettingsActivity.class));}else if(i==0)wallpapers();else if(i==1)hidden();else if(i==2)message("Rearrange apps","Hold OK on an app > Move. Use the arrow keys to rearrange. Press OK or Back to finish. Your order is saved automatically.");else if(i==3)showJarvis();else if(i==4)prayer.performClick();else if(i==7){d.dismiss();handler.post(()->rain.showSettings());}else system(i==6?Settings.ACTION_HOME_SETTINGS:Settings.ACTION_SETTINGS);
  }).setNegativeButton("Close",null));}
+ void refreshGlass(){View dock=root.findViewWithTag("glass-dock");if(dock!=null)dock.setBackground(new GlassMaterial(this,GlassMaterial.DOCK,false,false));GlassUi.focus(findViewById(R.id.btnWifi));GlassUi.focus(findViewById(R.id.btnSettings));reload();}
  void toggleDim(){
   if(DimService.enabled(this)){DimService.disable(this);Toast.makeText(this,"Dim OFF",Toast.LENGTH_SHORT).show();return;}
   if(!Settings.canDrawOverlays(this)){
@@ -218,8 +220,8 @@ public class DashboardActivity extends Activity {
  }
  private final class Tiles extends RecyclerView.Adapter<Tile> {
   public Tile onCreateViewHolder(ViewGroup parent,int type){LinearLayout card=vertical();card.setGravity(Gravity.CENTER);card.setPadding(d(4),d(4),d(4),d(4));card.setClipToOutline(true);
-   RecyclerView.LayoutParams p=new RecyclerView.LayoutParams(d(132),d(94));p.setMargins(d(5),d(2),d(5),d(2));card.setLayoutParams(p);GlassUi.focus(card);
-   ImageView icon=new ImageView(DashboardActivity.this);icon.setScaleType(ImageView.ScaleType.FIT_CENTER);icon.setTag("app-artwork");icon.setClipToOutline(true);icon.setBackground(GlassUi.surface(DashboardActivity.this,0xe6101d2b,false));card.addView(icon,lp(-1,d(62)));
+   RecyclerView.LayoutParams p=new RecyclerView.LayoutParams(d(132),d(94));p.setMargins(d(12),d(2),d(12),d(2));card.setLayoutParams(p);GlassUi.focus(card);
+   ImageView icon=new ImageView(DashboardActivity.this);icon.setScaleType(ImageView.ScaleType.FIT_CENTER);icon.setTag("app-artwork");icon.setClipToOutline(true);icon.setBackgroundColor(0x28040b12);card.addView(icon,lp(-1,d(62)));
    TextView name=text("",12,GlassUi.WHITE);name.setGravity(Gravity.CENTER);name.setTypeface(null,Typeface.BOLD);name.setMaxLines(1);name.setEllipsize(android.text.TextUtils.TruncateAt.END);LinearLayout.LayoutParams n=lp(-1,d(20));n.topMargin=d(2);card.addView(name,n);return new Tile(card,icon,name);}
   public void onBindViewHolder(Tile v,int i){ResolveInfo r=apps.get(LoopCarousel.logical(i,apps.size()));String key=DashboardApps.key(r);v.name.setText(catalog.label(r));
    v.icon.setImageDrawable(artwork.load(r));
@@ -237,7 +239,7 @@ public class DashboardActivity extends Activity {
     return false;
    });
    v.itemView.setNextFocusUpId(R.id.prayerPanel);v.itemView.setNextFocusDownId(v.itemView.getId());
-   if(key.equals(moving))v.itemView.setBackground(GlassUi.surface(DashboardActivity.this,0xd0234b56,true));else v.itemView.setBackground(GlassUi.states(DashboardActivity.this));
+   if(key.equals(moving))v.itemView.setBackground(GlassUi.surface(DashboardActivity.this,0xd0234b56,true));else v.itemView.setBackground(GlassUi.tiles(DashboardActivity.this));
 }
 
   public int getItemCount(){return LoopCarousel.count(apps.size(),moving!=null);}

@@ -13,29 +13,28 @@ final class GlassUi {
   d.setColor(fill);
   d.setCornerRadius(dp(c,14));d.setStroke(dp(c,focus?2:1),focus?CYAN:0x508facb9);return d;
  }
- static StateListDrawable states(Context c) {
-  StateListDrawable d=new StateListDrawable();d.addState(new int[]{android.R.attr.state_focused},glow(c));
-  d.addState(new int[]{android.R.attr.state_pressed},surface(c,0xd0245360,true));
-  d.addState(new int[]{},surface(c,0xad10212e,false));return d;
+ static StateListDrawable states(Context c){return states(c,GlassMaterial.CONTROL);}
+ static StateListDrawable tiles(Context c){return states(c,GlassMaterial.TILE);}
+ private static StateListDrawable states(Context c,int kind){
+  StateListDrawable d=new StateListDrawable();
+  GradientDrawable disabled=surface(c,0xff152230,false);disabled.setStroke(dp(c,1),0x405e7487);
+  d.addState(new int[]{-android.R.attr.state_enabled},disabled);
+  d.addState(new int[]{android.R.attr.state_focused},new GlassMaterial(c,kind,true,false));
+  d.addState(new int[]{android.R.attr.state_pressed},new GlassMaterial(c,kind,true,false));
+  d.addState(new int[]{},new GlassMaterial(c,kind,false,false));return d;
  }
- static android.graphics.drawable.Drawable glow(Context c){
-  GradientDrawable halo=surface(c,0x2036def5,false);halo.setStroke(dp(c,5),0x5536def5);
-  android.graphics.drawable.LayerDrawable layers=new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{halo,surface(c,0xd0245360,true)});
-  layers.setLayerInset(1,dp(c,2),dp(c,2),dp(c,2),dp(c,2));return layers;
- }
+ static android.graphics.drawable.Drawable glow(Context c){return new GlassMaterial(c,GlassMaterial.CONTROL,true,false);}
  static void focus(View v){v.setFocusable(true);v.setFocusableInTouchMode(true);v.setClickable(true);v.setBackground(states(v.getContext()));}
  static void focusShortcut(View v){
-  v.setFocusable(true);v.setFocusableInTouchMode(true);v.setClickable(true);
-  StateListDrawable states=new StateListDrawable();
-  states.addState(new int[]{android.R.attr.state_focused},surface(v.getContext(),0xd0245360,true));
-  states.addState(new int[]{android.R.attr.state_pressed},surface(v.getContext(),0xd0245360,true));
-  GradientDrawable clear=new GradientDrawable();clear.setColor(Color.TRANSPARENT);states.addState(new int[]{},clear);v.setBackground(states);
+  v.setFocusable(true);v.setFocusableInTouchMode(true);v.setClickable(true);StateListDrawable d=new StateListDrawable();
+  d.addState(new int[]{android.R.attr.state_focused},glow(v.getContext()));d.addState(new int[]{android.R.attr.state_pressed},glow(v.getContext()));
+  d.addState(new int[]{},new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));v.setBackground(d);
  }
  static void style(AlertDialog d){
-  if(d.getWindow()!=null){d.getWindow().setBackgroundDrawable(surface(d.getContext(),0xff122432,false));d.getWindow().setDimAmount(0f);}
-  if(d.getListView()!=null){d.getListView().setSelector(surface(d.getContext(),0x90428591,true));}
+  GlassWindows.apply(d);if(d.getWindow()!=null)d.getWindow().setDimAmount(0f);
+  if(d.getListView()!=null){d.getListView().setSelector(glow(d.getContext()));d.getListView().setDrawSelectorOnTop(false);}
   for(int id:new int[]{AlertDialog.BUTTON_POSITIVE,AlertDialog.BUTTON_NEGATIVE,AlertDialog.BUTTON_NEUTRAL})
-   if(d.getButton(id)!=null)d.getButton(id).setTextColor(CYAN);
+   if(d.getButton(id)!=null){d.getButton(id).setTextColor(WHITE);d.getButton(id).setBackground(states(d.getContext()));}
  }
  static TextView text(Context c,String value,float size,int color){TextView t=new TextView(c);t.setText(value);t.setTextSize(size);t.setTextColor(color);t.setIncludeFontPadding(false);t.setShadowLayer(dp(c,2),0,dp(c,1),0xf0000000);t.setFontFeatureSettings("tnum");return t;}
 }
