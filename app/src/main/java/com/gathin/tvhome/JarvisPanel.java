@@ -30,16 +30,13 @@ final class JarvisPanel {
  private LinearLayout column(){LinearLayout l=new LinearLayout(activity);l.setOrientation(LinearLayout.VERTICAL);return l;}
  private TextView text(String s,float size,int color){return GlassUi.text(activity,s,Math.max(8,size*scale()),color);}
  private LinearLayout.LayoutParams lp(int w,int h){return new LinearLayout.LayoutParams(w,h);}
- private TextView button(String title,Runnable action){TextView b=text(title,12,GlassUi.WHITE);b.setGravity(Gravity.CENTER);b.setMaxLines(2);b.setPadding(dp(10),dp(7),dp(10),dp(7));GlassUi.focus(b);android.graphics.drawable.StateListDrawable states=new android.graphics.drawable.StateListDrawable();
-  states.addState(new int[]{-android.R.attr.state_enabled},GlassUi.surface(activity,0xff0b2330,false));b.setTextColor(new android.content.res.ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{0xff8095a1,GlassUi.WHITE}));
-  states.addState(new int[]{android.R.attr.state_focused},GlassUi.glow(activity));states.addState(new int[]{android.R.attr.state_pressed},GlassUi.glow(activity));
-  android.graphics.drawable.GradientDrawable idle=GlassUi.surface(activity,0xff062131,false);idle.setStroke(Math.max(1,dp(1)),0xff304652);states.addState(new int[]{},idle);b.setBackground(states);b.setOnClickListener(v->action.run());return b;}
+ private TextView button(String title,Runnable action){TextView b=text(title,12,GlassUi.WHITE);b.setGravity(Gravity.CENTER);b.setMaxLines(2);b.setPadding(dp(10),dp(7),dp(10),dp(7));GlassUi.focus(b);b.setTextColor(new android.content.res.ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{0xff8095a1,GlassUi.WHITE}));
+  b.setOnClickListener(v->action.run());return b;}
  private void spacer(LinearLayout box,int n){View gap=new View(activity);box.addView(gap,lp(-1,dp(n)));}
- private void line(LinearLayout box){spacer(box,7);View v=new View(activity);v.setBackgroundColor(0xff16839a);box.addView(v,lp(-1,dp(1)));spacer(box,7);}
+ private void line(LinearLayout box){spacer(box,7);View v=new View(activity);v.setBackgroundColor(0x476d92ac);box.addView(v,lp(-1,dp(1)));spacer(box,7);}
  void show(){snapshot=NetworkSnapshot.read(activity);dialog=new Dialog(activity);dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
   LinearLayout box=column();mainBox=box;box.setPadding(dp(16),dp(16),dp(16),dp(16));
-  android.graphics.drawable.GradientDrawable surface=GlassUi.surface(activity,0xff041522,false);surface.setStroke(Math.max(1,dp(1)),0xff42606c);
-  scroll=new ScrollView(activity);scroll.setBackground(surface);scroll.setFillViewport(true);FrameLayout pages=new FrameLayout(activity);pages.addView(box);scroll.addView(pages);dialog.setContentView(scroll);
+  scroll=new ScrollView(activity);scroll.setBackgroundColor(Color.TRANSPARENT);scroll.setFillViewport(true);FrameLayout pages=new FrameLayout(activity);pages.addView(box);scroll.addView(pages);dialog.setContentView(scroll);
   LinearLayout top=new LinearLayout(activity);top.setGravity(Gravity.CENTER_VERTICAL);box.addView(top);
   top.addView(new Radar(activity),lp(dp(32),dp(32)));LinearLayout heading=column();TextView title=text("Jarvis",22,GlassUi.WHITE);title.setTypeface(null,Typeface.BOLD);heading.addView(title);heading.addView(text("CONTROL CENTER",10,GlassUi.MUTED));
   LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(0,-2,1);hp.leftMargin=dp(7);top.addView(heading,hp);TextView close=button("Close",()->close());close.setContentDescription("Close Jarvis");top.addView(close,lp(dp(62),dp(36)));
@@ -58,7 +55,7 @@ final class JarvisPanel {
 
   TextView options=button("Options",()->options());LinearLayout.LayoutParams op=lp(-1,dp(30));op.topMargin=dp(5);box.addView(options,op);
   dialog.setOnKeyListener((d,key,event)->{if(key!=KeyEvent.KEYCODE_BACK)return false;if(event.getAction()==KeyEvent.ACTION_UP){if(speedBox!=null&&speedBox.getVisibility()==View.VISIBLE)leaveSpeedtest();else close();}return true;});
-  dialog.setOnDismissListener(d->release());dialog.show();activity.overlayOpened(dialog);Window window=dialog.getWindow();if(window!=null){window.setBackgroundDrawableResource(android.R.color.transparent);window.setDimAmount(0f);window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+  dialog.setOnDismissListener(d->release());dialog.show();activity.overlayOpened(dialog);Window window=dialog.getWindow();if(window!=null){GlassWindows.apply(dialog);window.setDimAmount(0f);window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
    android.util.DisplayMetrics m=activity.getResources().getDisplayMetrics();int margin=dp(16);window.setLayout(Math.min(m.widthPixels-margin*2,dp(298)),Math.min(m.heightPixels-margin*2,dp(506)));
    WindowManager.LayoutParams p=window.getAttributes();p.gravity=Gravity.RIGHT|Gravity.TOP;p.x=dp(10);p.y=margin;window.setAttributes(p);}
   updateNetwork();refreshAiStatus();watchNetwork();speedButton.requestFocus();
