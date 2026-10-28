@@ -1,0 +1,4 @@
+Source: api.open-meteo.com/v1/forecast; latitude=0, longitude=0 (synthetic public schema-check coordinate, NOT a user location).
+Retrieved by this delivery on 2026-10-27 UTC. Full request parameters are in HourlyWeatherRepository.endpoint(0,0).
+Live API sample saved for parser regression only; NEVER loaded by production as fallback.
+Data: Open-Meteo, CC BY 4.0.

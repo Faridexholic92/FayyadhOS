@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.SpeedProbeTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-27T13:17:57" hostname="595691c2-ef0" time="0.012">
+  <properties/>
+  <testcase name="exact100MiBCapAndFinalProgress" classname="com.gathin.tvhome.SpeedProbeTest" time="0.005"/>
+  <testcase name="invalidThroughputIsRejected" classname="com.gathin.tvhome.SpeedProbeTest" time="0.0"/>
+  <testcase name="cancellationDuringProgressStopsRead" classname="com.gathin.tvhome.SpeedProbeTest" time="0.001"/>
+  <testcase name="cancelBeforeOpenDoesNotMakeRequest" classname="com.gathin.tvhome.SpeedProbeTest" time="0.001"/>
+  <testcase name="shortReadIsFailureNotSuccess" classname="com.gathin.tvhome.SpeedProbeTest" time="0.003"/>
+  <testcase name="wrongStatusHtmlEncodingAndLengthAreRejected" classname="com.gathin.tvhome.SpeedProbeTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

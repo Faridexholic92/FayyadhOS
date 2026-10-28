@@ -1,0 +1,523 @@
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+index 983478f..6b0a451 100644
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -14,6 +14,14 @@
+     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+ 
++    <!-- User-opt-in azan: precise schedule, visible media playback and bounded CPU wake during audio. -->
++    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
++    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
++    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
++    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
++    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
++    <uses-permission android:name="android.permission.WAKE_LOCK" />
++
+     <!-- Android 11+ package visibility: lets the launcher list the TV apps it shows as tiles, and the
+          apps that declare a module card (docs/specs/card.md). -->
+     <queries>
+@@ -42,6 +50,20 @@
+         android:allowBackup="false"
+         android:localeConfig="@xml/locales_config">
+ 
++        <activity android:name=".AzanSettingsActivity" android:exported="false" android:screenOrientation="landscape" />
++        <service android:name=".AzanService" android:exported="false" android:foregroundServiceType="mediaPlayback" />
++        <service android:name=".AzanRefreshJob" android:exported="true" android:permission="android.permission.BIND_JOB_SERVICE" />
++        <receiver android:name=".AzanReceiver" android:exported="false" />
++        <receiver android:name=".AzanRescheduleReceiver" android:exported="false">
++            <intent-filter>
++                <action android:name="android.intent.action.BOOT_COMPLETED" />
++                <action android:name="android.intent.action.TIME_SET" />
++                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
++                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
++                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
++            </intent-filter>
++        </receiver>
++
+         <!-- Jarvis now uses the user's encrypted local key and direct Groq HTTPS, not managed backend provisioning. -->
+ 
+         <activity
+diff --git a/app/src/main/java/com/gathin/tvhome/AzanReceiver.java b/app/src/main/java/com/gathin/tvhome/AzanReceiver.java
+new file mode 100644
+index 0000000..fbc9388
+--- /dev/null
++++ b/app/src/main/java/com/gathin/tvhome/AzanReceiver.java
+@@ -0,0 +1,12 @@
++package com.gathin.tvhome;
++import android.content.*;import java.time.Instant;
++/** Non-exported, explicit alarm target. Audio only starts after an on-time, validated claim. */
++public final class AzanReceiver extends BroadcastReceiver {
++ @Override public void onReceive(Context c,Intent intent){
++  if(intent==null||!AzanScheduler.ACTION.equals(intent.getAction()))return;
++  if(AzanScheduler.take(c,intent,Instant.now())){
++   try{c.startForegroundService(new Intent(c,AzanService.class).setAction(AzanService.PLAY).putExtra("index",intent.getIntExtra("index",-1)).putExtra("zone",intent.getStringExtra("zone")));}
++   catch(RuntimeException denied){AzanStore.note(c,"Android menyekat audio latar. Tiada azan lewat dimainkan semula.");}
++  }AzanScheduler.reconcile(c);
++ }
++}
+diff --git a/app/src/main/java/com/gathin/tvhome/AzanRefreshJob.java b/app/src/main/java/com/gathin/tvhome/AzanRefreshJob.java
+new file mode 100644
+index 0000000..4689486
+--- /dev/null
++++ b/app/src/main/java/com/gathin/tvhome/AzanRefreshJob.java
+@@ -0,0 +1,51 @@
++package com.gathin.tvhome;
++
++import android.app.job.*;
++import android.os.Handler;
++import java.time.*;
++import java.util.*;
++
++/** Network-constrained refresh while opted in; periodic and recovery jobs have independent lifecycles. */
++public final class AzanRefreshJob extends JobService {
++ private final Map<Integer, Work> running = new HashMap<>();
++ private final class Work implements Runnable {
++  final JobParameters params;
++  final Thread thread;
++  volatile boolean stopped;
++  Work(JobParameters p) { params=p;thread=new Thread(this,"azan-cache-refresh-"+p.getJobId()); }
++  void cancel() { stopped=true;thread.interrupt(); }
++  @Override public void run() {
++   boolean retry=false;
++   try {
++    String zone=AzanScheduler.zone(AzanRefreshJob.this);
++    LocalDate today=LocalDate.now(PrayerTimes.MALAYSIA);
++    PrayerRepository repo=new PrayerRepository(AzanRefreshJob.this);
++    repo.fetch(zone,YearMonth.from(today));
++    if(!stopped && today.getDayOfMonth()>=28)repo.fetch(zone,YearMonth.from(today).plusMonths(1));
++   } catch(Exception e) {
++    retry=true;
++    if(!stopped)AzanStore.note(AzanRefreshJob.this,"Kemas kini jadual gagal; cache sah dikekalkan.");
++   }
++   final boolean again=retry;
++   new Handler(getMainLooper()).post(()->{
++    // Stopping one job must not suppress completion of a different job in the same service.
++    if(stopped || running.get(params.getJobId())!=this)return;
++    running.remove(params.getJobId());
++    AzanScheduler.reconcile(AzanRefreshJob.this);
++    jobFinished(params,again);
++   });
++  }
++ }
++ @Override public boolean onStartJob(JobParameters p) {
++  if(!AzanStore.enabled(this) || !AzanScheduler.problem(this).isEmpty())return false;
++  Work old=running.remove(p.getJobId());if(old!=null)old.cancel();
++  Work work=new Work(p);running.put(p.getJobId(),work);work.thread.start();return true;
++ }
++ @Override public boolean onStopJob(JobParameters p) {
++  Work work=running.remove(p.getJobId());if(work!=null)work.cancel();
++  return AzanStore.enabled(this);
++ }
++ @Override public void onDestroy() {
++  for(Work work:running.values())work.cancel();running.clear();super.onDestroy();
++ }
++}
+diff --git a/app/src/main/java/com/gathin/tvhome/AzanRescheduleReceiver.java b/app/src/main/java/com/gathin/tvhome/AzanRescheduleReceiver.java
+new file mode 100644
+index 0000000..5a10783
+--- /dev/null
++++ b/app/src/main/java/com/gathin/tvhome/AzanRescheduleReceiver.java
+@@ -0,0 +1,6 @@
++package com.gathin.tvhome;
++import android.content.*;
++/** Rebuild future alarms only; boot/clock changes NEVER directly play audio. */
++public final class AzanRescheduleReceiver extends BroadcastReceiver {
++ @Override public void onReceive(Context c,Intent i){if(i==null)return;String a=i.getAction();if(Intent.ACTION_BOOT_COMPLETED.equals(a)||Intent.ACTION_TIME_CHANGED.equals(a)||Intent.ACTION_TIMEZONE_CHANGED.equals(a)||Intent.ACTION_MY_PACKAGE_REPLACED.equals(a)||android.app.AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED.equals(a)){AzanScheduler.cancelAlarm(c);AzanScheduler.reconcile(c);}}
++}
+diff --git a/app/src/main/java/com/gathin/tvhome/AzanScheduler.java b/app/src/main/java/com/gathin/tvhome/AzanScheduler.java
+new file mode 100644
+index 0000000..5118eb0
+--- /dev/null
++++ b/app/src/main/java/com/gathin/tvhome/AzanScheduler.java
+@@ -0,0 +1,65 @@
++package com.gathin.tvhome;
++
++import android.Manifest;import android.app.*;import android.app.job.*;import android.content.*;import android.content.pm.PackageManager;import android.os.Build;
++import java.time.*;import java.util.*;
++
++/** One explicit exact alarm at a time; JAKIM cache only, no fabricated or repeated catch-up audio. */
++final class AzanScheduler {
++ static final int REQUEST=7510,JOB=7511,REFRESH=7515;static final long LATE_LIMIT=90_000;
++ static final String ACTION="com.gathin.tvhome.AZAN_DUE";
++ static final class Event {final String zone,key;final int index;final long at;Event(String zone,LocalDate date,int index,long at){this.zone=zone;this.index=index;this.at=at;key=zone+"|"+date+"|"+index;}}
++ static String zone(Context c){return c.getSharedPreferences("solat",0).getString("zone","");}
++ static boolean exactAllowed(Context c){AlarmManager a=c.getSystemService(AlarmManager.class);return a!=null&&(Build.VERSION.SDK_INT<31||a.canScheduleExactAlarms());}
++ static boolean notificationsAllowed(Context c){NotificationManager n=c.getSystemService(NotificationManager.class);if(n==null||!n.areNotificationsEnabled())return false;
++  if(Build.VERSION.SDK_INT>=33&&c.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED)return false;
++  NotificationChannel channel=n.getNotificationChannel(AzanService.CHANNEL);return channel==null||channel.getImportance()!=NotificationManager.IMPORTANCE_NONE;
++ }
++ static String problem(Context c){
++  if(!zone(c).matches("[A-Z]{3}[0-9]{2}"))return "Pilih negeri / zon JAKIM dahulu.";
++  if(!AzanStore.present(AzanStore.named(c,false)))return "Audio azan umum belum dipilih.";
++  if(!exactAllowed(c))return "Benarkan Alarms & reminders dalam tetapan Android.";
++  if(!notificationsAllowed(c))return "Benarkan notifikasi azan dalam tetapan Android.";
++  return "";
++ }
++ static Event next(Context c,Instant instant){
++  String z=zone(c);if(!z.matches("[A-Z]{3}[0-9]{2}"))return null;
++  PrayerRepository repo=new PrayerRepository(c,Clock.fixed(instant,ZoneOffset.UTC));LocalDate today=instant.atZone(PrayerTimes.MALAYSIA).toLocalDate();
++  Set<String> played=AzanStore.prefs(c).getStringSet("played",Collections.emptySet());
++  for(int offset=0;offset<2;offset++){
++   LocalDate date=today.plusDays(offset);PrayerTimes.Day day=repo.cached(z,YearMonth.from(date)).get(date);if(day==null)continue;
++   for(int index:PrayerTimes.PRAYERS){long at=date.atTime(day.times[index]).atZone(PrayerTimes.MALAYSIA).toInstant().toEpochMilli();Event e=new Event(z,date,index,at);if(at>instant.toEpochMilli()&&!played.contains(e.key))return e;}
++  }return null;
++ }
++ static Intent intent(Context c){return new Intent(c,AzanReceiver.class).setAction(ACTION);}
++ static void cancelAlarm(Context c){AlarmManager a=c.getSystemService(AlarmManager.class);PendingIntent p=PendingIntent.getBroadcast(c,REQUEST,intent(c),PendingIntent.FLAG_NO_CREATE|PendingIntent.FLAG_IMMUTABLE);if(p!=null){if(a!=null)a.cancel(p);p.cancel();}AzanStore.prefs(c).edit().remove("pending_key").remove("pending_at").remove("pending_zone").remove("pending_index").commit();}
++ static synchronized void disable(Context c){AzanStore.prefs(c).edit().putBoolean("enabled",false).commit();cancelAlarm(c);JobScheduler j=c.getSystemService(JobScheduler.class);if(j!=null){j.cancel(JOB);j.cancel(REFRESH);}c.stopService(new Intent(c,AzanService.class));AzanStore.note(c,"Azan automatik dimatikan.");}
++ static void refreshJob(Context c){JobScheduler j=c.getSystemService(JobScheduler.class);if(j==null||j.getPendingJob(JOB)!=null)return;
++  JobInfo info=new JobInfo.Builder(JOB,new ComponentName(c,AzanRefreshJob.class)).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY).setPersisted(true).setPeriodic(24*60*60_000L).setBackoffCriteria(30*60_000L,JobInfo.BACKOFF_POLICY_EXPONENTIAL).build();j.schedule(info);
++ }
++ static void requestRefresh(Context c){JobScheduler j=c.getSystemService(JobScheduler.class);if(j==null||!AzanStore.enabled(c)||!problem(c).isEmpty()||j.getPendingJob(REFRESH)!=null)return;
++  j.schedule(new JobInfo.Builder(REFRESH,new ComponentName(c,AzanRefreshJob.class)).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY).setPersisted(true).setBackoffCriteria(30*60_000L,JobInfo.BACKOFF_POLICY_EXPONENTIAL).build());
++ }
++ static void reconcile(Context c){reconcile(c,Instant.now());}
++ static synchronized void reconcile(Context c,Instant now){
++  if(!AzanStore.enabled(c)){cancelAlarm(c);JobScheduler j=c.getSystemService(JobScheduler.class);if(j!=null){j.cancel(JOB);j.cancel(REFRESH);}return;}
++  String error=problem(c);if(!error.isEmpty()){cancelAlarm(c);AzanStore.note(c,error);JobScheduler j=c.getSystemService(JobScheduler.class);if(j!=null){j.cancel(JOB);j.cancel(REFRESH);}return;}
++  refreshJob(c);android.content.SharedPreferences p=AzanStore.prefs(c);long due=p.getLong("pending_at",0);
++  // Do not replace an alarm in the brief delivery window when Home resumes at its exact boundary.
++  if(due>0&&due<=now.toEpochMilli()&&now.toEpochMilli()-due<=LATE_LIMIT&&zone(c).equals(p.getString("pending_zone",""))&&!p.getStringSet("played",Collections.emptySet()).contains(p.getString("pending_key","")))return;
++  Event e=next(c,now);if(e==null){cancelAlarm(c);requestRefresh(c);AzanStore.note(c,"Jadual seterusnya belum tersedia. Muat semula jadual JAKIM.");return;}
++  Intent i=intent(c).putExtra("key",e.key).putExtra("at",e.at).putExtra("index",e.index).putExtra("zone",e.zone);
++  p.edit().putString("pending_key",e.key).putLong("pending_at",e.at).putString("pending_zone",e.zone).putInt("pending_index",e.index).commit();
++  try{PendingIntent pi=PendingIntent.getBroadcast(c,REQUEST,i,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);c.getSystemService(AlarmManager.class).setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,e.at,pi);}
++  catch(RuntimeException failed){cancelAlarm(c);AzanStore.note(c,"Alarm tepat tidak dapat dijadualkan. Semak kebenaran Android.");}
++ }
++ static synchronized boolean take(Context c,Intent i,Instant now){
++  if(!AzanStore.enabled(c)||!problem(c).isEmpty())return false;
++  var p=AzanStore.prefs(c);String key=i.getStringExtra("key"),z=i.getStringExtra("zone");long at=i.getLongExtra("at",0);int index=i.getIntExtra("index",-1);
++  if(key==null||!key.equals(p.getString("pending_key",""))||at!=p.getLong("pending_at",0)||!zone(c).equals(z)||!Arrays.stream(PrayerTimes.PRAYERS).anyMatch(x->x==index))return false;
++  long delay=now.toEpochMilli()-at;if(delay<0||delay>LATE_LIMIT){if(delay>LATE_LIMIT){cancelAlarm(c);AzanStore.note(c,"Alarm lewat melebihi 90 saat; azan lama tidak dimainkan semula.");}return false;}
++  LocalDate date=Instant.ofEpochMilli(at).atZone(PrayerTimes.MALAYSIA).toLocalDate();PrayerTimes.Day day=new PrayerRepository(c).cached(z,YearMonth.from(date)).get(date);
++  if(day==null||!new Event(z,date,index,at).key.equals(key)||date.atTime(day.times[index]).atZone(PrayerTimes.MALAYSIA).toInstant().toEpochMilli()!=at){cancelAlarm(c);AzanStore.note(c,"Jadual berubah / tiada; alarm lama dibatalkan.");return false;}
++  Set<String> played=new TreeSet<>(p.getStringSet("played",Collections.emptySet()));if(!played.add(key))return false;while(played.size()>64)played.remove(played.iterator().next());
++  p.edit().putStringSet("played",played).remove("pending_key").remove("pending_at").remove("pending_zone").remove("pending_index").commit();return true;
++ }
++}
+diff --git a/app/src/main/java/com/gathin/tvhome/AzanService.java b/app/src/main/java/com/gathin/tvhome/AzanService.java
+new file mode 100644
+index 0000000..ee7daa0
+--- /dev/null
++++ b/app/src/main/java/com/gathin/tvhome/AzanService.java
+@@ -0,0 +1,46 @@
++package com.gathin.tvhome;
++
++import android.app.*;import android.content.*;import android.content.pm.ServiceInfo;import android.media.*;import android.os.*;
++import java.io.*;
++
++/** Local playback, user-visible FGS. No audio-focus request, transport commands, volume writes or TTS. */
++public final class AzanService extends Service {
++ static final String CHANNEL="azan-playback-v1",PLAY="com.gathin.tvhome.AZAN_PLAY",TEST="com.gathin.tvhome.AZAN_TEST",STOP="com.gathin.tvhome.AZAN_STOP";
++ private static final int NOTIFICATION=7512;private static final long MAX_PLAY_MS=15*60_000L;
++ private MediaPlayer player;private final Handler handler=new Handler(Looper.getMainLooper());private boolean testing;private String expectedZone;
++ private final Runnable prepareTimeout=()->finish("Audio tidak dapat disediakan dalam 15 saat.");
++ private final Runnable endTimeout=()->finish("Audio dihentikan selepas had 15 minit.");
++ @Override public android.os.IBinder onBind(Intent i){return null;}
++ static void channel(Context c){NotificationManager n=c.getSystemService(NotificationManager.class);if(n!=null&&n.getNotificationChannel(CHANNEL)==null){NotificationChannel ch=new NotificationChannel(CHANNEL,"Azan · kawalan audio",NotificationManager.IMPORTANCE_LOW);ch.setSound(null,null);ch.enableVibration(false);n.createNotificationChannel(ch);}}
++ private Notification notification(String text){
++  channel(this);PendingIntent stop=PendingIntent.getService(this,7513,new Intent(this,AzanService.class).setAction(STOP),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
++  PendingIntent settings=PendingIntent.getActivity(this,7514,new Intent(this,AzanSettingsActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
++  return new Notification.Builder(this,CHANNEL).setSmallIcon(android.R.drawable.ic_lock_silent_mode_off).setContentTitle(testing?"Uji audio azan":"Azan FayyadhOS").setContentText(text).setContentIntent(settings).setOngoing(true).setOnlyAlertOnce(true).setCategory(Notification.CATEGORY_TRANSPORT).addAction(new Notification.Action.Builder(android.R.drawable.ic_media_pause,"Hentikan",stop).build()).build();
++ }
++ @Override public int onStartCommand(Intent i,int flags,int startId){
++  if(i==null||STOP.equals(i.getAction())){finish("Audio dihentikan.");return START_NOT_STICKY;}
++  if(!PLAY.equals(i.getAction())&&!TEST.equals(i.getAction())){stopSelf();return START_NOT_STICKY;}
++  testing=TEST.equals(i.getAction());expectedZone=i.getStringExtra("zone");
++  int index=i.getIntExtra("index",2);File audio=AzanStore.audio(this,index);
++  releasePlayer();
++  try{
++   Notification n=notification("Menyediakan audio…");if(Build.VERSION.SDK_INT>=29)startForeground(NOTIFICATION,n,ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);else startForeground(NOTIFICATION,n);
++   if(!AzanScheduler.notificationsAllowed(this)||!AzanStore.present(audio)||!testing&&(!AzanStore.enabled(this)||!AzanScheduler.zone(this).equals(expectedZone))){finish("Azan tidak dimainkan: audio, zon atau kebenaran berubah.");return START_NOT_STICKY;}
++   MediaPlayer p=new MediaPlayer();player=p;
++   // USAGE_MEDIA respects the device's media routing/volume. Never force another player's focus loss.
++   p.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
++   p.setWakeMode(getApplicationContext(),PowerManager.PARTIAL_WAKE_LOCK);p.setLooping(false);p.setDataSource(audio.getAbsolutePath());
++   p.setOnPreparedListener(mp->{if(mp!=player)return;handler.removeCallbacks(prepareTimeout);
++    if(!testing&&(!AzanStore.enabled(this)||!AzanScheduler.zone(this).equals(expectedZone))){finish("Azan dibatalkan selepas perubahan tetapan.");return;}
++    try{mp.start();AzanStore.note(this,testing?"Ujian audio sedang dimainkan.":"Audio azan sedang dimainkan.");getSystemService(NotificationManager.class).notify(NOTIFICATION,notification(testing?"Ujian audio · Hentikan tersedia":"Audio azan · Hentikan tersedia"));handler.postDelayed(endTimeout,MAX_PLAY_MS);}catch(RuntimeException e){finish("Audio tidak boleh dimainkan pada peranti ini.");}
++   });
++   p.setOnCompletionListener(mp->{if(mp==player)finish(testing?"Ujian audio selesai.":"Audio azan selesai.");});
++   p.setOnErrorListener((mp,what,extra)->{if(mp==player)finish("Audio rosak / format tidak disokong. Pilih fail lain.");return true;});
++   handler.postDelayed(prepareTimeout,15_000);p.prepareAsync();
++  }catch(IOException|RuntimeException e){finish("Audio tidak dapat dibuka. Pilih semula fail dan uji bunyi.");}
++  return START_NOT_STICKY;
++ }
++ private void releasePlayer(){handler.removeCallbacksAndMessages(null);MediaPlayer old=player;player=null;if(old!=null){try{old.reset();}catch(RuntimeException ignored){}old.release();}}
++ private void finish(String message){AzanStore.note(this,message);releasePlayer();stopForeground(STOP_FOREGROUND_REMOVE);stopSelf();}
++ @Override public void onDestroy(){releasePlayer();stopForeground(STOP_FOREGROUND_REMOVE);super.onDestroy();}
++}
+diff --git a/app/src/main/java/com/gathin/tvhome/AzanSettingsActivity.java b/app/src/main/java/com/gathin/tvhome/AzanSettingsActivity.java
+new file mode 100644
+index 0000000..2061bb2
+--- /dev/null
++++ b/app/src/main/java/com/gathin/tvhome/AzanSettingsActivity.java
+@@ -0,0 +1,41 @@
++package com.gathin.tvhome;
++
++import android.Manifest;import android.app.*;import android.content.*;import android.content.pm.PackageManager;import android.graphics.Color;import android.net.Uri;import android.os.*;import android.provider.Settings;import android.view.*;import android.widget.*;
++import java.time.*;import java.time.format.DateTimeFormatter;
++
++/** Remote-accessible opt-in settings. Audio arrives only via the user's document picker. */
++public final class AzanSettingsActivity extends Activity {
++ private static final int GENERAL=9132,SUBUH=9133,NOTIFY=9134;private TextView status;private Thread importer;private boolean destroyed;private final Handler handler=new Handler(Looper.getMainLooper());
++ @Override public void onCreate(Bundle b){super.onCreate(b);LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);int pad=GlassUi.dp(this,24);box.setPadding(pad,pad,pad,pad);box.setBackgroundColor(0xff041522);
++  TextView title=GlassUi.text(this,"Azan · Lima waktu",24,GlassUi.WHITE);box.addView(title);status=GlassUi.text(this,"",14,GlassUi.WHITE);status.setPadding(0,12,0,16);box.addView(status);
++  add(box,"Aktif / matikan azan automatik",this::toggle);add(box,"Pilih audio azan umum (wajib)",()->pick(GENERAL));add(box,"Pilih audio Subuh (pilihan)",()->pick(SUBUH));
++  add(box,"Uji bunyi audio umum",this::test);add(box,"Hentikan audio",()->{stopService(new Intent(this,AzanService.class));AzanStore.note(this,"Audio dihentikan.");update();});
++  add(box,"Kebenaran alarm tepat",this::exactPermission);add(box,"Kebenaran notifikasi",this::notificationPermission);add(box,"Ke Home — OK pada waktu solat untuk jadual / zon",()->{startActivity(new Intent(this,DashboardActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));finish();});
++  add(box,"Padam semua audio dan matikan azan",()->new AlertDialog.Builder(this).setTitle("Padam audio azan?").setMessage("Azan automatik dimatikan. Fail asal pada USB / storan tidak dipadam; hanya salinan aplikasi.").setPositiveButton("Padam",(d,w)->{AzanScheduler.disable(this);AzanStore.named(this,false).delete();AzanStore.named(this,true).delete();update();}).setNegativeButton("Batal",null).show());
++  add(box,"Tutup",this::finish);ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);scroll.addView(box);setContentView(scroll);update();
++ }
++ private void add(LinearLayout box,String label,Runnable action){Button b=new Button(this);b.setText(label);b.setAllCaps(false);b.setFocusable(true);b.setOnClickListener(v->action.run());box.addView(b,new LinearLayout.LayoutParams(-1,GlassUi.dp(this,48)));}
++ private void message(String text){new AlertDialog.Builder(this).setTitle("Azan").setMessage(text).setPositiveButton("OK",null).show();}
++ private void update(){if(status==null||destroyed)return;
++  var prefs=AzanStore.prefs(this);long at=prefs.getLong("pending_at",0);String next=at<=0?"Belum dijadualkan":Instant.ofEpochMilli(at).atZone(PrayerTimes.MALAYSIA).format(DateTimeFormatter.ofPattern("d MMM yyyy HH:mm",java.util.Locale.ENGLISH))+" MYT";
++  status.setText("Automatik: "+(AzanStore.enabled(this)?"ON":"OFF")+" · Zon: "+(AzanScheduler.zone(this).isEmpty()?"Belum dipilih":AzanScheduler.zone(this))+"\nAudio umum: "+(AzanStore.present(AzanStore.named(this,false))?"Tersimpan — uji bunyi dahulu":"Belum dipilih")+"\nAudio Subuh: "+(AzanStore.present(AzanStore.named(this,true))?"Audio berasingan":"Guna audio umum")+"\nSeterusnya: "+next+"\n"+prefs.getString("status","")+"\n\nTiada audio azan dibekalkan. Pilih rakaman yang anda berhak guna. Azan dimainkan mengikut jadual JAKIM tersimpan, termasuk ketika Home tidak terbuka jika Android membenarkan. Tiada arahan pause atau permintaan audio focus dihantar kepada aplikasi lain; audio boleh bertindih. Guna volume media TV sedia ada. Firmware mungkin berbeza. Tiada jaminan ketika TV dimatikan sepenuhnya / aplikasi force-stop.");
++ }
++ private void toggle(){if(AzanStore.enabled(this)){AzanScheduler.disable(this);update();return;}String problem=AzanScheduler.problem(this);if(!problem.isEmpty()){message(problem);return;}
++  new AlertDialog.Builder(this).setTitle("Aktifkan azan lima waktu?").setMessage("Audio anda akan dimainkan secara automatik pada Subuh, Zohor, Asar, Maghrib dan Isyak. Tiada Syuruk. Boleh bertindih dengan movie kerana aplikasi ini tidak meminta aplikasi lain pause. Jadual dikemas kini sekali sehari melalui tugas Android bila rangkaian tersedia. Aktifkan hanya selepas uji bunyi.").setPositiveButton("Aktifkan",(d,w)->{AzanStore.prefs(this).edit().putBoolean("enabled",true).commit();AzanStore.note(this,"Azan automatik diaktifkan oleh pengguna.");AzanScheduler.reconcile(this);update();}).setNegativeButton("Batal",null).show();
++ }
++ private void pick(int request){if(importer!=null&&importer.isAlive()){message("Tunggu import audio selesai.");return;}try{startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("audio/*").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION),request);}catch(ActivityNotFoundException e){message("TV ini tiada pemilih fail audio. Pasang / gunakan pemilih dokumen yang dipercayai, atau sediakan fail audio untuk dimasukkan ke projek. Jangan masukkan kata laluan atau kunci API.");}}
++ @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if((request!=GENERAL&&request!=SUBUH)||result!=RESULT_OK||data==null||data.getData()==null)return;
++  Uri uri=data.getData();status.setText("Mengimport audio ke storan dalaman aplikasi…");
++  importer=new Thread(()->{String error=null;try{AzanStore.importAudio(getApplicationContext(),uri,request==SUBUH);AzanStore.note(this,"Audio disimpan. Uji bunyi sebelum aktifkan automatik.");}catch(Exception e){error=e instanceof java.io.IOException?e.getMessage():"Fail tidak boleh dibaca. Pilih semula audio.";}
++   final String resultText=error;handler.post(()->{if(destroyed)return;if(resultText!=null)message(resultText);else AzanScheduler.reconcile(this);update();});
++  },"azan-audio-import");importer.start();
++ }
++ private void test(){if(!AzanStore.present(AzanStore.named(this,false))){message("Pilih audio azan umum dahulu.");return;}if(!AzanScheduler.notificationsAllowed(this)){message("Benarkan notifikasi sebelum uji audio.");return;}
++  new AlertDialog.Builder(this).setTitle("Mainkan ujian azan sekarang?").setMessage("Bunyi akan kedengaran menggunakan volume media TV. Hentikan melalui butang Hentikan audio atau notifikasi.").setPositiveButton("Mainkan",(d,w)->{try{startForegroundService(new Intent(this,AzanService.class).setAction(AzanService.TEST).putExtra("index",2));}catch(RuntimeException e){AzanStore.note(this,"Android menyekat main balik audio.");}update();}).setNegativeButton("Batal",null).show();
++ }
++ private void exactPermission(){if(Build.VERSION.SDK_INT<31){message("Android ini tidak memerlukan kebenaran alarm tepat berasingan.");return;}try{startActivity(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,Uri.parse("package:"+getPackageName())));}catch(ActivityNotFoundException e){message("Firmware TV ini tidak menyediakan skrin kebenaran alarm tepat. Automatik tidak diaktifkan tanpa kebenaran yang diperlukan.");}}
++ private void notificationPermission(){if(Build.VERSION.SDK_INT>=33&&checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED){requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},NOTIFY);return;}try{startActivity(new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE,getPackageName()));}catch(ActivityNotFoundException e){message("Skrin notifikasi tidak tersedia pada firmware ini.");}}
++ @Override protected void onResume(){super.onResume();AzanScheduler.reconcile(this);update();}
++ @Override public void onRequestPermissionsResult(int request,String[] p,int[] r){super.onRequestPermissionsResult(request,p,r);if(request==NOTIFY){AzanScheduler.reconcile(this);update();}}
++ @Override protected void onDestroy(){destroyed=true;handler.removeCallbacksAndMessages(null);if(importer!=null)importer.interrupt();super.onDestroy();}
++}
+diff --git a/app/src/main/java/com/gathin/tvhome/AzanStore.java b/app/src/main/java/com/gathin/tvhome/AzanStore.java
+new file mode 100644
+index 0000000..3b8acb0
+--- /dev/null
++++ b/app/src/main/java/com/gathin/tvhome/AzanStore.java
+@@ -0,0 +1,29 @@
++package com.gathin.tvhome;
++
++import android.content.*;import android.net.Uri;
++import java.io.*;
++
++/** User-selected, local audio only. Never embeds/downloads a recording or substitutes TTS. */
++final class AzanStore {
++ static final long MAX_BYTES=25L*1024*1024;
++ static SharedPreferences prefs(Context c){return c.getSharedPreferences("azan-v1",0);}
++ static boolean enabled(Context c){return prefs(c).getBoolean("enabled",false);}
++ static File named(Context c,boolean subuh){return new File(c.getFilesDir(),subuh?"azan-subuh.audio":"azan-main.audio");}
++ static boolean present(File f){return f.isFile()&&f.length()>0;}
++ static File audio(Context c,int index){File special=named(c,true);return index==0&&present(special)?special:named(c,false);}
++ static void note(Context c,String text){prefs(c).edit().putString("status",text).apply();}
++ static synchronized void importAudio(Context c,Uri uri,boolean subuh)throws IOException{
++  if(uri==null||!"content".equals(uri.getScheme()))throw new IOException("Pilih audio melalui pemilih fail Android.");
++  String mime=c.getContentResolver().getType(uri);if(mime!=null&&!mime.startsWith("audio/")&&!mime.equals("application/octet-stream"))throw new IOException("Fail yang dipilih bukan audio.");
++  File file=named(c,subuh),temp=new File(file.getPath()+".tmp");boolean saved=false;
++  try{
++   InputStream raw=c.getContentResolver().openInputStream(uri);if(raw==null)throw new IOException("Fail tidak boleh dibaca.");
++   try(InputStream in=raw;FileOutputStream out=new FileOutputStream(temp)){
++    byte[] buffer=new byte[16384];long count=0;int n;
++    while((n=in.read(buffer))!=-1){if(Thread.currentThread().isInterrupted())throw new InterruptedIOException("Import dibatalkan.");count+=n;if(count>MAX_BYTES)throw new IOException("Had audio ialah 25 MiB.");out.write(buffer,0,n);}
++    if(count==0)throw new IOException("Fail audio kosong.");out.getFD().sync();
++   }
++   if(!temp.renameTo(file))throw new IOException("Audio tidak dapat disimpan.");saved=true;
++  }finally{if(!saved)temp.delete();}
++ }
++}
+diff --git a/app/src/main/java/com/gathin/tvhome/DashboardActivity.java b/app/src/main/java/com/gathin/tvhome/DashboardActivity.java
+index cd8c502..ece99dd 100644
+--- a/app/src/main/java/com/gathin/tvhome/DashboardActivity.java
++++ b/app/src/main/java/com/gathin/tvhome/DashboardActivity.java
+@@ -107,8 +107,8 @@ public class DashboardActivity extends Activity {
+  private void loadWallpaper(){String selected=getSharedPreferences("fayyadh-wallpaper",0).getString("selected",FayyadhWallpapers.DEFAULT);File file=FayyadhWallpapers.file(this,selected);if(file.isFile())wallpaper.setImageBitmap(BitmapFactory.decodeFile(file.getPath()));}
+  void wallpapers(){String selected=getSharedPreferences("fayyadh-wallpaper",0).getString("selected",FayyadhWallpapers.DEFAULT);
+   show(new AlertDialog.Builder(this).setTitle("FayyadhOS wallpapers").setSingleChoiceItems(FayyadhWallpapers.NAMES,Arrays.asList(FayyadhWallpapers.FILES).indexOf(selected),(d,i)->{getSharedPreferences("fayyadh-wallpaper",0).edit().putString("selected",FayyadhWallpapers.FILES[i]).apply();loadWallpaper();d.dismiss();}).setNegativeButton("Close",null));}
+- void settings(){handler.removeCallbacks(welcomeTask);welcome.cancel();show(new AlertDialog.Builder(this).setTitle("FayyadhOS · Settings").setItems(new String[]{"Wallpaper","Hide / unhide apps","Rearrange apps","Jarvis · Network & AI","Prayer zone & options","Android settings","Set default Home",getString(R.string.rain_settings_entry)},(d,i)->{
+-  if(i==0)wallpapers();else if(i==1)hidden();else if(i==2)message("Rearrange apps","Hold OK on an app > Move. Use the arrow keys to rearrange. Press OK or Back to finish. Your order is saved automatically.");else if(i==3)showJarvis();else if(i==4)prayer.performClick();else if(i==7){d.dismiss();handler.post(()->rain.showSettings());}else system(i==6?Settings.ACTION_HOME_SETTINGS:Settings.ACTION_SETTINGS);
++ void settings(){handler.removeCallbacks(welcomeTask);welcome.cancel();show(new AlertDialog.Builder(this).setTitle("FayyadhOS · Settings").setItems(new String[]{"Wallpaper","Hide / unhide apps","Rearrange apps","Jarvis · Network & AI","Prayer zone & options","Android settings","Set default Home",getString(R.string.rain_settings_entry),"Azan · Lima waktu"},(d,i)->{
++  if(i==8){startActivity(new Intent(this,AzanSettingsActivity.class));}else if(i==0)wallpapers();else if(i==1)hidden();else if(i==2)message("Rearrange apps","Hold OK on an app > Move. Use the arrow keys to rearrange. Press OK or Back to finish. Your order is saved automatically.");else if(i==3)showJarvis();else if(i==4)prayer.performClick();else if(i==7){d.dismiss();handler.post(()->rain.showSettings());}else system(i==6?Settings.ACTION_HOME_SETTINGS:Settings.ACTION_SETTINGS);
+  }).setNegativeButton("Close",null));}
+  void hidden(){List<ResolveInfo> all=catalog.all();Set<String> hidden=AppVisibility.effective(this,Config.load(this).hiddenApps);Map<String,Boolean> choice=new HashMap<>();String[] names=new String[all.size()];boolean[] checked=new boolean[all.size()];
+   for(int i=0;i<all.size();i++){String pkg=all.get(i).activityInfo.packageName;names[i]=catalog.label(all.get(i));checked[i]=hidden.contains(pkg);choice.put(pkg,checked[i]);}
+diff --git a/app/src/main/java/com/gathin/tvhome/PrayerPanel.java b/app/src/main/java/com/gathin/tvhome/PrayerPanel.java
+index 064f200..3209685 100644
+--- a/app/src/main/java/com/gathin/tvhome/PrayerPanel.java
++++ b/app/src/main/java/com/gathin/tvhome/PrayerPanel.java
+@@ -190,7 +190,7 @@ final class PrayerPanel extends LinearLayout {
+     private String regionName(){for(String[] z:zones)if(z[0].equals(zone))return z[1].toUpperCase(Locale.getDefault());return "SELECT ZONE";}
+     void modeChanged() { render(); if(active) refresh(false); }
+     void start() {
+-        if(active) return; active=true; loadCache(); handler.removeCallbacks(tick); handler.post(tick); syncGlow();
++        if(active) return; active=true; loadCache(); handler.removeCallbacks(tick); handler.post(tick); syncGlow();AzanScheduler.reconcile(activity);
+     }
+     void stop() {
+         active=false; handler.removeCallbacks(tick);cancelGlow();
+@@ -234,6 +234,7 @@ final class PrayerPanel extends LinearLayout {
+                 busy=false; failure=error; online=ok && repository.updatedAt(requestedZone,YearMonth.from(clock.instant().atZone(PrayerTimes.MALAYSIA)))>=requestStarted;
+                 if(!requestedZone.equals(zone)) return;
+                 days.putAll(result);
++                if(ok)AzanScheduler.reconcile(activity);
+                 if(ok) retryAt=android.os.SystemClock.elapsedRealtime()+24*60*60*1000L;
+                 if(active) render();
+             });
+@@ -295,12 +296,13 @@ final class PrayerPanel extends LinearLayout {
+     private void showOptions() {
+         if(zone.isEmpty()) { chooseState(); return; }
+         dialog=present(new AlertDialog.Builder(activity).setTitle("Prayer times · "+zone)
+-                .setItems(new String[]{"Change state / JAKIM zone","Refresh prayer times","FayyadhOS wallpapers","Source & information","Jadual lengkap · 6 waktu"},(d,which)->{
++                .setItems(new String[]{"Change state / JAKIM zone","Refresh prayer times","FayyadhOS wallpapers","Source & information","Jadual lengkap · 6 waktu","Azan · audio & tetapan"},(d,which)->{
+                     if(which==0) chooseState();
+                     else if(which==1) refresh(true);
+                     else if(which==2 && activity instanceof DashboardActivity) ((DashboardActivity)activity).wallpapers();
+                     else if(which==2 && activity instanceof MainActivity) ((MainActivity)activity).showFayyadhWallpaperPicker();
+                     else if(which==4)showSchedule();
++                    else if(which==5)activity.startActivity(new android.content.Intent(activity,AzanSettingsActivity.class));
+                     else dialog=present(new AlertDialog.Builder(activity).setTitle("Prayer time source")
+                             .setMessage("e-Solat JAKIM rasmi\nhttps://www.e-solat.gov.my/\n\n"+
+                                     "Negeri dan bandar dipadankan kepada zon JAKIM yang anda pilih. Tiada zon dipilih secara automatik. " +
+@@ -328,7 +330,7 @@ final class PrayerPanel extends LinearLayout {
+                 .setSingleChoiceItems(names,selected,(d,i)->{
+                     d.dismiss(); zone=matching.get(i)[0]; generation++; busy=false;
+                     prefs.edit().putString("zone",zone).apply();
+-                    retryAt=0; lastDate=""; loadCache(); render(); refresh(true);
++                    retryAt=0; lastDate=""; loadCache(); render();AzanScheduler.reconcile(activity);refresh(true);
+                 }).setNegativeButton("Back",(d,i)->chooseState()) );
+     }
+ }
+diff --git a/app/src/main/java/com/gathin/tvhome/PrayerRepository.java b/app/src/main/java/com/gathin/tvhome/PrayerRepository.java
+index 67f6344..22188ef 100644
+--- a/app/src/main/java/com/gathin/tvhome/PrayerRepository.java
++++ b/app/src/main/java/com/gathin/tvhome/PrayerRepository.java
+@@ -10,6 +10,7 @@ import javax.net.ssl.HttpsURLConnection;
+ 
+ /** Official JAKIM HTTPS only; validated monthly schedules, daily MYT revalidation. */
+ final class PrayerRepository {
++    private static final Object CACHE_WRITE_LOCK=new Object();
+     private final File directory;
+     private final Clock clock;
+     interface Fetcher { String request(String zone,YearMonth month)throws Exception; }
+@@ -40,6 +41,7 @@ final class PrayerRepository {
+         Map<LocalDate,PrayerTimes.Day> parsed=PrayerTimes.parse(raw,zone,month);
+         if(parsed.size()!=month.lengthOfMonth())throw new IOException("Incomplete JAKIM month");
+         // Cache only a fully validated response, replacing atomically.
++        synchronized(CACHE_WRITE_LOCK) {
+         if(!directory.isDirectory() && !directory.mkdirs()) throw new IOException("Cache unavailable");
+         File tmp=new File(file.getPath()+".tmp");
+         try(FileOutputStream out=new FileOutputStream(tmp)) { out.write(raw.getBytes(StandardCharsets.UTF_8)); out.getFD().sync(); }
+@@ -51,6 +53,7 @@ final class PrayerRepository {
+                 !name.endsWith(current+".json") && !name.endsWith(current.minusMonths(1)+".json") && !name.endsWith(current.plusMonths(1)+".json"));
+         if(old!=null) for(File stale:old) stale.delete();
+         return parsed;
++        }
+     }
+     private static String request(String zone,YearMonth month)throws Exception {
+         String endpoint="https://www.e-solat.gov.my/index.php?r=esolatApi/takwimsolat&period=duration&zone="+zone;
+diff --git a/app/src/test/java/com/gathin/tvhome/AzanTest.java b/app/src/test/java/com/gathin/tvhome/AzanTest.java
+new file mode 100644
+index 0000000..be30fc0
+--- /dev/null
++++ b/app/src/test/java/com/gathin/tvhome/AzanTest.java
+@@ -0,0 +1,84 @@
++package com.gathin.tvhome;
++
++import android.Manifest;import android.app.*;import android.app.job.*;import android.content.*;import android.media.*;import android.net.Uri;import android.os.*;import android.view.*;import android.widget.*;
++import org.junit.*;import static org.junit.Assert.*;import org.junit.runner.RunWith;import org.robolectric.*;import org.robolectric.shadows.*;import org.robolectric.shadows.util.DataSource;
++import java.io.*;import java.nio.file.*;import java.time.*;import java.util.*;
++
++@RunWith(RobolectricTestRunner.class) @org.robolectric.annotation.Config(sdk=34,qualifiers="w960dp-h540dp-land-xhdpi")
++public class AzanTest {
++ android.content.Context c;final Instant NOON=Instant.parse("2026-10-25T04:00:00Z");
++ String fixture()throws Exception{try(var in=getClass().getResourceAsStream("/jakim-SBH07-2026-10-OFFICIAL-CAPTURE.json")){return new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);}}
++ @Before public void setup()throws Exception{
++  c=RuntimeEnvironment.getApplication();Shadows.shadowOf((Application)c).grantPermissions(Manifest.permission.POST_NOTIFICATIONS);
++  Shadows.shadowOf(c.getSystemService(AlarmManager.class)).setCanScheduleExactAlarms(true);c.getSharedPreferences("solat",0).edit().putString("zone","SBH07").commit();
++  new PrayerRepository(c,Clock.fixed(NOON,ZoneOffset.UTC),(z,m)->fixture()).fetch("SBH07",YearMonth.of(2026,10),true);
++ }
++ void audio()throws Exception{Files.write(AzanStore.named(c,false).toPath(),new byte[]{1,2,3,4});}
++ void enable()throws Exception{audio();AzanStore.prefs(c).edit().putBoolean("enabled",true).commit();}
++ Intent pending(){var p=AzanStore.prefs(c);return AzanScheduler.intent(c).putExtra("key",p.getString("pending_key","")).putExtra("at",p.getLong("pending_at",0)).putExtra("zone",p.getString("pending_zone","")).putExtra("index",p.getInt("pending_index",-1));}
++ @Test public void optInDefaultsOffAndMissingAudioDoesNotSchedule()throws Exception{assertFalse(AzanStore.enabled(c));assertTrue(AzanScheduler.problem(c).contains("Audio"));AzanScheduler.reconcile(c,NOON);assertEquals(0,AzanStore.prefs(c).getLong("pending_at",0));assertTrue(Shadows.shadowOf(c.getSystemService(AlarmManager.class)).getScheduledAlarms().isEmpty());}
++ @Test public void schedulesExactlyFivePrayerBoundariesAndNeverSunrise()throws Exception{
++  String[] before={"04:51:59","12:01:59","15:20:59","17:58:59","19:09:59"};int[] expected={0,2,3,4,5};
++  for(int n=0;n<before.length;n++){Instant now=LocalDateTime.parse("2026-10-25T"+before[n]).atZone(PrayerTimes.MALAYSIA).toInstant();AzanScheduler.Event e=AzanScheduler.next(c,now);assertNotNull(e);assertEquals(expected[n],e.index);assertEquals(now.plusSeconds(1).toEpochMilli(),e.at);}
++  assertEquals(2,AzanScheduler.next(c,Instant.parse("2026-10-24T22:00:00Z")).index);
++ }
++ @Test public void MalaysiaScheduleDoesNotFollowDeviceTimezone(){TimeZone old=TimeZone.getDefault();TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));try{assertEquals(Instant.parse("2026-10-25T04:02:00Z").toEpochMilli(),AzanScheduler.next(c,NOON).at);}finally{TimeZone.setDefault(old);}}
++ @Test public void onlyOneAlarmAndPersistedNetworkJobAreScheduled()throws Exception{enable();AzanScheduler.reconcile(c,NOON);AzanScheduler.reconcile(c,NOON);assertEquals(1,Shadows.shadowOf(c.getSystemService(AlarmManager.class)).getScheduledAlarms().size());assertEquals(2,AzanStore.prefs(c).getInt("pending_index",-1));JobInfo job=c.getSystemService(JobScheduler.class).getPendingJob(AzanScheduler.JOB);assertNotNull(job);assertTrue(job.isPersisted());assertTrue(job.isPeriodic());assertEquals(JobInfo.NETWORK_TYPE_ANY,job.getNetworkType());}
++ @Test public void missingPermissionPreventsSchedulingWithoutInexactFallback()throws Exception{enable();Shadows.shadowOf(c.getSystemService(AlarmManager.class)).setCanScheduleExactAlarms(false);AzanScheduler.reconcile(c,NOON);assertEquals(0,AzanStore.prefs(c).getLong("pending_at",0));assertTrue(AzanScheduler.problem(c).contains("Alarms"));}
++ @Test public void notificationDenialAlsoBlocksScheduling()throws Exception{enable();Shadows.shadowOf((Application)c).denyPermissions(Manifest.permission.POST_NOTIFICATIONS);AzanScheduler.reconcile(c,NOON);assertEquals(0,AzanStore.prefs(c).getLong("pending_at",0));assertTrue(AzanScheduler.problem(c).contains("notifikasi"));}
++ @Test public void alarmIsClaimedOnceThenNextPrayerScheduled()throws Exception{enable();AzanScheduler.reconcile(c,NOON);Intent i=pending();Instant due=Instant.ofEpochMilli(i.getLongExtra("at",0));assertTrue(AzanScheduler.take(c,i,due));assertFalse(AzanScheduler.take(c,i,due));AzanScheduler.reconcile(c,due);assertEquals(3,AzanStore.prefs(c).getInt("pending_index",-1));}
++ @Test public void lateOrEarlyAlarmsNeverPlayOldAudio()throws Exception{enable();AzanScheduler.reconcile(c,NOON);Intent i=pending();Instant due=Instant.ofEpochMilli(i.getLongExtra("at",0));assertFalse(AzanScheduler.take(c,i,due.minusMillis(1)));assertFalse(AzanScheduler.take(c,i,due.plusMillis(90_001)));assertEquals(0,AzanStore.prefs(c).getLong("pending_at",0));}
++ @Test public void forgedStaleZoneAndSunrisePayloadsAreRejected()throws Exception{enable();AzanScheduler.reconcile(c,NOON);Intent i=pending();Instant due=Instant.ofEpochMilli(i.getLongExtra("at",0));assertFalse(AzanScheduler.take(c,new Intent(i).putExtra("key","wrong"),due));assertFalse(AzanScheduler.take(c,new Intent(i).putExtra("index",1),due));c.getSharedPreferences("solat",0).edit().putString("zone","SWK08").commit();assertFalse(AzanScheduler.take(c,i,due));}
++ @Test public void disablingCancelsAlarmJobAndStopsOnlyOwnService()throws Exception{enable();AzanScheduler.reconcile(c,NOON);AzanScheduler.disable(c);assertFalse(AzanStore.enabled(c));assertTrue(Shadows.shadowOf(c.getSystemService(AlarmManager.class)).getScheduledAlarms().isEmpty());assertNull(c.getSystemService(JobScheduler.class).getPendingJob(AzanScheduler.JOB));}
++ @Test public void bootDoesNotStartAudioAndMissingCacheDoesNotInventSchedule()throws Exception{enable();new AzanRescheduleReceiver().onReceive(c,new Intent(Intent.ACTION_BOOT_COMPLETED));assertNull(Shadows.shadowOf((Application)c).getNextStartedService());assertNull(AzanScheduler.next(c,Instant.parse("2027-01-01T00:00:00Z")));AzanScheduler.reconcile(c,Instant.parse("2027-01-01T00:00:00Z"));assertEquals(0,AzanStore.prefs(c).getLong("pending_at",0));}
++ @Test public void subuhHasOptionalOwnAudioAndOthersUseGeneral()throws Exception{audio();assertEquals(AzanStore.named(c,false),AzanStore.audio(c,0));Files.write(AzanStore.named(c,true).toPath(),new byte[]{5});assertEquals(AzanStore.named(c,true),AzanStore.audio(c,0));for(int i:new int[]{2,3,4,5})assertEquals(AzanStore.named(c,false),AzanStore.audio(c,i));}
++ @Test public void importsUserContentPrivatelyAndEmptyInputCannotReplaceGoodFile()throws Exception{
++  Uri uri=Uri.parse("content://azan-fixture/audio");byte[] bytes={4,3,2,1};Shadows.shadowOf(c.getContentResolver()).registerInputStream(uri,new ByteArrayInputStream(bytes));AzanStore.importAudio(c,uri,false);assertArrayEquals(bytes,Files.readAllBytes(AzanStore.named(c,false).toPath()));
++  Uri empty=Uri.parse("content://azan-fixture/empty");Shadows.shadowOf(c.getContentResolver()).registerInputStream(empty,new ByteArrayInputStream(new byte[0]));assertThrows(IOException.class,()->AzanStore.importAudio(c,empty,false));assertArrayEquals(bytes,Files.readAllBytes(AzanStore.named(c,false).toPath()));assertFalse(new File(AzanStore.named(c,false).getPath()+".tmp").exists());
++ }
++ @Test public void oversizedAudioIsRejectedAndOriginalKept()throws Exception{audio();Uri uri=Uri.parse("content://azan-fixture/large");Shadows.shadowOf(c.getContentResolver()).registerInputStream(uri,new ByteArrayInputStream(new byte[(int)AzanStore.MAX_BYTES+1]));assertThrows(IOException.class,()->AzanStore.importAudio(c,uri,false));assertEquals(4,AzanStore.named(c,false).length());}
++ @Test public void arbitraryRemoteAndFileUrisAreNotImported(){assertThrows(IOException.class,()->AzanStore.importAudio(c,Uri.parse("https://example.invalid/audio.mp3"),false));assertThrows(IOException.class,()->AzanStore.importAudio(c,Uri.parse("file:///tmp/audio.mp3"),false));}
++ @org.robolectric.annotation.Implements(android.bluetooth.BluetoothDevice.class) public static class Sdk34BluetoothShadow {}
++ @Test @org.robolectric.annotation.Config(shadows=Sdk34BluetoothShadow.class) public void serviceUsesLocalFixtureWithoutRequestingAudioFocusAndStops()throws Exception{
++  audio();String path=AzanStore.named(c,false).getAbsolutePath();ShadowMediaPlayer.addMediaInfo(DataSource.toDataSource(path),new ShadowMediaPlayer.MediaInfo(60000,0));AudioManager manager=c.getSystemService(AudioManager.class);
++  var controller=Robolectric.buildService(AzanService.class).create();try{
++   AzanService service=controller.get();assertEquals(Service.START_NOT_STICKY,service.onStartCommand(new Intent(c,AzanService.class).setAction(AzanService.TEST),0,1));Shadows.shadowOf(Looper.getMainLooper()).idle();
++   java.lang.reflect.Field f=AzanService.class.getDeclaredField("player");f.setAccessible(true);MediaPlayer player=(MediaPlayer)f.get(service);assertNotNull(player);assertTrue(player.isPlaying());assertNull(Shadows.shadowOf(manager).getLastAudioFocusRequest());
++   assertTrue(AzanStore.prefs(c).getString("status","").contains("sedang dimainkan"));service.onStartCommand(new Intent(c,AzanService.class).setAction(AzanService.STOP),0,2);assertNull(f.get(service));
++  }finally{controller.destroy();}
++ }
++ @Test public void settingsStartsDisabledAndPickerUsesOnlyAudioContent(){try(var a=Robolectric.buildActivity(AzanSettingsActivity.class).setup().visible()){
++  assertFalse(AzanStore.enabled(c));View decor=a.get().getWindow().getDecorView();TextView choose=JarvisRepairTest.find(decor,"Pilih audio azan umum (wajib)");assertNotNull(choose);assertTrue(choose.isFocusable());choose.performClick();Intent i=Shadows.shadowOf(a.get()).getNextStartedActivityForResult().intent;assertEquals(Intent.ACTION_OPEN_DOCUMENT,i.getAction());assertEquals("audio/*",i.getType());assertNull(Shadows.shadowOf((Application)c).getNextStartedService());
++ }}
++ @Test public void mainSettingsExposesAzanWithoutChangingExistingMenuIndexes(){try(var a=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  a.get().settings();AlertDialog d=ShadowAlertDialog.getLatestAlertDialog();assertEquals("Azan · Lima waktu",d.getListView().getItemAtPosition(8));d.getListView().performItemClick(null,8,8);assertEquals(AzanSettingsActivity.class.getName(),Shadows.shadowOf(a.get()).getNextStartedActivity().getComponent().getClassName());
++ }}
++ @Test public void returningHomeAtBoundaryDoesNotReplaceUndeliveredAlarm()throws Exception{
++  enable();AzanScheduler.reconcile(c,NOON);Intent i=pending();Instant due=Instant.ofEpochMilli(i.getLongExtra("at",0));
++  AzanScheduler.reconcile(c,due.plusSeconds(30));assertEquals(i.getStringExtra("key"),pending().getStringExtra("key"));assertTrue(AzanScheduler.take(c,i,due.plusSeconds(30)));
++ }
++ @Test public void exactlyNinetySecondsIsAcceptedButOnlyOnce()throws Exception{
++  enable();AzanScheduler.reconcile(c,NOON);Intent i=pending();Instant due=Instant.ofEpochMilli(i.getLongExtra("at",0));assertTrue(AzanScheduler.take(c,i,due.plusSeconds(90)));assertFalse(AzanScheduler.take(c,i,due.plusSeconds(90)));
++ }
++ @Test public void clockRollbackDoesNotReplayClaimedPrayer()throws Exception{
++  enable();AzanScheduler.reconcile(c,NOON);Intent i=pending();assertTrue(AzanScheduler.take(c,i,Instant.ofEpochMilli(i.getLongExtra("at",0))));
++  AzanScheduler.reconcile(c,NOON);assertEquals(3,pending().getIntExtra("index",-1));
++ }
++ @Test public void afterIsyakSchedulesTomorrowSubuhFromCache(){
++  Instant after=LocalDateTime.parse("2026-10-25T20:00:00").atZone(PrayerTimes.MALAYSIA).toInstant();
++  AzanScheduler.Event e=AzanScheduler.next(c,after);assertNotNull(e);assertEquals(0,e.index);assertTrue(e.key.contains("2026-10-26"));
++ }
++ @Test public void missingCacheRequestsRecoveryJobWithoutInventingAlarm()throws Exception{
++  enable();AzanScheduler.reconcile(c,Instant.parse("2027-01-01T00:00:00Z"));assertNotNull(c.getSystemService(JobScheduler.class).getPendingJob(AzanScheduler.REFRESH));assertEquals(0,pending().getLongExtra("at",0));
++  AzanScheduler.disable(c);assertNull(c.getSystemService(JobScheduler.class).getPendingJob(AzanScheduler.REFRESH));
++ }
++ @Test public void blockedNotificationChannelPreventsAutomaticAudio()throws Exception{
++  enable();NotificationManager n=c.getSystemService(NotificationManager.class);n.createNotificationChannel(new NotificationChannel(AzanService.CHANNEL,"Azan",NotificationManager.IMPORTANCE_NONE));
++  assertFalse(AzanScheduler.notificationsAllowed(c));AzanScheduler.reconcile(c,NOON);assertEquals(0,pending().getLongExtra("at",0));
++ }
++ @Test public void cacheRemovalInvalidatesAlreadyScheduledAlarm()throws Exception{
++  enable();AzanScheduler.reconcile(c,NOON);Intent i=pending();File file=new File(c.getFilesDir(),"jakim-esolat-v1/SBH07-2026-10.json");assertTrue(file.delete());
++  assertFalse(AzanScheduler.take(c,i,Instant.ofEpochMilli(i.getLongExtra("at",0))));assertEquals(0,pending().getLongExtra("at",0));
++ }
++
++}
+diff --git a/app/src/test/java/com/gathin/tvhome/RainFeatureTest.java b/app/src/test/java/com/gathin/tvhome/RainFeatureTest.java
+index 3be153f..798a571 100644
+--- a/app/src/test/java/com/gathin/tvhome/RainFeatureTest.java
++++ b/app/src/test/java/com/gathin/tvhome/RainFeatureTest.java
+@@ -76,7 +76,7 @@ public class RainFeatureTest {
+   View root=helper.render(c.get(),1280,720);c.get().rain.preview(true);idle(800);helper.capture(root,"rain-preview-720");assertEquals(1280,c.get().rain.view.getWidth());assertEquals(720,c.get().rain.view.getHeight());
+  }}
+  @Test public void settingsEntryIsAddedWithoutReorderingOldItems(){try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
+-  c.get().settings();AlertDialog d=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();assertEquals(8,d.getListView().getCount());assertEquals("Wallpaper",d.getListView().getItemAtPosition(0));assertEquals("Set default Home",d.getListView().getItemAtPosition(6));assertEquals("Rain-on-Glass · Weather",d.getListView().getItemAtPosition(7));
++  c.get().settings();AlertDialog d=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();assertEquals(9,d.getListView().getCount());assertEquals("Azan · Lima waktu",d.getListView().getItemAtPosition(8));assertEquals("Wallpaper",d.getListView().getItemAtPosition(0));assertEquals("Set default Home",d.getListView().getItemAtPosition(6));assertEquals("Rain-on-Glass · Weather",d.getListView().getItemAtPosition(7));
+  }}
+  @Test public void catalogueComesFromOfficialSnapshotAndDefaultIsVerifiedPapar()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
+   try(var in=c.get().getAssets().open("met-malaysia-locations.json")){org.json.JSONArray rows=new org.json.JSONArray(MetWeatherRepository.read(in));assertEquals(440,rows.length());}assertEquals(RainOptions.HOME_ID,new RainOptions(RainOptions.prefs(c.get())).locationId);

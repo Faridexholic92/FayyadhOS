@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.PrayerWeatherUpgradeTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-10-26T22:46:29" hostname="dd1e2106-3ed" time="3.983">
+  <properties/>
+  <testcase name="invalidApiCannotOverwriteTodaysOfflineCache" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.026"/>
+  <testcase name="lightningRequiresOptInThunderAndMotionAndRespectsReducedMotion" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.027"/>
+  <testcase name="timerTargetsExactBoundaryAndMidnight" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.018"/>
+  <testcase name="incompleteMonthCannotReplaceGoodCache" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.028"/>
+  <testcase name="newDefaultsAutoRainButExistingOffAndLightningOptInAreRespected" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.025"/>
+  <testcase name="badgeTransitionsAtExactPrayerAndSunriseBoundaries" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.015"/>
+  <testcase name="cacheRevalidatesAtMalaysiaMidnightNotRolling24Hours" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.019"/>
+  <testcase name="officialCaptureParsesAllThirtyOneDaysAndExactZone" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.02"/>
+  <testcase name="futureClockCacheIsNotFresh" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.016"/>
+  <testcase name="rotatesFiveNotSyurukAndPausesForFocusDialogAndBackground" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.1"/>
+  <testcase name="offlineFailureDoesNotDeleteSavedCache" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.022"/>
+  <testcase name="clearHomeAndStormNativePreviewsAreExplicitFixtures" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="3.599"/>
+  <testcase name="currentBadgeIsIndependentOfRotatingSlotAndMissingDayHasNoOldTime" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.066"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

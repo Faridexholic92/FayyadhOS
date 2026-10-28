@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.JarvisSpeedtestTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-27T10:11:43" hostname="d1c32ed0-28c" time="7.24">
+  <properties/>
+  <testcase name="failureDoesNotPublishSpeed" classname="com.gathin.tvhome.JarvisSpeedtestTest" time="0.126"/>
+  <testcase name="cancelClearsResultAndStaleProgressCannotRestoreSuccess" classname="com.gathin.tvhome.JarvisSpeedtestTest" time="0.291"/>
+  <testcase name="fullFlowWithFixtureProgressResultAndBackRestoresHome" classname="com.gathin.tvhome.JarvisSpeedtestTest" time="6.285"/>
+  <testcase name="speedtest720FitsAndBackCancels" classname="com.gathin.tvhome.JarvisSpeedtestTest" time="0.538"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

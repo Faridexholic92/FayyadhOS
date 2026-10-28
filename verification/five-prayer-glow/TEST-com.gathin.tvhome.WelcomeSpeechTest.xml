@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.WelcomeSpeechTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-10-27T00:51:32" hostname="10d092ef-e1b" time="2.792">
+  <properties/>
+  <testcase name="cancellationStopsSpeechAndShutsDownEngine" classname="com.gathin.tvhome.WelcomeSpeechTest" time="0.08"/>
+  <testcase name="disabledGreetingStaysSilent" classname="com.gathin.tvhome.WelcomeSpeechTest" time="0.029"/>
+  <testcase name="activityRecreationDoesNotRepeatGreeting" classname="com.gathin.tvhome.WelcomeSpeechTest" time="0.036"/>
+  <testcase name="manualReplayWorksWithoutReboot" classname="com.gathin.tvhome.WelcomeSpeechTest" time="0.036"/>
+  <testcase name="rebootMakesGreetingPendingAgain" classname="com.gathin.tvhome.WelcomeSpeechTest" time="0.026"/>
+  <testcase name="sameBootDoesNotGreetAgainWhenReturningFromApps" classname="com.gathin.tvhome.WelcomeSpeechTest" time="0.02"/>
+  <testcase name="failedEngineDoesNotMarkGreetingAsPlayed" classname="com.gathin.tvhome.WelcomeSpeechTest" time="0.132"/>
+  <testcase name="lateInitializationCannotSpeakAfterLeavingHome" classname="com.gathin.tvhome.WelcomeSpeechTest" time="0.02"/>
+  <testcase name="dashboardSchedulesWelcomeAndDoesNotRepeatOnResume" classname="com.gathin.tvhome.WelcomeSpeechTest" time="1.801"/>
+  <testcase name="greetingIsExactlyHelloMasterAndUsesEnglish" classname="com.gathin.tvhome.WelcomeSpeechTest" time="0.016"/>
+  <testcase name="dashboardObservedScreenWakeSchedulesANewWelcome" classname="com.gathin.tvhome.WelcomeSpeechTest" time="0.214"/>
+  <testcase name="dashboardCancelsPendingWelcomeWhenLeavingImmediately" classname="com.gathin.tvhome.WelcomeSpeechTest" time="0.346"/>
+  <testcase name="observedScreenOffAllowsOneWakeGreeting" classname="com.gathin.tvhome.WelcomeSpeechTest" time="0.029"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Intent = Intent { act=android.intent.action.SCREEN_OFF }; Matching wrappers: [Wrapper[receiver=[com.gathin.tvhome.DashboardActivity$1@71846ea], context=[android.app.ContextImpl@744e5304], intentFilter=[android.content.IntentFilter@62631f]]]
+Intent = Intent { act=android.intent.action.SCREEN_ON }; Matching wrappers: [Wrapper[receiver=[com.gathin.tvhome.DashboardActivity$1@71846ea], context=[android.app.ContextImpl@744e5304], intentFilter=[android.content.IntentFilter@62631f]]]
+]]></system-err>
+</testsuite>

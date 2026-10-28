@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.PrayerWeatherUpgradeTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-10-27T13:17:43" hostname="595691c2-ef0" time="3.714">
+  <properties/>
+  <testcase name="invalidApiCannotOverwriteTodaysOfflineCache" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.009"/>
+  <testcase name="fiveTimesDoNotRotateWhenTimePassesOrRemoteArrowsArePressed" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.043"/>
+  <testcase name="lightningRequiresOptInThunderAndMotionAndRespectsReducedMotion" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.013"/>
+  <testcase name="timerTargetsExactBoundaryAndMidnight" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.018"/>
+  <testcase name="incompleteMonthCannotReplaceGoodCache" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.021"/>
+  <testcase name="newDefaultsAutoRainButExistingOffAndLightningOptInAreRespected" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.013"/>
+  <testcase name="badgeTransitionsAtExactPrayerAndSunriseBoundaries" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.02"/>
+  <testcase name="cacheRevalidatesAtMalaysiaMidnightNotRolling24Hours" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.02"/>
+  <testcase name="officialCaptureParsesAllThirtyOneDaysAndExactZone" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.01"/>
+  <testcase name="futureClockCacheIsNotFresh" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.011"/>
+  <testcase name="offlineFailureDoesNotDeleteSavedCache" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.024"/>
+  <testcase name="clearHomeAndStormNativePreviewsAreExplicitFixtures" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="3.448"/>
+  <testcase name="currentNameIsIndependentOfFocusAndMissingDayClearsEveryTime" classname="com.gathin.tvhome.PrayerWeatherUpgradeTest" time="0.052"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

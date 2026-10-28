@@ -1,0 +1,16 @@
+FayyadhOS TV 2.8-master (10) — Reference UI Redesign
+Package: dev.farred.fayyadhos.tv.jarvis (unchanged)
+Native Java / Views / RecyclerView; SDK 26 minimum, SDK 34 target.
+Debug APK assembly: SUCCESS.
+Release source compilation: SUCCESS (not a signed/minified release APK).
+Tests: 137 passed; 0 failures, 0 errors, 0 skipped.
+Lint: 45 errors / 51 warnings, also present in the untouched original source.
+Errors: 44 existing MissingTranslation; 1 ByteOrderMark in unchanged Config.java:192.
+720p/1080p/4K Android-view renders inspected in Robolectric; no attached TV/emulator.
+Screenshots use test-only apps/icons and cached prayer fixtures, not live timetables.
+No prayer zone selected by default; missing current schedule displays --:--.
+New local Kinabalu sunset image; existing wallpaper choice/order/hide/preferences retained.
+DEBUG signer only. Original release signing credentials were not supplied.
+Do not uninstall a working production launcher to install the debug APK.
+See docs/REDESIGN-REPORT.md and verification/redesign/ for current evidence.
+Files directly under verification/ are historical from the original supplied build.

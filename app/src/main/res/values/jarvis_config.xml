@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="jarvis_ai_loading" translatable="false">GroqCloud · requesting network explanation…</string>
+    <string name="jarvis_ai_preparation_error" translatable="false">AI request could not be prepared</string>
+</resources>

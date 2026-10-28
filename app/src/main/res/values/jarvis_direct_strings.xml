@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Current dashboard UI uses fixed English/Malay wording, as existing Jarvis strings do.-->
+    <string name="jarvis_direct_enter_key_first" translatable="false">Enter a key first. The existing saved key has not changed.</string>
+    <string name="jarvis_direct_key_saved" translatable="false">Key saved with Keystore-backed encryption. Choose a model and test the connection.</string>
+    <string name="jarvis_direct_no_saved_key" translatable="false">No API key is saved.</string>
+    <string name="jarvis_direct_key_removed" translatable="false">Saved key removed from this installation.</string>
+    <string name="jarvis_direct_cancelled" translatable="false">Request cancelled.</string>
+    <string name="jarvis_direct_show_key" translatable="false">Show key</string>
+    <string name="jarvis_direct_unsaved_edits" translatable="false">Save or clear the edited key before testing the saved configuration.</string>
+    <string name="jarvis_direct_connection_success" translatable="false">Connection test succeeded for the saved key and model. This does not guarantee future connectivity.</string>
+    <string name="jarvis_direct_choose_chat_model" translatable="false">Select a chat-capable model. Model listing alone does not prove chat access; run Test connection afterward.</string>
+    <string name="jarvis_direct_model_selected" translatable="false">Model selected. Run Test connection to verify chat access.</string>
+    <string name="jarvis_direct_speech_engine_unavailable" translatable="false">Speech engine unavailable · Options</string>
+    <string name="jarvis_direct_network_changed" translatable="false">Network changed · test download again</string>
+    <string name="jarvis_direct_spoken_unavailable" translatable="false">Spoken output unavailable · Options</string>
+    <string name="jarvis_direct_spoken_active" translatable="false">Spoken output · Android TTS (no microphone)</string>
+    <string name="jarvis_direct_download_loading" translatable="false">Measuring download…</string>
+    <string name="jarvis_direct_route_changed" translatable="false">Network changed during test · try again</string>
+    <string name="jarvis_direct_download_failed" translatable="false">Test incomplete · check connection and retry</string>
+    <string name="jarvis_direct_settings_status" translatable="false">API key: %1$s\nModel: %2$s\nLast successful test: %3$s</string>
+    <string name="jarvis_direct_ai_status" translatable="false">Jarvis AI · %1$s\nModel: %2$s\n%3$s</string>
+    <string name="jarvis_direct_network_status" translatable="false">%1$s · %2$s</string>
+    <string name="jarvis_direct_wifi_status" translatable="false">Wi-Fi: %1$s%2$s</string>
+    <string name="jarvis_direct_signal_dbm" translatable="false"> · %1$d dBm</string>
+    <string name="jarvis_direct_link_status" translatable="false">Link: %1$s · %2$s</string>
+    <string name="jarvis_direct_vpn_status" translatable="false">VPN transport: %1$s</string>
+    <string name="jarvis_direct_download_estimate" translatable="false">Estimated download: %1$s Mbps · just measured</string>
+</resources>

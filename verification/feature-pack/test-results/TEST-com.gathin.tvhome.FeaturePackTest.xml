@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.FeaturePackTest" tests="26" skipped="0" failures="0" errors="0" timestamp="2026-10-27T22:39:02" hostname="c123154c-d5c" time="8.235">
+  <properties/>
+  <testcase name="wallpaperDissolvesWithoutBlackFrame" classname="com.gathin.tvhome.FeaturePackTest" time="0.033"/>
+  <testcase name="rejectsNullOrNonNumericTemperature" classname="com.gathin.tvhome.FeaturePackTest" time="0.015"/>
+  <testcase name="rejectsBadUnitsAndIncompleteForecast" classname="com.gathin.tvhome.FeaturePackTest" time="0.01"/>
+  <testcase name="appNavigationDoesNotChangeWeatherWallpaper" classname="com.gathin.tvhome.FeaturePackTest" time="0.17"/>
+  <testcase name="preview1080" classname="com.gathin.tvhome.FeaturePackTest" time="1.267"/>
+  <testcase name="reducedMotionDisablesDissolve" classname="com.gathin.tvhome.FeaturePackTest" time="0.017"/>
+  <testcase name="destroyCancelsQueuedDecodes" classname="com.gathin.tvhome.FeaturePackTest" time="0.016"/>
+  <testcase name="preview4k" classname="com.gathin.tvhome.FeaturePackTest" time="5.01"/>
+  <testcase name="coordinatesAreValidatedAndNotBundled" classname="com.gathin.tvhome.FeaturePackTest" time="0.01"/>
+  <testcase name="preview720" classname="com.gathin.tvhome.FeaturePackTest" time="0.826"/>
+  <testcase name="pauseDrainsPendingWithoutAnimation" classname="com.gathin.tvhome.FeaturePackTest" time="0.019"/>
+  <testcase name="parsesCurrentAndThreeSixHoursWithMYTDayRollover" classname="com.gathin.tvhome.FeaturePackTest" time="0.017"/>
+  <testcase name="wallpaperQueueOnlyDecodesLatestState" classname="com.gathin.tvhome.FeaturePackTest" time="0.012"/>
+  <testcase name="sameWallpaperNeverDecodesAgain" classname="com.gathin.tvhome.FeaturePackTest" time="0.009"/>
+  <testcase name="carouselWrapsFromFirstToLastAndLaunchesRealLastApp" classname="com.gathin.tvhome.FeaturePackTest" time="0.129"/>
+  <testcase name="rejectsOutOfOrderHours" classname="com.gathin.tvhome.FeaturePackTest" time="0.017"/>
+  <testcase name="staleAndFutureCachesAreNotDisplayed" classname="com.gathin.tvhome.FeaturePackTest" time="0.019"/>
+  <testcase name="noDimWithoutOverlayPermission" classname="com.gathin.tvhome.FeaturePackTest" time="0.009"/>
+  <testcase name="virtualRunwayMapsBothDirections" classname="com.gathin.tvhome.FeaturePackTest" time="0.015"/>
+  <testcase name="freshCachedHourlySurvivesOfflineAndIsLabelled" classname="com.gathin.tvhome.FeaturePackTest" time="0.099"/>
+  <testcase name="rejectsOversizedProviderResponse" classname="com.gathin.tvhome.FeaturePackTest" time="0.015"/>
+  <testcase name="parsesRecordedLiveProviderShape" classname="com.gathin.tvhome.FeaturePackTest" time="0.017"/>
+  <testcase name="dimIsNonInteractiveWithOffNotification" classname="com.gathin.tvhome.FeaturePackTest" time="0.066"/>
+  <testcase name="settingsKeepOldIndicesAndAppendOnlyTwoEntries" classname="com.gathin.tvhome.FeaturePackTest" time="0.158"/>
+  <testcase name="unconfiguredHourlyNeverRequestsNetwork" classname="com.gathin.tvhome.FeaturePackTest" time="0.088"/>
+  <testcase name="carouselCenterHasZoomAndEdgeScale" classname="com.gathin.tvhome.FeaturePackTest" time="0.161"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+]]></system-err>
+</testsuite>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Explicit Malay feature labels; not a claim of full app localisation. -->
+    <string name="solat_source_stamp" translatable="false">%1$s · %2$s%3$s · MYT</string>
+    <string name="solat_rotation_syuruk" translatable="false">Syuruk %1$s · %2$d/5 · ◀ ▶</string>
+</resources>

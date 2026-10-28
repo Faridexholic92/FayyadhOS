@@ -1,0 +1,582 @@
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/AzanScheduler.java:34: Warning: Consider using apply() instead; commit writes its data to persistent storage immediately, whereas apply will handle it in the background [ApplySharedPref]
+ static void cancelAlarm(Context c){AlarmManager a=c.getSystemService(AlarmManager.class);PendingIntent p=PendingIntent.getBroadcast(c,REQUEST,intent(c),PendingIntent.FLAG_NO_CREATE|PendingIntent.FLAG_IMMUTABLE);if(p!=null){if(a!=null)a.cancel(p);p.cancel();}AzanStore.prefs(c).edit().remove("pending_key").remove("pending_at").remove("pending_zone").remove("pending_index").commit();}
+                                                                                                                                                                                                                                                                                                                                                                                       ~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/AzanScheduler.java:35: Warning: Consider using apply() instead; commit writes its data to persistent storage immediately, whereas apply will handle it in the background [ApplySharedPref]
+ static synchronized void disable(Context c){AzanStore.prefs(c).edit().putBoolean("enabled",false).commit();cancelAlarm(c);JobScheduler j=c.getSystemService(JobScheduler.class);if(j!=null){j.cancel(JOB);j.cancel(REFRESH);}c.stopService(new Intent(c,AzanService.class));AzanStore.note(c,"Azan automatik dimatikan.");}
+                                                                                                   ~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/AzanScheduler.java:51: Warning: Consider using apply() instead; commit writes its data to persistent storage immediately, whereas apply will handle it in the background [ApplySharedPref]
+  p.edit().putString("pending_key",e.key).putLong("pending_at",e.at).putString("pending_zone",e.zone).putInt("pending_index",e.index).commit();
+                                                                                                                                      ~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/AzanScheduler.java:63: Warning: Consider using apply() instead; commit writes its data to persistent storage immediately, whereas apply will handle it in the background [ApplySharedPref]
+  p.edit().putStringSet("played",played).remove("pending_key").remove("pending_at").remove("pending_zone").remove("pending_index").commit();return true;
+                                                                                                                                   ~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/AzanSettingsActivity.java:24: Warning: Consider using apply() instead; commit writes its data to persistent storage immediately, whereas apply will handle it in the background [ApplySharedPref]
+  new AlertDialog.Builder(this).setTitle("Aktifkan azan lima waktu?").setMessage("Audio anda akan dimainkan secara automatik pada Subuh, Zohor, Asar, Maghrib dan Isyak. Tiada Syuruk. Boleh bertindih dengan movie kerana aplikasi ini tidak meminta aplikasi lain pause. Jadual dikemas kini sekali sehari melalui tugas Android bila rangkaian tersedia. Aktifkan hanya selepas uji bunyi.").setPositiveButton("Aktifkan",(d,w)->{AzanStore.prefs(this).edit().putBoolean("enabled",true).commit();AzanStore.note(this,"Azan automatik diaktifkan oleh pengguna.");AzanScheduler.reconcile(this);update();}).setNegativeButton("Batal",null).show();
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ~~~~~~~~
+
+   Explanation for issues of type "ApplySharedPref":
+   Consider using apply() instead of commit on shared preferences. Whereas
+   commit blocks and writes its data to persistent storage immediately, apply
+   will handle it in the background.
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/MainActivity.java:315: Warning: The id R.id.date has already been looked up in this method; possible cut & paste error? [CutPasteId]
+        TextView clock = findViewById(R.id.clock), amPm = findViewById(R.id.ampm), dateLine = findViewById(R.id.date);
+                                                                                              ~~~~~~~~~~~~~~~~~~~~~~~
+    /vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/MainActivity.java:309: First usage here
+
+   Explanation for issues of type "CutPasteId":
+   This lint check looks for cases where you have cut & pasted calls to
+   findViewById but have forgotten to update the R.id field. It's possible
+   that your code is simply (redundantly) looking up the field repeatedly, but
+   lint cannot distinguish that from a case where you for example want to
+   initialize fields prev and next and you cut & pasted
+   findViewById(R.id.prev) and forgot to update the second initialization to
+   R.id.next.
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/AndroidManifest.xml:51: Warning: Attribute localeConfig is only used in API level 33 and higher (current min is 26) [UnusedAttribute]
+        android:localeConfig="@xml/locales_config">
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/activity_main.xml:33: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+            android:fontVariationSettings="'wght' 300"
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/activity_main.xml:49: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+            android:fontVariationSettings="'wght' 500"
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/activity_main.xml:64: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+            android:fontVariationSettings="'wght' 300"
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/activity_main.xml:113: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+                        android:fontVariationSettings="'wght' 300"
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/activity_main.xml:137: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+                            android:fontVariationSettings="'wght' 500"
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/activity_main.xml:159: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+                                android:fontVariationSettings="'wght' 400"
+                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/activity_main.xml:177: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+                                android:fontVariationSettings="'wght' 400"
+                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/dialog_card_prompt.xml:24: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+        android:fontVariationSettings="'wght' 500"
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/dream_clock.xml:32: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+                android:fontVariationSettings="'wght' 500"
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/dream_clock.xml:44: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+                android:fontVariationSettings="'wght' 500"
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/dream_clock.xml:55: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+            android:fontVariationSettings="'wght' 400"
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/item_app.xml:66: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+        android:fontVariationSettings="'wght' 500"
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/item_card_row.xml:32: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+            android:fontVariationSettings="'wght' 500"
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/item_input.xml:33: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+        android:fontVariationSettings="'wght' 500"
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/popup_cards.xml:23: Warning: Attribute fontVariationSettings is only used in API level 28 and higher (current min is 26) [UnusedAttribute]
+        android:fontVariationSettings="'wght' 500"
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "UnusedAttribute":
+   This check finds attributes set in XML files that were introduced in a
+   version newer than the oldest version targeted by your application (with
+   the minSdkVersion attribute).
+
+   This is not an error; the application will simply ignore the attribute.
+   However, if the attribute is important to the appearance or functionality
+   of your application, you should consider finding an alternative way to
+   achieve the same result with only available attributes, and then you can
+   optionally create a copy of the layout in a layout-vNN folder which will be
+   used on API NN or higher where you can take advantage of the newer
+   attribute.
+
+   Note: This check does not only apply to attributes. For example, some tags
+   can be unused too, such as the new <tag> element in layouts introduced in
+   API 21.
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/AndroidManifest.xml:53: Warning: Should not restrict activity to fixed orientation. This may not be suitable for different form factors, causing the app to be letterboxed. [DiscouragedApi]
+        <activity android:name=".AzanSettingsActivity" android:exported="false" android:screenOrientation="landscape" />
+                                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/AndroidManifest.xml:77: Warning: Should not restrict activity to fixed orientation. This may not be suitable for different form factors, causing the app to be letterboxed. [DiscouragedApi]
+            android:screenOrientation="landscape">
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/AndroidManifest.xml:90: Warning: Should not restrict activity to fixed orientation. This may not be suitable for different form factors, causing the app to be letterboxed. [DiscouragedApi]
+        <activity android:name=".MainActivity" android:exported="false" android:screenOrientation="landscape" />
+                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "DiscouragedApi":
+   Discouraged APIs are allowed and are not deprecated, but they may be unfit
+   for common use (e.g. due to slow performance or subtle behavior).
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:3: Error: "app_name" is not translated in "en" (English) [MissingTranslation]
+    <string name="app_name">FayyadhOS TV Jarvis</string>
+            ~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:4: Error: "inputs" is not translated in "en" (English) [MissingTranslation]
+    <string name="inputs">Inputs</string>
+            ~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:5: Error: "wifi" is not translated in "en" (English) [MissingTranslation]
+    <string name="wifi">Wi-Fi</string>
+            ~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:6: Error: "settings" is not translated in "en" (English) [MissingTranslation]
+    <string name="settings">Settings</string>
+            ~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:7: Error: "choose_input" is not translated in "en" (English) [MissingTranslation]
+    <string name="choose_input">Inputs</string>
+            ~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:8: Error: "connected" is not translated in "en" (English) [MissingTranslation]
+    <string name="connected">Connected</string>
+            ~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:9: Error: "standby" is not translated in "en" (English) [MissingTranslation]
+    <string name="standby">Standby</string>
+            ~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:10: Error: "not_connected" is not translated in "en" (English) [MissingTranslation]
+    <string name="not_connected">No device</string>
+            ~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:11: Error: "live_tv" is not translated in "en" (English) [MissingTranslation]
+    <string name="live_tv">Live TV</string>
+            ~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:12: Error: "no_inputs" is not translated in "en" (English) [MissingTranslation]
+    <string name="no_inputs">No inputs found</string>
+            ~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:13: Error: "ethernet" is not translated in "en" (English) [MissingTranslation]
+    <string name="ethernet">Ethernet</string>
+            ~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:14: Error: "offline" is not translated in "en" (English) [MissingTranslation]
+    <string name="offline">Offline</string>
+            ~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:15: Error: "not_available" is not translated in "en" (English) [MissingTranslation]
+    <string name="not_available">Not available on this TV</string>
+            ~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:16: Error: "cant_open" is not translated in "en" (English) [MissingTranslation]
+    <string name="cant_open">Can\'t open %1$s</string>
+            ~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:17: Error: "date_format" is not translated in "ca" (Catalan) [MissingTranslation]
+    <string name="date_format">d MMM yyyy</string>
+            ~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:18: Error: "dream_name" is not translated in "en" (English) [MissingTranslation]
+    <string name="dream_name">Clock</string>
+            ~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:19: Error: "vpn" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese) [MissingTranslation]
+    <string name="vpn">VPN</string>
+            ~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:20: Error: "vpn_off" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese) [MissingTranslation]
+    <string name="vpn_off">VPN off</string>
+            ~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:21: Error: "home_settings" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese) [MissingTranslation]
+    <string name="home_settings">Default home</string>
+            ~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:22: Error: "home_settings_help" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese) [MissingTranslation]
+    <string name="home_settings_help">Choose a home screen in system settings, then press Home.</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:23: Error: "input_key_service_description" is not translated in "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese) [MissingTranslation]
+    <string name="input_key_service_description">Opens the input switcher when the remote\'s Input button is pressed.</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:24: Error: "home_key_name" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese) [MissingTranslation]
+    <string name="home_key_name">Home button</string>
+            ~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:25: Error: "home_key_description" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese) [MissingTranslation]
+    <string name="home_key_description">Makes the remote\'s Home button open this launcher.</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:26: Error: "card_prompt_title" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_prompt_title">New card from %1$s</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:27: Error: "card_prompt_body" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_prompt_body">%1$s can show a card on your home screen. Keeping it hidden leaves the app\'s normal tile as it is.</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:28: Error: "card_prompt_names" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_prompt_names">The card is named \'%1$s\'. The app is \'%2$s\'.</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:29: Error: "card_prompt_resigned" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_prompt_resigned">%1$s was updated with a different signing key, so your earlier answer no longer applies. Decide again for its card.</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:30: Error: "card_prompt_relabelled" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_prompt_relabelled">%1$s changed the name of its card since you decided. Decide again for it.</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:31: Error: "card_prompt_hint" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_prompt_hint">You can change this later: hold OK on Settings.</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:32: Error: "card_prompt_identity" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_prompt_identity">%1$s, key %2$s</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:33: Error: "card_keep_hidden" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_keep_hidden">Keep hidden</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:34: Error: "card_show" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_show">Show card</string>
+            ~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:35: Error: "card_not_saved" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_not_saved">Couldn\'t save the choice</string>
+            ~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:36: Error: "module_cards" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="module_cards">Module cards</string>
+            ~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:37: Error: "no_module_cards" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="no_module_cards">No module cards installed</string>
+            ~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:38: Error: "card_app_name" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_app_name">App: %1$s</string>
+            ~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:39: Error: "card_state_shown" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_state_shown">Shown</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:40: Error: "card_state_over_limit" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_state_over_limit">Shown, over the limit of 8</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:41: Error: "card_state_hidden" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_state_hidden">Hidden</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:42: Error: "card_state_new" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_state_new">New</string>
+            ~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:43: Error: "card_state_new_key" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_state_new_key">New key</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:44: Error: "card_state_new_label" is not translated in "de" (German), "th" (Thai), "en" (English), "fr" (French), "ca" (Catalan), "es" (Spanish), "zh" (Chinese), "sr" (Serbian) [MissingTranslation]
+    <string name="card_state_new_label">New name</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:45: Error: "tile_move" is not translated in "en" (English) [MissingTranslation]
+    <string name="tile_move">Move</string>
+            ~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:46: Error: "tile_app_info" is not translated in "en" (English) [MissingTranslation]
+    <string name="tile_app_info">App info</string>
+            ~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "MissingTranslation":
+   If an application has more than one locale, then all the strings declared
+   in one language should also be translated in all other languages.
+
+   If the string should not be translated, you can add the attribute
+   translatable="false" on the <string> element, or you can define all your
+   non-translatable strings in a resource file called donottranslate.xml. Or,
+   you can ignore the issue with a tools:ignore="MissingTranslation"
+   attribute.
+
+   You can tell lint (and other tools) which language is the default language
+   in your res/values/ folder by specifying tools:locale="languageCode" for
+   the root <resources> element in your resource file. (The tools prefix
+   refers to the namespace declaration http://schemas.android.com/tools.)
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/AndroidManifest.xml:50: Warning: The attribute android:allowBackup is deprecated from Android 12 and higher and may be removed in future versions. Consider adding the attribute android:dataExtractionRules specifying an @xml resource which configures cloud backups and device transfers on Android 12 and higher. [DataExtractionRules]
+        android:allowBackup="false"
+                             ~~~~~
+
+   Explanation for issues of type "DataExtractionRules":
+   Before Android 12, the attributes android:allowBackup and
+   android:fullBackupContent were used to configure all forms of backup,
+   including cloud backups, device-to-device transfers and adb backup.
+
+   In Android 12 and higher, these attributes have been deprecated and will
+   only apply to cloud backups. You should instead use the attribute
+   android:dataExtractionRules, specifying an @xml resource that configures
+   which files to back up, for cloud backups and for device-to-device
+   transfers, separately. If your minSdkVersion supports older versions,
+   you'll still want to specify an android:fullBackupContent resource if the
+   default behavior is not right for your app.
+
+   https://developer.android.com/about/versions/12/backup-restore#xml-changes
+   https://goo.gle/DataExtractionRules
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/AppAdapter.java:254: Warning: It will always be more efficient to use more specific change events if you can. Rely on notifyDataSetChanged as a last resort. [NotifyDataSetChanged]
+        notifyDataSetChanged();
+        ~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "NotifyDataSetChanged":
+   The RecyclerView adapter's onNotifyDataSetChanged method does not specify
+   what about the data set has changed, forcing any observers to assume that
+   all existing items and structure may no longer be valid. `LayoutManager`s
+   will be forced to fully rebind and relayout all visible views.
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/AzanStore.java:20: Warning: This InputStream should be freed up after use with #close() [Recycle]
+   InputStream raw=c.getContentResolver().openInputStream(uri);if(raw==null)throw new IOException("Fail tidak boleh dibaca.");
+                                          ~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "Recycle":
+   Many resources, such as TypedArrays, VelocityTrackers, etc., should be
+   recycled (with a recycle() call) after use. This lint check looks for
+   missing recycle() calls.
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/drawable/ic_settings.xml:6: Warning: Very long vector path (904 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector. [VectorPath]
+        android:pathData="M19.14,12.94c0.04,-0.3 0.06,-0.61 0.06,-0.94c0,-0.32 -0.02,-0.64 -0.07,-0.94l2.03,-1.58c0.18,-0.14 0.23,-0.41 0.12,-0.61l-1.92,-3.32c-0.12,-0.22 -0.37,-0.29 -0.59,-0.22l-2.39,0.96c-0.5,-0.38 -1.03,-0.7 -1.62,-0.94L14.4,2.81c-0.04,-0.24 -0.24,-0.41 -0.48,-0.41h-3.84c-0.24,0 -0.43,0.17 -0.47,0.41L9.25,5.35C8.66,5.59 8.12,5.92 7.63,6.29L5.24,5.33c-0.22,-0.08 -0.47,0 -0.59,0.22L2.74,8.87C2.62,9.08 2.66,9.34 2.86,9.48l2.03,1.58C4.84,11.36 4.8,11.69 4.8,12s0.02,0.64 0.07,0.94l-2.03,1.58c-0.18,0.14 -0.23,0.41 -0.12,0.61l1.92,3.32c0.12,0.22 0.37,0.29 0.59,0.22l2.39,-0.96c0.5,0.38 1.03,0.7 1.62,0.94l0.36,2.54c0.05,0.24 0.24,0.41 0.48,0.41h3.84c0.24,0 0.44,-0.17 0.47,-0.41l0.36,-2.54c0.59,-0.24 1.13,-0.56 1.62,-0.94l2.39,0.96c0.22,0.08 0.47,0 0.59,-0.22l1.92,-3.32c0.12,-0.22 0.07,-0.47 -0.12,-0.61L19.14,12.94zM12,15.6c-1.98,0 -3.6,-1.62 -3.6,-3.6s1.62,-3.6 3.6,-3.6s3.6,1.62 3.6,3.6S13.98,15.6 12,15.6z" />
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "VectorPath":
+   Using long vector paths is bad for performance. There are several ways to
+   make the pathData shorter:
+   * Using less precision
+   * Removing some minor details
+   * Using the Android Studio vector conversion tool
+   * Rasterizing the image (converting to PNG)
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/activity_main.xml:6: Warning: Possible overdraw: Root element paints background #FF000000 with a theme that also paints a background (inferred theme is @style/Theme.TvHome) [Overdraw]
+    android:background="#FF000000">
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/dream_clock.xml:8: Warning: Possible overdraw: Root element paints background #FF1F1F22 with a theme that also paints a background (inferred theme is @style/Theme.TvHome) [Overdraw]
+    android:background="#FF1F1F22">
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "Overdraw":
+   If you set a background drawable on a root view, then you should use a
+   custom theme where the theme background is null. Otherwise, the theme
+   background will be painted first, only to have your custom background
+   completely cover it; this is called "overdraw".
+
+   NOTE: This detector relies on figuring out which layouts are associated
+   with which activities based on scanning the Java code, and it's currently
+   doing that using an inexact pattern matching algorithm. Therefore, it can
+   incorrectly conclude which activity the layout is associated with and then
+   wrongly complain that a background-theme is hidden.
+
+   If you want your custom background on multiple pages, then you should
+   consider making a custom theme with your custom background and just using
+   that theme instead of a root element background.
+
+   Of course it's possible that your custom drawable is translucent and you
+   want it to be mixed with the background. However, you will get better
+   performance if you pre-mix the background with your drawable and use that
+   resulting image or color as a custom theme background instead.
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/dashboard_strings.xml:4: Warning: The resource R.string.dashboard_prayer_title appears to be unused [UnusedResources]
+    <string name="dashboard_prayer_title" translatable="false">PRAYER TIMES</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/jarvis_direct_strings.xml:14: Warning: The resource R.string.jarvis_direct_speech_engine_unavailable appears to be unused [UnusedResources]
+    <string name="jarvis_direct_speech_engine_unavailable" translatable="false">Speech engine unavailable · Options</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/jarvis_direct_strings.xml:16: Warning: The resource R.string.jarvis_direct_spoken_unavailable appears to be unused [UnusedResources]
+    <string name="jarvis_direct_spoken_unavailable" translatable="false">Spoken output unavailable · Options</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/jarvis_direct_strings.xml:17: Warning: The resource R.string.jarvis_direct_spoken_active appears to be unused [UnusedResources]
+    <string name="jarvis_direct_spoken_active" translatable="false">Spoken output · Android TTS (no microphone)</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/jarvis_direct_strings.xml:18: Warning: The resource R.string.jarvis_direct_download_loading appears to be unused [UnusedResources]
+    <string name="jarvis_direct_download_loading" translatable="false">Measuring download…</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/drawable/pill_text_dim.xml:2: Warning: The resource R.drawable.pill_text_dim appears to be unused [UnusedResources]
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+^
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/rain_strings.xml:20: Warning: The resource R.string.rain_choose_location appears to be unused [UnusedResources]
+    <string name="rain_choose_location" translatable="false">MET Malaysia · Choose location type</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/rain_strings.xml:21: Warning: The resource R.string.rain_location_explanation appears to be unused [UnusedResources]
+    <string name="rain_location_explanation" translatable="false">Choose an explicit MET location. The wallpaper and prayer zone do not select a weather location. No GPS permission is used. The bundled location catalogue was retrieved from data.gov.my on 24 Oct 2026.</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/rain_strings.xml:24: Warning: The resource R.string.rain_about_locations appears to be unused [UnusedResources]
+    <string name="rain_about_locations" translatable="false">About locations</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/rain_strings.xml:25: Warning: The resource R.string.rain_catalogue_error appears to be unused [UnusedResources]
+    <string name="rain_catalogue_error" translatable="false">The bundled MET location catalogue is unavailable.</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/rain_strings.xml:28: Warning: The resource R.array.rain_location_categories appears to be unused [UnusedResources]
+    <string-array name="rain_location_categories" translatable="false"><item>State</item><item>District</item><item>Town</item><item>Division</item><item>Recreation centre</item></string-array>
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/solat_weather_strings.xml:5: Warning: The resource R.string.solat_rotation_syuruk appears to be unused [UnusedResources]
+    <string name="solat_rotation_syuruk" translatable="false">Syuruk %1$s · %2$d/5 · ◀ ▶</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/values/strings.xml:9: Warning: The resource R.string.standby appears to be unused [UnusedResources]
+    <string name="standby">Standby</string>
+            ~~~~~~~~~~~~~~
+
+   Explanation for issues of type "UnusedResources":
+   Unused resources make applications larger and slow down builds.
+
+
+   The unused resource check can ignore tests. If you want to include
+   resources that are only referenced from tests, consider packaging them in a
+   test source set instead.
+
+   You can include test sources in the unused resource check by setting the
+   system property lint.unused-resources.include-tests =true, and to exclude
+   them (usually for performance reasons), use
+   lint.unused-resources.exclude-tests =true.
+   ,
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/activity_main.xml:97: Warning: This LinearLayout layout or its LinearLayout parent is unnecessary [UselessParent]
+                <LinearLayout
+                 ~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/dream_clock.xml:10: Warning: This LinearLayout layout or its FrameLayout parent is possibly unnecessary; transfer the background attribute to the other view [UselessParent]
+    <LinearLayout
+     ~~~~~~~~~~~~
+
+   Explanation for issues of type "UselessParent":
+   A layout with children that has no siblings, is not a scrollview or a root
+   layout, and does not have a background, can be removed and have its
+   children moved directly into the parent for a flatter and more efficient
+   layout hierarchy.
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/mipmap-xhdpi/ic_launcher.jpg: Warning: Launcher icons should not fill every pixel of their square region; see the design guide for details [IconLauncherShape]
+
+   Explanation for issues of type "IconLauncherShape":
+   According to the Android Design Guide
+   (https://d.android.com/r/studio-ui/designer/material/iconography) your
+   launcher icons should "use a distinct silhouette", a "three-dimensional,
+   front view, with a slight perspective as if viewed from above, so that
+   users perceive some depth."
+
+   The unique silhouette implies that your launcher icon should not be a
+   filled square.
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/item_card_row.xml:76: Warning: Avoid using sizes smaller than 11sp: 10sp [SmallSp]
+        android:textSize="10sp"
+        ~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "SmallSp":
+   Avoid using sizes smaller than 11sp.
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/Glider.java:29: Warning: Custom view Glider is missing constructor used by tools: (Context) or (Context,AttributeSet) or (Context,AttributeSet,int) [ViewConstructor]
+final class Glider extends View {
+            ~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/PrayerPanel.java:25: Warning: Custom view PrayerPanel is missing constructor used by tools: (Context) or (Context,AttributeSet) or (Context,AttributeSet,int) [ViewConstructor]
+final class PrayerPanel extends LinearLayout {
+            ~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/WeatherWidget.java:11: Warning: Custom view WeatherWidget is missing constructor used by tools: (Context) or (Context,AttributeSet) or (Context,AttributeSet,int) [ViewConstructor]
+final class WeatherWidget extends LinearLayout {
+            ~~~~~~~~~~~~~
+
+   Explanation for issues of type "ViewConstructor":
+   Some layout tools (such as the Android layout editor) need to find a
+   constructor with one of the following signatures:
+   * View(Context context)
+   * View(Context context, AttributeSet attrs)
+   * View(Context context, AttributeSet attrs, int defStyle)
+
+   If your custom view needs to perform initialization which does not apply
+   when used in a layout editor, you can surround the given code with a check
+   to see if View#isInEditMode() is false, since that method will return false
+   at runtime but true within a user interface editor.
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/Config.java:192: Error: Found byte-order-mark in the middle of a file [ByteOrderMark]
+            if (text.startsWith("﻿")) text = text.substring(1);   // Windows editors add a BOM
+                                 ~
+
+   Explanation for issues of type "ByteOrderMark":
+   Lint will flag any byte-order-mark (BOM) characters it finds in the middle
+   of a file. Since we expect files to be encoded with UTF-8 (see the
+   EnforceUTF8 issue), the BOM characters are not necessary, and they are not
+   handled correctly by all tools. For example, if you have a BOM as part of a
+   resource name in one particular translation, that name will not be
+   considered identical to the base resource's name and the translation will
+   not be used.
+
+   https://en.wikipedia.org/wiki/Byte_order_mark
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/AzanSettingsActivity.java:21: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+  status.setText("Automatik: "+(AzanStore.enabled(this)?"ON":"OFF")+" · Zon: "+(AzanScheduler.zone(this).isEmpty()?"Belum dipilih":AzanScheduler.zone(this))+"\nAudio umum: "+(AzanStore.present(AzanStore.named(this,false))?"Tersimpan — uji bunyi dahulu":"Belum dipilih")+"\nAudio Subuh: "+(AzanStore.present(AzanStore.named(this,true))?"Audio berasingan":"Guna audio umum")+"\nSeterusnya: "+next+"\n"+prefs.getString("status","")+"\n\nTiada audio azan dibekalkan. Pilih rakaman yang anda berhak guna. Azan dimainkan mengikut jadual JAKIM tersimpan, termasuk ketika Home tidak terbuka jika Android membenarkan. Tiada arahan pause atau permintaan audio focus dihantar kepada aplikasi lain; audio boleh bertindih. Guna volume media TV sedia ada. Firmware mungkin berbeza. Tiada jaminan ketika TV dimatikan sepenuhnya / aplikasi force-stop.");
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/AzanSettingsActivity.java:21: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+  status.setText("Automatik: "+(AzanStore.enabled(this)?"ON":"OFF")+" · Zon: "+(AzanScheduler.zone(this).isEmpty()?"Belum dipilih":AzanScheduler.zone(this))+"\nAudio umum: "+(AzanStore.present(AzanStore.named(this,false))?"Tersimpan — uji bunyi dahulu":"Belum dipilih")+"\nAudio Subuh: "+(AzanStore.present(AzanStore.named(this,true))?"Audio berasingan":"Guna audio umum")+"\nSeterusnya: "+next+"\n"+prefs.getString("status","")+"\n\nTiada audio azan dibekalkan. Pilih rakaman yang anda berhak guna. Azan dimainkan mengikut jadual JAKIM tersimpan, termasuk ketika Home tidak terbuka jika Android membenarkan. Tiada arahan pause atau permintaan audio focus dihantar kepada aplikasi lain; audio boleh bertindih. Guna volume media TV sedia ada. Firmware mungkin berbeza. Tiada jaminan ketika TV dimatikan sepenuhnya / aplikasi force-stop.");
+                 ~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/AzanSettingsActivity.java:21: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+  status.setText("Automatik: "+(AzanStore.enabled(this)?"ON":"OFF")+" · Zon: "+(AzanScheduler.zone(this).isEmpty()?"Belum dipilih":AzanScheduler.zone(this))+"\nAudio umum: "+(AzanStore.present(AzanStore.named(this,false))?"Tersimpan — uji bunyi dahulu":"Belum dipilih")+"\nAudio Subuh: "+(AzanStore.present(AzanStore.named(this,true))?"Audio berasingan":"Guna audio umum")+"\nSeterusnya: "+next+"\n"+prefs.getString("status","")+"\n\nTiada audio azan dibekalkan. Pilih rakaman yang anda berhak guna. Azan dimainkan mengikut jadual JAKIM tersimpan, termasuk ketika Home tidak terbuka jika Android membenarkan. Tiada arahan pause atau permintaan audio focus dihantar kepada aplikasi lain; audio boleh bertindih. Guna volume media TV sedia ada. Firmware mungkin berbeza. Tiada jaminan ketika TV dimatikan sepenuhnya / aplikasi force-stop.");
+                                                                    ~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/AzanSettingsActivity.java:28: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+  Uri uri=data.getData();status.setText("Mengimport audio ke storan dalaman aplikasi…");
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/JarvisPanel.java:75: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+  if(testing&&!testRoute.equals(snapshot.networkKey)){cancelTest();testState.setText("Rangkaian berubah. Sila uji semula.");speed.setText(R.string.jarvis_direct_route_changed);}
+                                                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/JarvisPanel.java:107: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+  testState.setText("Ujian dibatalkan");testValue.setText("—\nMbps");speed.setText("Speedtest dibatalkan; tiada keputusan baharu.");finishTestUi();
+                    ~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/JarvisPanel.java:107: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+  testState.setText("Ujian dibatalkan");testValue.setText("—\nMbps");speed.setText("Speedtest dibatalkan; tiada keputusan baharu.");finishTestUi();
+                                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/JarvisPanel.java:109: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+ private void finishTestUi(){testStart.setEnabled(true);testStart.setText("Mula Speedtest");testCancel.setEnabled(false);speedButton.setEnabled(true);aiButton.setEnabled(true);if(speedBox.getVisibility()==View.VISIBLE)testStart.requestFocus();}
+                                                                          ~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/JarvisPanel.java:113: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+  testState.setText("Sedang menguji…");testValue.setText("—\nMbps");testUsage.setText("0 / 100 MiB");testMeter.progress=0;testMeter.invalidate();testStart.setText("Sedang menguji…");testStart.setEnabled(false);testCancel.setEnabled(true);testCancel.requestFocus();speedButton.setEnabled(false);aiButton.setEnabled(false);speed.setText("Measuring download…");
+                    ~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/JarvisPanel.java:113: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+  testState.setText("Sedang menguji…");testValue.setText("—\nMbps");testUsage.setText("0 / 100 MiB");testMeter.progress=0;testMeter.invalidate();testStart.setText("Sedang menguji…");testStart.setEnabled(false);testCancel.setEnabled(true);testCancel.requestFocus();speedButton.setEnabled(false);aiButton.setEnabled(false);speed.setText("Measuring download…");
+                                                                                      ~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/JarvisPanel.java:113: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+  testState.setText("Sedang menguji…");testValue.setText("—\nMbps");testUsage.setText("0 / 100 MiB");testMeter.progress=0;testMeter.invalidate();testStart.setText("Sedang menguji…");testStart.setEnabled(false);testCancel.setEnabled(true);testCancel.requestFocus();speedButton.setEnabled(false);aiButton.setEnabled(false);speed.setText("Measuring download…");
+                                                                                                                                                                   ~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/JarvisPanel.java:113: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+  testState.setText("Sedang menguji…");testValue.setText("—\nMbps");testUsage.setText("0 / 100 MiB");testMeter.progress=0;testMeter.invalidate();testStart.setText("Sedang menguji…");testStart.setEnabled(false);testCancel.setEnabled(true);testCancel.requestFocus();speedButton.setEnabled(false);aiButton.setEnabled(false);speed.setText("Measuring download…");
+                                                                                                                                                                                                                                                                                                                                               ~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/JarvisPanel.java:120: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+    if(!route.equals(snapshot.networkKey)){testState.setText("Rangkaian berubah. Sila uji semula.");testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_route_changed);return;}
+                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/JarvisPanel.java:122: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+    testBytes=SpeedProbe.LIMIT;testUsage.setText("100 / 100 MiB");testMeter.progress=1;testMeter.invalidate();testState.setText("Selesai · Anggaran download");testValue.setText(String.format(Locale.ENGLISH,"%.1f\nMbps",result));speed.setText(activity.getString(R.string.jarvis_direct_download_estimate,String.format(Locale.ENGLISH,"%.1f",result)));
+                                                 ~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/JarvisPanel.java:122: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+    testBytes=SpeedProbe.LIMIT;testUsage.setText("100 / 100 MiB");testMeter.progress=1;testMeter.invalidate();testState.setText("Selesai · Anggaran download");testValue.setText(String.format(Locale.ENGLISH,"%.1f\nMbps",result));speed.setText(activity.getString(R.string.jarvis_direct_download_estimate,String.format(Locale.ENGLISH,"%.1f",result)));
+                                                                                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/JarvisPanel.java:123: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+   });}catch(Exception e){handler.post(()->{if(closed||generation!=testGeneration)return;testing=false;measuredDownload=null;testState.setText("Ujian gagal / tamat masa. Cuba semula.");testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_download_failed);finishTestUi();});}
+                                                                                                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/PrayerPanel.java:76: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        TextView source=text(9,MUTED); source.setText("e-Solat JAKIM");
+                                                      ~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/PrayerPanel.java:264: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        if(zone.isEmpty()) { subtitle.setText("Press OK to select your state and zone. No location is selected automatically."); return; }
+                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/PrayerPanel.java:266: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+            if(!NetworkFocus.automaticPrayer(activity) && !busy) { subtitle.setText("Focus mode · No schedule for today. Refresh from prayer options."); return; }
+                                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/PrayerPanel.java:283: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+        subtitle.setText(line+status+(!NetworkFocus.automaticPrayer(activity)?" · Focus: manual refresh":"")+" · MYT (UTC+8)");
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/PrayerPanel.java:283: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        subtitle.setText(line+status+(!NetworkFocus.automaticPrayer(activity)?" · Focus: manual refresh":"")+" · MYT (UTC+8)");
+                                                                                                             ~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "SetTextI18n":
+   When calling TextView#setText
+   * Never call Number#toString() to format numbers; it will not handle
+   fraction separators and locale-specific digits properly. Consider using
+   String#format with proper format specifications (%d or %f) instead.
+   * Do not pass a string literal (e.g. "Hello") to display text. Hardcoded
+   text can not be properly translated to other languages. Consider using
+   Android resource strings instead.
+   * Do not build messages by concatenating text chunks. Such messages can not
+   be properly translated.
+
+   https://developer.android.com/guide/topics/resources/localization.html
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/java/com/gathin/tvhome/JarvisPanel.java:61: Warning: Use "Gravity.END" instead of "Gravity.RIGHT" to ensure correct behavior in right-to-left locales [RtlHardcoded]
+   WindowManager.LayoutParams p=window.getAttributes();p.gravity=Gravity.RIGHT|Gravity.TOP;p.x=dp(10);p.y=margin;window.setAttributes(p);}
+                                                                         ~~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/activity_main.xml:151: Warning: Use "start" instead of "left" to ensure correct behavior in right-to-left locales [RtlHardcoded]
+                                android:gravity="left"
+                                                 ~~~~
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/res/layout/activity_main.xml:166: Warning: Use "start" instead of "left" to ensure correct behavior in right-to-left locales [RtlHardcoded]
+                                android:gravity="left"
+                                                 ~~~~
+
+   Explanation for issues of type "RtlHardcoded":
+   Using Gravity#LEFT and Gravity#RIGHT can lead to problems when a layout is
+   rendered in locales where text flows from right to left. Use Gravity#START
+   and Gravity#END instead. Similarly, in XML gravity and layout_gravity
+   attributes, use start rather than left.
+
+   For XML attributes such as paddingLeft and layout_marginLeft, use
+   paddingStart and layout_marginStart. NOTE: If your minSdkVersion is less
+   than 17, you should add both the older left/right attributes as well as the
+   new start/end attributes. On older platforms, where RTL is not supported
+   and the start/end attributes are unknown and therefore ignored, you need
+   the older left/right attributes. There is a separate lint check which
+   catches that type of error.
+
+   (Note: For Gravity#LEFT and Gravity#START, you can use these constants even
+   when targeting older platforms, because the start bitmask is a superset of
+   the left bitmask. Therefore, you can use gravity="start" rather than
+   gravity="left|start".)
+
+/vercel/sandbox/data/project/FayyadhOS-TV-Solat-Weather/app/src/main/AndroidManifest.xml: Warning: The project references RTL attributes, but does not explicitly enable or disable RTL support with android:supportsRtl in the manifest [RtlEnabled]
+
+   Explanation for issues of type "RtlEnabled":
+   To enable right-to-left support, when running on API 17 and higher, you
+   must set the android:supportsRtl attribute in the manifest <application>
+   element.
+
+   If you have started adding RTL attributes, but have not yet finished the
+   migration, you can set the attribute to false to satisfy this lint check.
+
+45 errors, 76 warnings

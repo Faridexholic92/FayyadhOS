@@ -1,0 +1,40 @@
+{
+  "version": "2.9.0-feature-pack",
+  "versionCode": 13,
+  "applicationId": "dev.farred.fayyadhos.tv.jarvis.fix",
+  "baseline": "User-supplied FayyadhOS-TV-Fix-2.8.1-source.zip",
+  "build": "clean :app:assembleDebug :app:testDebugUnitTest \u2014 BUILD SUCCESSFUL",
+  "tests": {
+    "tests": 334,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "passed": 333,
+  "skipped_tests": [
+    "com.gathin.tvhome.MetLiveVerificationTest.liveRepositoryParsesPaparCachesAndDisplaysKinarut"
+  ],
+  "dex": {
+    "application_class_definitions": 373,
+    "manifest_components": 13,
+    "missing": 0
+  },
+  "apk_sha256": "a4e7da537043858b5b5d853ebb24b0079546e6dfbe3f5f9a7fc631c5257d1238",
+  "signing": "Debug; v2 verified; NOT the original release certificate",
+  "lint": {
+    "errors": 45,
+    "warnings": 82,
+    "error_types": {
+      "MissingTranslation": 44,
+      "ByteOrderMark": 1
+    },
+    "error_bearing_files_byte_identical_to_baseline": true,
+    "clean": false
+  },
+  "provider_smoke": "HTTPS Open-Meteo, public synthetic coordinates 0,0; current + hourly JSON units/shape verified and saved as test fixture only",
+  "ui": "Native Robolectric fixture captures at 720p/1080p/4K, visually inspected; not physical-device screenshots",
+  "physical_tv_tested": false,
+  "emulator_tested_this_delivery": false,
+  "production_release_built": false,
+  "github_push_performed": false
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.WeatherLayoutTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-27T10:12:12" hostname="d1c32ed0-28c" time="11.587">
+  <properties/>
+  <testcase name="invalidStaleFutureWrongLocationAndUnknownRestoreManual" classname="com.gathin.tvhome.WeatherLayoutTest" time="0.224"/>
+  <testcase name="geometry1080" classname="com.gathin.tvhome.WeatherLayoutTest" time="1.171"/>
+  <testcase name="manualSelectionDisablesAutoAndReenableUsesLatestState" classname="com.gathin.tvhome.WeatherLayoutTest" time="0.126"/>
+  <testcase name="dailySummaryNeverDrivesScene" classname="com.gathin.tvhome.WeatherLayoutTest" time="0.074"/>
+  <testcase name="geometry4k" classname="com.gathin.tvhome.WeatherLayoutTest" time="4.642"/>
+  <testcase name="realControllerChangesAllFourScenesAndCaptures" classname="com.gathin.tvhome.WeatherLayoutTest" time="4.685"/>
+  <testcase name="unchangedStateReusesBitmapAndPreviewDoesNotInventWeather" classname="com.gathin.tvhome.WeatherLayoutTest" time="0.079"/>
+  <testcase name="geometry720" classname="com.gathin.tvhome.WeatherLayoutTest" time="0.586"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+]]></system-err>
+</testsuite>

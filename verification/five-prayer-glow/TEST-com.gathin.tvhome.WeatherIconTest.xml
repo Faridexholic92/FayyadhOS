@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.WeatherIconTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-27T00:51:20" hostname="10d092ef-e1b" time="2.28">
+  <properties/>
+  <testcase name="expiredOrMissingForecastUsesNeutralIconAndUnchangedUpdateDoesNotReload" classname="com.gathin.tvhome.WeatherIconTest" time="0.166"/>
+  <testcase name="actualWidgetFollowsParsedConditionWithoutChangingGeometryOrText" classname="com.gathin.tvhome.WeatherIconTest" time="1.774"/>
+  <testcase name="existingForecastStatesAndExplicitLightRainSelectCorrectIcons" classname="com.gathin.tvhome.WeatherIconTest" time="0.012"/>
+  <testcase name="allNativeVectorsHaveTransparentCornersAndExpectedWeatherMarks" classname="com.gathin.tvhome.WeatherIconTest" time="0.146"/>
+  <testcase name="vectorsAlsoLoadOnMinimumSdk" classname="com.gathin.tvhome.WeatherIconTest" time="0.168"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

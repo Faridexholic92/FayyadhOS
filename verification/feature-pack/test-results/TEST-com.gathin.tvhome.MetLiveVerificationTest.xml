@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.MetLiveVerificationTest" tests="1" skipped="1" failures="0" errors="0" timestamp="2026-10-27T22:40:42" hostname="c123154c-d5c" time="0.017">
+  <properties/>
+  <testcase name="liveRepositoryParsesPaparCachesAndDisplaysKinarut" classname="com.gathin.tvhome.MetLiveVerificationTest" time="0.017">
+    <skipped/>
+  </testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,22 @@
+Live responses downloaded from https://api.waktusolat.app/v2/solat/{zone}?year=2026&month=10 during this development session (2026-10-24). Used offline by tests; not a user zone selection. No independent upstream cross-check.
+
+met-sabah-2026-10-25.json:
+Retrieved via HTTPS on 2026-10-25 from:
+https://api.data.gov.my/weather/forecast?filter=St502%40location__location_id&sort=date&limit=14
+7 actual MET Malaysia / data.gov.my daily forecast rows for Sabah (St502).
+min_temp/max_temp are DAILY forecast extrema, not instantaneous observations.
+Documentation: https://developer.data.gov.my/realtime-api/weather
+CC BY 4.0. Test-only recorded data; not used as a production fallback.
+
+met-papar-Ds548-2026-10-25.json and met-papar-Ds548-projected-2026-10-25.json:
+Retrieved 2026-10-25T01:57Z via HTTPS. Both followed the slashless endpoint's HTTP 301 redirect and finally returned HTTP 200, application/json, 7 rows,
+all location_id Ds548 / location_name Papar. Default request:
+https://api.data.gov.my/weather/forecast?filter=Ds548%40location__location_id&sort=date&limit=14
+Projected comparison appends include=location,date,morning_forecast,afternoon_forecast,night_forecast,min_temp,max_temp
+before sort/limit. The include response preserved the nested location object; default also supplies daily summaries.
+MET Malaysia / data.gov.my CC BY 4.0. District forecast, not a Kinarut observation.
+Request headers/metadata retained under verification/kinarut/ in the delivered source.
+
+Canonical production URL verified directly without following redirects:
+https://api.data.gov.my/weather/forecast/?filter=Ds548%40location__location_id&sort=date&limit=14
+Direct HTTP 200 / application/json / 7 Papar records. Original slashless URL: HTTP 301 / text/html.

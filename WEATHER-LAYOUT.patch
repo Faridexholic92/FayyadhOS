@@ -1,0 +1,167 @@
+--- a/app/src/main/java/com/gathin/tvhome/DashboardActivity.java
++++ b/app/src/main/java/com/gathin/tvhome/DashboardActivity.java
+@@ -16,6 +16,8 @@
+ /** Responsive remote-first glass home. Real installed apps only; no placeholder shortcuts. */
+ public class DashboardActivity extends Activity {
+  private final Handler handler=new Handler(Looper.getMainLooper());
++ private WeatherForecast.State wallpaperState=WeatherForecast.State.UNKNOWN;
++ private String wallpaperKey="";
+  private ImageView wallpaper;private TextView clock,date,greeting;private RecyclerView grid;
+  private PrayerPanel prayer;private DashboardApps catalog;private List<ResolveInfo> apps=new ArrayList<>();
+  private String moving,focusKey,lastFocusedKey;private boolean swallowOK;private float scale=1;
+@@ -74,8 +76,8 @@
+   TextView caption=text("Your entertainment, all in one place.",18,GlassUi.WHITE);LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);
+   grid=new RecyclerView(this);grid.setId(R.id.grid);grid.setClipToPadding(false);grid.setPadding(d(3),d(6),d(3),d(6));
+   grid.setLayoutManager(new LinearLayoutManager(this,RecyclerView.HORIZONTAL,false));grid.setItemAnimator(null);
+-  grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,40,258,778,112);
+-  empty=text("No visible apps. Open Settings to unhide apps or install TV apps.",16,GlassUi.WHITE);empty.setGravity(Gravity.CENTER_VERTICAL);place(body,empty,46,264,770,96);
++  grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,40,400,880,112);
++  empty=text("No visible apps. Open Settings to unhide apps or install TV apps.",16,GlassUi.WHITE);empty.setGravity(Gravity.CENTER_VERTICAL);place(body,empty,46,406,868,96);
+   prayer=new PrayerPanel(this);prayer.dashboardScale(scale);place(body,prayer,40,84,390,40);
+   prayer.setNextFocusUpId(R.id.btnWifi);prayer.setNextFocusDownId(R.id.grid);
+   net.setNextFocusDownId(R.id.prayerPanel);settings.setNextFocusDownId(R.id.prayerPanel);
+@@ -87,8 +89,8 @@
+    if(key==KeyEvent.KEYCODE_DPAD_DOWN){if(apps.isEmpty())settings.requestFocus();else focusApp(lastFocusedKey!=null?lastFocusedKey:DashboardApps.key(apps.get(0)));return true;}
+    if(key==KeyEvent.KEYCODE_DPAD_LEFT||key==KeyEvent.KEYCODE_DPAD_RIGHT)return prayer.cycle(key==KeyEvent.KEYCODE_DPAD_LEFT?-1:1);return false;});
+   // Structural layout only: no weather surface/background, focus target or click handler.
+-  // Weather occupies the band from header bottom (28+62) to greeting top (128).
+-   WeatherWidget weather=new WeatherWidget(this,scale);place(body,weather,490,90,230,38);
++  // Weather sits below the top-right actions, outside the centered clock.
++   WeatherWidget weather=new WeatherWidget(this,scale);place(body,weather,690,96,230,38);
+   rain=new RainController(this,root);rain.attachWeather(weather);
+   reload();updateClock();
+   if(!apps.isEmpty()){focusKey=DashboardApps.key(apps.get(0));grid.post(()->focusApp(focusKey));}else settings.requestFocus();
+@@ -104,9 +106,26 @@
+ 
+  private TextView button(String label,Runnable click){TextView t=text(label,13,GlassUi.WHITE);t.setGravity(Gravity.CENTER);t.setSingleLine(true);GlassUi.focusShortcut(t);t.setOnClickListener(v->click.run());return t;}
+  void updateClock(){LocalDateTime now=LocalDateTime.now();clock.setText(now.format(DateTimeFormatter.ofLocalizedTime(java.time.format.FormatStyle.SHORT).withLocale(Locale.getDefault())));date.setText(now.format(DateTimeFormatter.ofPattern("EEEE, d MMM yyyy",Locale.getDefault())));greeting.setText(greeting(now.getHour()));}
+- private void loadWallpaper(){String selected=getSharedPreferences("fayyadh-wallpaper",0).getString("selected",FayyadhWallpapers.DEFAULT);File file=FayyadhWallpapers.file(this,selected);if(file.isFile())wallpaper.setImageBitmap(BitmapFactory.decodeFile(file.getPath()));}
++ boolean automaticWallpaper(){return getSharedPreferences("fayyadh-wallpaper",0).getBoolean("automatic_weather",true);}
++ void weatherWallpaper(WeatherForecast.State state){wallpaperState=state;loadWallpaper();}
++ void setAutomaticWallpaper(boolean enabled){getSharedPreferences("fayyadh-wallpaper",0).edit().putBoolean("automatic_weather",enabled).apply();loadWallpaper();}
++ String currentWallpaperKey(){return wallpaperKey;}
++ private void loadWallpaper(){
++  String scene=automaticWallpaper()?WeatherWallpapers.asset(wallpaperState):null;
++  String selected=getSharedPreferences("fayyadh-wallpaper",0).getString("selected",FayyadhWallpapers.DEFAULT);
++  if(!FayyadhWallpapers.contains(selected))selected=FayyadhWallpapers.DEFAULT;
++  String key=scene!=null?scene:"manual:"+selected;if(key.equals(wallpaperKey))return;
++  Bitmap bitmap=null;
++  if(scene!=null)try(java.io.InputStream in=getAssets().open(scene)){bitmap=BitmapFactory.decodeStream(in);}catch(java.io.IOException ignored){}
++  if(bitmap==null){File file=FayyadhWallpapers.file(this,selected);if(file.isFile())bitmap=BitmapFactory.decodeFile(file.getPath());key="manual:"+selected;}
++  if(bitmap!=null){wallpaper.setImageBitmap(bitmap);wallpaperKey=key;}
++ }
+  void wallpapers(){String selected=getSharedPreferences("fayyadh-wallpaper",0).getString("selected",FayyadhWallpapers.DEFAULT);
+-  show(new AlertDialog.Builder(this).setTitle("FayyadhOS wallpapers").setSingleChoiceItems(FayyadhWallpapers.NAMES,Arrays.asList(FayyadhWallpapers.FILES).indexOf(selected),(d,i)->{getSharedPreferences("fayyadh-wallpaper",0).edit().putString("selected",FayyadhWallpapers.FILES[i]).apply();loadWallpaper();d.dismiss();}).setNegativeButton("Close",null));}
++  show(new AlertDialog.Builder(this).setTitle("Wallpaper · Ikut cuaca: "+(automaticWallpaper()?"ON":"OFF"))
++   .setSingleChoiceItems(FayyadhWallpapers.NAMES,Arrays.asList(FayyadhWallpapers.FILES).indexOf(selected),(d,i)->{
++    getSharedPreferences("fayyadh-wallpaper",0).edit().putString("selected",FayyadhWallpapers.FILES[i]).putBoolean("automatic_weather",false).apply();loadWallpaper();d.dismiss();})
++   .setNeutralButton(automaticWallpaper()?"Cuaca auto: OFF":"Cuaca auto: ON",(d,i)->{setAutomaticWallpaper(!automaticWallpaper());})
++   .setNegativeButton("Close",null));}
+  void settings(){handler.removeCallbacks(welcomeTask);welcome.cancel();show(new AlertDialog.Builder(this).setTitle("FayyadhOS · Settings").setItems(new String[]{"Wallpaper","Hide / unhide apps","Rearrange apps","Jarvis · Network & AI","Prayer zone & options","Android settings","Set default Home",getString(R.string.rain_settings_entry),"Azan · Lima waktu"},(d,i)->{
+   if(i==8){startActivity(new Intent(this,AzanSettingsActivity.class));}else if(i==0)wallpapers();else if(i==1)hidden();else if(i==2)message("Rearrange apps","Hold OK on an app > Move. Use the arrow keys to rearrange. Press OK or Back to finish. Your order is saved automatically.");else if(i==3)showJarvis();else if(i==4)prayer.performClick();else if(i==7){d.dismiss();handler.post(()->rain.showSettings());}else system(i==6?Settings.ACTION_HOME_SETTINGS:Settings.ACTION_SETTINGS);
+  }).setNegativeButton("Close",null));}
+--- a/app/src/main/java/com/gathin/tvhome/RainController.java
++++ b/app/src/main/java/com/gathin/tvhome/RainController.java
+@@ -79,6 +79,7 @@
+         if(closed)return;
+         handler.removeCallbacks(wake);weatherScheduled=false;view.configure(options);
+         state=forecast!=null&&forecast.locationId.equals(options.locationId)?forecast.state(clock.instant()):WeatherForecast.State.UNKNOWN;
++        activity.weatherWallpaper(state);
+         boolean rainy=state==WeatherForecast.State.RAIN_EXPECTED||state==WeatherForecast.State.THUNDERSTORM_EXPECTED;
+         view.setThunder(!preview&&options.forecastDriven&&state==WeatherForecast.State.THUNDERSTORM_EXPECTED);
+         view.setRain(options.enabled&&(preview||options.forecastDriven&&rainy));
+--- a/app/src/main/java/com/gathin/tvhome/WeatherWallpapers.java
++++ b/app/src/main/java/com/gathin/tvhome/WeatherWallpapers.java
+@@ -0,0 +1,13 @@
++package com.gathin.tvhome;
++/** Bundled AI weather artwork. No extra requests; only current-period validated forecast state. */
++final class WeatherWallpapers {
++ static String asset(WeatherForecast.State state){
++  switch(state){
++   case CLEAR:return "fayyadh-wallpapers/"+FayyadhWallpapers.DEFAULT;
++   case CLOUDY:return "weather-wallpapers/cloudy.jpg";
++   case RAIN_EXPECTED:return "weather-wallpapers/rain.jpg";
++   case THUNDERSTORM_EXPECTED:return "weather-wallpapers/storm.jpg";
++   default:return null;
++  }
++ }
++}
+--- a/app/src/test/java/com/gathin/tvhome/WeatherLayoutTest.java
++++ b/app/src/test/java/com/gathin/tvhome/WeatherLayoutTest.java
+@@ -0,0 +1,76 @@
++package com.gathin.tvhome;
++import android.app.AlertDialog;
++import android.os.Looper;
++import android.view.View;
++import android.widget.FrameLayout;
++import org.junit.Test;
++import org.junit.runner.RunWith;
++import org.robolectric.*;
++import org.robolectric.annotation.*;
++import java.time.*;
++import java.util.*;
++import static org.junit.Assert.*;
++@RunWith(RobolectricTestRunner.class)
++@org.robolectric.annotation.Config(sdk=34,qualifiers="w960dp-h540dp-land-xhdpi")
++@GraphicsMode(GraphicsMode.Mode.NATIVE)
++public class WeatherLayoutTest {
++ final DashboardTest helper=new DashboardTest();
++ static final Instant NOW=Instant.parse("2026-10-27T02:00:00Z");
++ WeatherForecast forecast(String text,long age,String id){return new WeatherForecast(id,NOW.toEpochMilli()-age,Collections.singletonMap(LocalDate.of(2026,10,27),new String[]{text,text,text}));}
++ RainController attach(DashboardActivity a,WeatherForecast f)throws Exception{
++  a.rain.destroy();RainOptions.prefs(a).edit().remove("request_not_before").remove("retry_at").commit();
++  RainController.Source source=new RainController.Source(){public WeatherForecast cached(String id){return f;}public WeatherForecast fetch(String id,long stamp){fail("No network expected");return null;}};
++  RainController c=new RainController(a,a.findViewById(R.id.root),source,Clock.fixed(NOW,ZoneOffset.UTC),()->false);a.rain=c;
++  c.attachWeather(a.findViewById(R.id.root).findViewWithTag("weather-widget"));c.resume();
++  for(int i=0;i<500&&c.isBusy();i++){Thread.sleep(5);Shadows.shadowOf(Looper.getMainLooper()).idle();}assertFalse(c.isBusy());return c;
++ }
++ void geometry(int w,int h,String name)throws Exception{helper.demoApps();try(var activity=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  DashboardActivity a=activity.get();View root=helper.render(a,w,h),grid=root.findViewById(R.id.grid),weather=root.findViewWithTag("weather-widget");
++  assertTrue("Apps at bottom",grid.getTop()>h*.72);assertTrue("Bottom safe margin",grid.getBottom()<h*.97);
++  assertTrue("Weather to right",weather.getLeft()>w*.70);assertTrue(weather.getRight()<=w*.97);
++  assertFalse(weather.isFocusable());assertTrue(weather.getBottom()<grid.getTop());helper.capture(root,name);
++ }}
++ @Test public void geometry1080()throws Exception{geometry(1920,1080,"weather-layout-1080");}
++ @Test @org.robolectric.annotation.Config(qualifiers="w640dp-h360dp-land-xhdpi") public void geometry720()throws Exception{geometry(1280,720,"weather-layout-720");}
++ @Test @org.robolectric.annotation.Config(qualifiers="w1920dp-h1080dp-land-xhdpi") public void geometry4k()throws Exception{geometry(3840,2160,"weather-layout-4k");}
++ @Test public void realControllerChangesAllFourScenesAndCaptures()throws Exception{
++  helper.demoApps();try(var activity=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++   DashboardActivity a=activity.get();int i=0;
++   for(String text:new String[]{"Tiada hujan","Berawan","Hujan","Ribut petir"}){
++    RainController c=attach(a,forecast(text,0,RainOptions.HOME_ID));assertEquals(WeatherWallpapers.asset(c.currentState()),a.currentWallpaperKey());
++    View root=helper.render(a,1920,1080);helper.capture(root,"weather-scene-"+(i++));
++   }
++  }
++ }
++ @Test public void invalidStaleFutureWrongLocationAndUnknownRestoreManual()throws Exception{
++  try(var activity=Robolectric.buildActivity(DashboardActivity.class).setup()){
++   DashboardActivity a=activity.get();
++   for(WeatherForecast f:Arrays.asList(null,forecast("Hujan",WeatherForecast.FRESH_MILLIS,RainOptions.HOME_ID),forecast("Hujan",-1000,RainOptions.HOME_ID),forecast("Hujan",0,"St502"),forecast("Tidak diketahui",0,RainOptions.HOME_ID))){
++    a.weatherWallpaper(WeatherForecast.State.RAIN_EXPECTED);attach(a,f);assertEquals("manual:"+FayyadhWallpapers.DEFAULT,a.currentWallpaperKey());
++   }
++  }
++ }
++ @Test public void dailySummaryNeverDrivesScene()throws Exception{
++  try(var activity=Robolectric.buildActivity(DashboardActivity.class).setup()){
++   String raw="[{\"location\":{\"location_id\":\"Ds548\"},\"date\":\"2026-10-27\",\"summary_forecast\":\"Ribut petir\"}]";
++   attach(activity.get(),WeatherForecast.parse(raw,"Ds548",NOW.toEpochMilli()));assertTrue(activity.get().currentWallpaperKey().startsWith("manual:"));
++  }
++ }
++ @Test public void manualSelectionDisablesAutoAndReenableUsesLatestState()throws Exception{
++  try(var activity=Robolectric.buildActivity(DashboardActivity.class).setup()){
++   DashboardActivity a=activity.get();attach(a,forecast("Hujan",0,RainOptions.HOME_ID));a.wallpapers();
++   AlertDialog dialog=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();dialog.getListView().performItemClick(null,2,2);
++   assertFalse(a.automaticWallpaper());assertEquals("manual:"+FayyadhWallpapers.FILES[2],a.currentWallpaperKey());
++   a.weatherWallpaper(WeatherForecast.State.THUNDERSTORM_EXPECTED);assertEquals("manual:"+FayyadhWallpapers.FILES[2],a.currentWallpaperKey());
++   a.setAutomaticWallpaper(true);assertEquals(WeatherWallpapers.asset(WeatherForecast.State.THUNDERSTORM_EXPECTED),a.currentWallpaperKey());
++   assertEquals(FayyadhWallpapers.FILES[2],a.getSharedPreferences("fayyadh-wallpaper",0).getString("selected",""));
++  }
++ }
++ @Test public void unchangedStateReusesBitmapAndPreviewDoesNotInventWeather()throws Exception{
++  try(var activity=Robolectric.buildActivity(DashboardActivity.class).setup()){
++   DashboardActivity a=activity.get();RainController c=attach(a,forecast("Berawan",0,RainOptions.HOME_ID));
++   android.widget.ImageView image=(android.widget.ImageView)((FrameLayout)a.findViewById(R.id.root)).getChildAt(0);Object before=image.getDrawable();
++   c.preview(true);assertSame(before,image.getDrawable());assertEquals(WeatherWallpapers.asset(WeatherForecast.State.CLOUDY),a.currentWallpaperKey());
++  }
++ }
++}

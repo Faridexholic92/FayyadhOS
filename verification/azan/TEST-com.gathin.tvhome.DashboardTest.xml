@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.DashboardTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-27T03:40:21" hostname="37e1e9f6-e1b" time="11.281">
+  <properties/>
+  <testcase name="jarvisCanOpenAndCloseWithVoiceDisabled" classname="com.gathin.tvhome.DashboardTest" time="0.209"/>
+  <testcase name="dashboard720HasRoomForPrayerAndApps" classname="com.gathin.tvhome.DashboardTest" time="0.834"/>
+  <testcase name="dashboard1080AndJarvisRenderWithRealCachedFixture" classname="com.gathin.tvhome.DashboardTest" time="3.022"/>
+  <testcase name="cacheFreshnessUsesNewProviderDirectory" classname="com.gathin.tvhome.DashboardTest" time="0.023"/>
+  <testcase name="jarvisDoesNotCreateSpokenOutput" classname="com.gathin.tvhome.DashboardTest" time="0.343"/>
+  <testcase name="dashboard4kRenders" classname="com.gathin.tvhome.DashboardTest" time="5.829"/>
+  <testcase name="jarvis720IsScrollableAndFitsScreen" classname="com.gathin.tvhome.DashboardTest" time="0.207"/>
+  <testcase name="savedOrderAndHideAreUsedByNewGrid" classname="com.gathin.tvhome.DashboardTest" time="0.025"/>
+  <testcase name="settingsAndHideDialogsRender" classname="com.gathin.tvhome.DashboardTest" time="0.484"/>
+  <testcase name="emptyAppListStillHasSettingsAndPrayer" classname="com.gathin.tvhome.DashboardTest" time="0.179"/>
+  <testcase name="newHomeDoesNotRequireZoneOrLocationPermission" classname="com.gathin.tvhome.DashboardTest" time="0.117"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+]]></system-err>
+</testsuite>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.KinarutWeatherTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-10-27T03:42:25" hostname="37e1e9f6-e1b" time="3.552">
+  <properties/>
+  <testcase name="controllerDisplaysRealPaparDataAndConciseOfflineState" classname="com.gathin.tvhome.KinarutWeatherTest" time="0.217"/>
+  <testcase name="missingOptionalFieldsDoNotDiscardOtherPeriodsOrDays" classname="com.gathin.tvhome.KinarutWeatherTest" time="0.023"/>
+  <testcase name="realResponseReproducesEarlyMorningMissingPeriodButExplicitDailyFallbackWorks" classname="com.gathin.tvhome.KinarutWeatherTest" time="0.021"/>
+  <testcase name="networkTimeoutHttpAndJsonDiagnosticsRemainDistinct" classname="com.gathin.tvhome.KinarutWeatherTest" time="0.015"/>
+  <testcase name="migrationSetsOnlyWeatherHomeOnceAndPreservesPrayerLocation" classname="com.gathin.tvhome.KinarutWeatherTest" time="0.018"/>
+  <testcase name="locationMenuExplainsRegionalProxyInsteadOfOpeningCatalogue" classname="com.gathin.tvhome.KinarutWeatherTest" time="0.172"/>
+  <testcase name="missingPeriodInLegacyProjectedCacheRetriesSoonerThanSixHours" classname="com.gathin.tvhome.KinarutWeatherTest" time="0.101"/>
+  <testcase name="locationChangeDuringFetchCannotPublishOldLocation" classname="com.gathin.tvhome.KinarutWeatherTest" time="0.155"/>
+  <testcase name="documentedExactPaparUrlAndActualDefaultAndProjectedResponsesParse" classname="com.gathin.tvhome.KinarutWeatherTest" time="0.019"/>
+  <testcase name="cacheAgeAndMissingPeriodDiagnosticsAreDistinct" classname="com.gathin.tvhome.KinarutWeatherTest" time="0.025"/>
+  <testcase name="futureDatedCacheDoesNotDeferRefreshUntilItsFutureTimestamp" classname="com.gathin.tvhome.KinarutWeatherTest" time="0.145"/>
+  <testcase name="controllerReportsEachFailureWithoutCrashingOrInventingWeather" classname="com.gathin.tvhome.KinarutWeatherTest" time="0.723"/>
+  <testcase name="dateGapUsesLabelledSummaryInWidgetButDoesNotStartRainAnimation" classname="com.gathin.tvhome.KinarutWeatherTest" time="1.896"/>
+  <testcase name="malformedStructureEmptyWrongLocationAndNoDatesAreDistinguishable" classname="com.gathin.tvhome.KinarutWeatherTest" time="0.019"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+]]></system-err>
+</testsuite>

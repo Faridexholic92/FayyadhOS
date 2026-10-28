@@ -1,0 +1,6 @@
+package: name='dev.farred.fayyadhos.tv.jarvis.fix' versionCode='12' versionName='2.8.1-startup-fix' platformBuildVersionName='14' platformBuildVersionCode='34' compileSdkVersion='34' compileSdkVersionCodename='14'
+sdkVersion:'26'
+targetSdkVersion:'34'
+application-label:'FayyadhOS TV Fix'
+launchable-activity: name='com.gathin.tvhome.DashboardActivity'  label='' icon=''
+leanback-launchable-activity: name='com.gathin.tvhome.DashboardActivity'  label='' icon='' banner=''

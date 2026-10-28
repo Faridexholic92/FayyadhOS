@@ -1,0 +1,16 @@
+{
+  "apk_sha256": "b410338eab08fc783b9bc7442901856ea74adc590aaf3ea2ac43b3f7ec1884f1",
+  "app_id": "dev.farred.fayyadhos.tv.jarvis.fix",
+  "version_code": 12,
+  "app_dex_classes": 350,
+  "manifest_components": 12,
+  "cold_starts_passed": 3,
+  "home_return_passed": true,
+  "physical_tv_tested": false,
+  "regression_before_companion_id_change": {
+    "tests": 308,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "JarvisPanel": {
+    "unchanged": true,
+    "sha256": "89eaf55ef0d9ac6d9b82ae1c1d427d369ca9fe31cdbc3814f2934b47b0c2da43"
+  },
+  "SpeedProbe": {
+    "unchanged": true,
+    "sha256": "5ce96780b733e9d80b7c80bc42253a1ddae04893916da6b4503ebcdc5a91a66a"
+  },
+  "JarvisAiClient": {
+    "unchanged": true,
+    "sha256": "e5a760023690ee2e65d71bd95506bd29cbef9dc36dbc15e67f79f122c483d5e7"
+  },
+  "JarvisKeyStore": {
+    "unchanged": true,
+    "sha256": "06a8fc0cd73dc372fbc3a13d015e673a43e815f47b28a210dd070c4dac8b92e4"
+  },
+  "PrayerPanel": {
+    "unchanged": true,
+    "sha256": "75f78379fc8219e01e20b7cd36fea058353ac47949a9d96f291828659f5e0bf8"
+  },
+  "PrayerRepository": {
+    "unchanged": true,
+    "sha256": "eb7d9e98b1658c171076915dc237db723971511f08b21893df0a23485f626324"
+  },
+  "AzanScheduler": {
+    "unchanged": true,
+    "sha256": "c70d230689f51c94eba05fabbcefad812307b7bbf38d5743b0905612bc1b9dcb"
+  },
+  "AzanService": {
+    "unchanged": true,
+    "sha256": "ed05312d53c35709420f9cf7ef59a485ca5b559a2a3aa337e2c176de2a609d8d"
+  },
+  "AzanStore": {
+    "unchanged": true,
+    "sha256": "1f3409096d8d6929da92dde1e0061b013b018edbc86e28c235d9f074b83e13e9"
+  },
+  "AzanRefreshJob": {
+    "unchanged": true,
+    "sha256": "69360e2d3018cda047ac9d2bd7360c3db3e2297c301201d1b25278206904e753"
+  },
+  "RainController": {
+    "unchanged": true,
+    "sha256": "85a329dd27b87d4434ec53f07fa28748b4583217e152da90daffb1c949fd2ec2"
+  },
+  "RainGlassView": {
+    "unchanged": true,
+    "sha256": "ad6535437bd97b94d59cb8aef1f7e6df4543b789691c852ed7ea0b61509b8f76"
+  },
+  "WeatherWidget": {
+    "unchanged": true,
+    "sha256": "6e902d43975fea06d100bc604e8cfd776e9c1af1a8ff6210babc6794058ed220"
+  },
+  "WeatherForecast": {
+    "unchanged": true,
+    "sha256": "882172b04f2ee64444363607688f6e34b22d845a9a8669fc35a71a4e577fc172"
+  },
+  "MetWeatherRepository": {
+    "unchanged": true,
+    "sha256": "45e5c13b93f79edffdc8cf3e89a26414656dffc103bd88ba66e374b1c07acba6"
+  },
+  "WelcomeSpeech": {
+    "unchanged": true,
+    "sha256": "5206de7ece7c352ee6350256c219b36296d38d6f4d6c88a9637a9325b1e0ba59"
+  }
+}

@@ -1,0 +1,17 @@
+BOOTED
+Performing Streamed Install
+Success
+Starting: Intent { cmp=dev.farred.fayyadhos.tv.jarvis.fix/com.gathin.tvhome.DashboardActivity }
+3019
+    mResumedActivity: ActivityRecord{9710bd4 u0 dev.farred.fayyadhos.tv.jarvis.fix/com.gathin.tvhome.DashboardActivity t3}
+START-1-CHECKED
+Starting: Intent { cmp=dev.farred.fayyadhos.tv.jarvis.fix/com.gathin.tvhome.DashboardActivity }
+3065
+    mResumedActivity: ActivityRecord{746e692 u0 dev.farred.fayyadhos.tv.jarvis.fix/com.gathin.tvhome.DashboardActivity t4}
+START-2-CHECKED
+Starting: Intent { cmp=dev.farred.fayyadhos.tv.jarvis.fix/com.gathin.tvhome.DashboardActivity }
+3107
+    mResumedActivity: ActivityRecord{4bf504d u0 dev.farred.fayyadhos.tv.jarvis.fix/com.gathin.tvhome.DashboardActivity t5}
+START-3-CHECKED
+/sdcard/window.xml: 1 file pulled, 0 skipped. 0.1 MB/s (4128 bytes in 0.060s)
+SMOKE_CAPTURED

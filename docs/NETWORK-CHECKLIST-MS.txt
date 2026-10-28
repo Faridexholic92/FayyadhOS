@@ -1,0 +1,40 @@
+Rangkaian Android box + Unifi 500Mbps
+
+Tiada tetapan rangkaian TV/router pengguna diubah dalam binaan ini.
+Tiada speed booster, perubahan sysctl, firewall, VPN atau DNS dibundel.
+500Mbps = kadar pelan; kadar sebenar box dibatasi sambungan, perkakasan,
+kesesakan, pelayan ujian dan keadaan Wi-Fi. Mbps bukan MB/s.
+
+Sebelum cadangan khusus, catat model box, model router/mesh, Wi-Fi/LAN,
+dan keputusan speedtest download/upload/ping pada box dan telefon/laptop
+berdekatan pada waktu yang sama. Bandingkan menggunakan pelayan yang sama.
+
+Jika LAN:
+- Semak spesifikasi port box dan link speed yang dirunding di router.
+- Port Fast Ethernet 100Mbps tidak boleh membawa sambungan 500Mbps.
+  Keputusan sekitar 90-an Mbps sering konsisten dengan link 100Mbps,
+  tetapi ia petunjuk, bukan diagnosis tanpa semakan port.
+- Untuk kadar melebihi 100Mbps, keseluruhan laluan perlu menyokong Gigabit:
+  port box/adapter, kabel dan port router/switch.
+- Kabel Cat5e/Cat6 yang baik memadai untuk Gigabit biasa. Kabel mahal
+  tidak menukar port 100Mbps menjadi Gigabit.
+- Adapter USB Gigabit boleh dipertimbangkan hanya selepas model box,
+  driver/chipset dan port USB disahkan serasi. Tiada jaminan plug-and-play.
+
+Jika Wi-Fi:
+- Cuba 5GHz berhampiran router jika box menyokongnya; 2.4GHz boleh lebih
+  sesuai apabila jauh atau banyak dinding. Jangan anggap 5GHz sentiasa laju.
+- Elak box tersepit di belakang TV/logam; uji dengan halangan dikurangkan.
+- Periksa sambungan ke node mesh yang betul dan sama ada backhaulnya lemah.
+- Kelajuan link Wi-Fi bukan kelajuan Internet. Uji, jangan bergantung pada
+  angka AC/AX atau link rate sahaja.
+
+Umum:
+- Hentikan muat turun besar sementara untuk ujian terkawal.
+- Kemas kini firmware rasmi jika tersedia dan selamat.
+- DNS bukan alat untuk menambah had bandwidth port atau Wi-Fi.
+- Jangan matikan firewall/keselamatan router atau pasang root tweak untuk
+  mengejar angka speedtest. Streaming lancar/stabil lebih penting.
+
+Sumber:
+https://www.tp-link.com/us/support/faq/2435

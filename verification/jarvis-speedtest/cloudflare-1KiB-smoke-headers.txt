@@ -1,0 +1,27 @@
+HTTP/1.1 200 OK
+Date: Mon, 26 Oct 2026 22:41:37 GMT
+Content-Type: application/octet-stream
+Content-Length: 1024
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Cache-Control: no-store, no-transform
+Vary: Origin
+access-control-expose-headers: server-timing, content-length, cf-meta-ip, cf-meta-request-time, cf-meta-colo, cf-meta-asn, cf-meta-country, cf-meta-city, cf-meta-postalCode, cf-meta-latitude, cf-meta-longitude, cf-meta-timezone
+asn: 14618
+cf-meta-ip: 44.201.204.77
+cf-meta-request-time: 1793054497081
+city: Ashburn
+colo: IAD
+country: US
+latitude: 39.04372
+longitude: -77.48749
+postalCode: 20147
+timezone: America/New_York
+timing-allow-origin: *
+Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=TRLPWQAyecXkPlfaIspU6FaLQ2WPgtjEzMqCRPmVZI4f3D7mxXA42l9gHjizrU16z7MZJR73Vxhlx%2BIXG2rkDkO49SGWJ6lj0B%2BA7%2BfDB3arlj4L0uxF1dG6egpJPF4Yk5KL4UfK"}]}
+Nel: {"report_to":"cf-nel","success_fraction":0.01,"max_age":604800}
+Server-Timing: cfSpeedEdge;dur=4, cfSpeedWorker;dur=27
+Server: cloudflare
+CF-RAY: a50cf82ebf2687af-IAD
+server-timing: cfL4;desc="?proto=TCP&rtt=745&min_rtt=723&rtt_var=287&sent=4&recv=6&lost=0&retrans=0&sent_bytes=2859&recv_bytes=720&delivery_rate=4005532&cwnd=52&unsent_bytes=0&cid=42478c0bbe791780&ts=52&x=0"
+

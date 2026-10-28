@@ -1,0 +1,44 @@
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: FATAL EXCEPTION: main
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: Process: dev.farred.fayyadhos.tv.jarvis, PID: 2839
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: java.lang.RuntimeException: Unable to get provider com.gathin.tvhome.ThemeProvider: java.lang.ClassNotFoundException: Didn't find class "com.gathin.tvhome.ThemeProvider" on path: DexPathList[[zip file "/data/app/dev.farred.fayyadhos.tv.jarvis-nN609sht3Yq9MVDQI48oeQ==/base.apk"],nativeLibraryDirectories=[/data/app/dev.farred.fayyadhos.tv.jarvis-nN609sht3Yq9MVDQI48oeQ==/lib/x86_64, /system/lib64]]
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:6396)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at android.app.ActivityThread.installContentProviders(ActivityThread.java:5938)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:5853)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at android.app.ActivityThread.access$1100(ActivityThread.java:199)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1650)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:193)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:6669)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:493)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:858)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: Caused by: java.lang.ClassNotFoundException: Didn't find class "com.gathin.tvhome.ThemeProvider" on path: DexPathList[[zip file "/data/app/dev.farred.fayyadhos.tv.jarvis-nN609sht3Yq9MVDQI48oeQ==/base.apk"],nativeLibraryDirectories=[/data/app/dev.farred.fayyadhos.tv.jarvis-nN609sht3Yq9MVDQI48oeQ==/lib/x86_64, /system/lib64]]
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:134)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:379)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:312)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at android.app.AppComponentFactory.instantiateProvider(AppComponentFactory.java:121)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at androidx.core.app.CoreComponentFactory.instantiateProvider(CoreComponentFactory.java:67)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:6380)
+10-27 13:12:12.484  2839  2839 E AndroidRuntime: 	... 10 more
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: FATAL EXCEPTION: main
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: Process: dev.farred.fayyadhos.tv.jarvis, PID: 3064
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: java.lang.RuntimeException: Unable to get provider com.gathin.tvhome.ThemeProvider: java.lang.ClassNotFoundException: Didn't find class "com.gathin.tvhome.ThemeProvider" on path: DexPathList[[zip file "/data/app/dev.farred.fayyadhos.tv.jarvis-nN609sht3Yq9MVDQI48oeQ==/base.apk"],nativeLibraryDirectories=[/data/app/dev.farred.fayyadhos.tv.jarvis-nN609sht3Yq9MVDQI48oeQ==/lib/x86_64, /system/lib64]]
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:6396)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at android.app.ActivityThread.installContentProviders(ActivityThread.java:5938)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:5853)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at android.app.ActivityThread.access$1100(ActivityThread.java:199)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1650)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:193)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:6669)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:493)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:858)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: Caused by: java.lang.ClassNotFoundException: Didn't find class "com.gathin.tvhome.ThemeProvider" on path: DexPathList[[zip file "/data/app/dev.farred.fayyadhos.tv.jarvis-nN609sht3Yq9MVDQI48oeQ==/base.apk"],nativeLibraryDirectories=[/data/app/dev.farred.fayyadhos.tv.jarvis-nN609sht3Yq9MVDQI48oeQ==/lib/x86_64, /system/lib64]]
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:134)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:379)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:312)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at android.app.AppComponentFactory.instantiateProvider(AppComponentFactory.java:121)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at androidx.core.app.CoreComponentFactory.instantiateProvider(CoreComponentFactory.java:67)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:6380)
+10-27 13:12:29.266  3064  3064 E AndroidRuntime: 	... 10 more

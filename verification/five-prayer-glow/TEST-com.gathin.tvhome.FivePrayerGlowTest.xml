@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.FivePrayerGlowTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-27T00:48:21" hostname="10d092ef-e1b" time="101.924">
+  <properties/>
+  <testcase name="fiveOrderedColumnsTransparentAndNoSyurukOrMetadataOnHome" classname="com.gathin.tvhome.FivePrayerGlowTest" time="7.333"/>
+  <testcase name="missingCurrentDayOrZoneDoesNotInventTimesOrGlow" classname="com.gathin.tvhome.FivePrayerGlowTest" time="0.206"/>
+  <testcase name="native720FitsAllFiveTimes" classname="com.gathin.tvhome.FivePrayerGlowTest" time="5.477"/>
+  <testcase name="native4kFitsAllFiveTimes" classname="com.gathin.tvhome.FivePrayerGlowTest" time="27.949"/>
+  <testcase name="pulseStopsForOverlayBackgroundHiddenViewAndReducedMotion" classname="com.gathin.tvhome.FivePrayerGlowTest" time="0.183"/>
+  <testcase name="onlyCurrentNameGlowsAndExactBoundariesMoveIt" classname="com.gathin.tvhome.FivePrayerGlowTest" time="0.166"/>
+  <testcase name="native1080AndGlowVideoFrames" classname="com.gathin.tvhome.FivePrayerGlowTest" time="60.606"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[[Robolectric] WARN: Android SDK 36 requires Java 21 (have Java 17). Tests won't be run on SDK 36 unless explicitly requested.
+[Robolectric] WARN: Android SDK 37 requires Java 21 (have Java 17). Tests won't be run on SDK 37 unless explicitly requested.
+]]></system-err>
+</testsuite>

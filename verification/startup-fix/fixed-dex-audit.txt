@@ -1,0 +1,2 @@
+APK: app-debug.apk ; app class definitions: 350 ; manifest components: 12
+PASS: all declared application components have DEX class definitions

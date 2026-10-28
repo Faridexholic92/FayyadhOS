@@ -1,0 +1,389 @@
+--- a/app/src/main/java/com/gathin/tvhome/JarvisPanel.java
++++ b/app/src/main/java/com/gathin/tvhome/JarvisPanel.java
+@@ -7,7 +7,6 @@
+ import android.net.*;
+ import android.os.*;
+ import android.provider.Settings;
+-import android.speech.tts.TextToSpeech;
+ import android.view.*;
+ import android.widget.*;
+ import java.util.*;
+@@ -17,31 +16,35 @@
+ final class JarvisPanel {
+  private final DashboardActivity activity;private final Handler handler=new Handler(Looper.getMainLooper());
+  private final ExecutorService worker=Executors.newSingleThreadExecutor();private Dialog dialog;
+- private TextToSpeech tts;private boolean ready,closed,voice;private NetworkSnapshot snapshot;
+- private final JarvisAiClient ai;private TextView speechStatus,speed,speedButton,aiButton,networkStatus,ssidStatus,linkStatus,vpnStatus,aiStatus;
++ private boolean closed;private NetworkSnapshot snapshot;
++ private final JarvisAiClient ai;private final java.util.function.Supplier<SpeedProbe> probeFactory;private TextView speed,speedButton,aiButton,networkStatus,ssidStatus,linkStatus,vpnStatus,aiStatus;
+  private Double measuredDownload;private long measuredAt;private String measuredNetwork="";private SpeedProbe probe;private Future<?> future;
++ private LinearLayout mainBox,speedBox;private ScrollView scroll;private TextView testState,testValue,testUsage,testStart,testCancel;private SpeedMeter testMeter;
++ private boolean testing;private int testGeneration;private long testBytes;private String testRoute="";
+  private ConnectivityManager cm;private ConnectivityManager.NetworkCallback callback;
+  JarvisPanel(DashboardActivity a){this(a,new JarvisAiClient(a));}
+- JarvisPanel(DashboardActivity a,JarvisAiClient client){activity=a;ai=client;voice=a.getSharedPreferences("jarvis",0).getBoolean("voice",true);}
++ JarvisPanel(DashboardActivity a,JarvisAiClient client){this(a,client,SpeedProbe::new);}
++ JarvisPanel(DashboardActivity a,JarvisAiClient client,java.util.function.Supplier<SpeedProbe> factory){activity=a;ai=client;probeFactory=factory;}
+  private int dp(float n){return activity.d(n);}
+  private float scale(){android.util.DisplayMetrics m=activity.getResources().getDisplayMetrics();return Math.min(m.widthPixels/m.density/960f,m.heightPixels/m.density/540f);}
+  private LinearLayout column(){LinearLayout l=new LinearLayout(activity);l.setOrientation(LinearLayout.VERTICAL);return l;}
+  private TextView text(String s,float size,int color){return GlassUi.text(activity,s,Math.max(8,size*scale()),color);}
+  private LinearLayout.LayoutParams lp(int w,int h){return new LinearLayout.LayoutParams(w,h);}
+  private TextView button(String title,Runnable action){TextView b=text(title,11,GlassUi.WHITE);b.setGravity(Gravity.CENTER);b.setMaxLines(2);b.setPadding(dp(5),dp(5),dp(5),dp(5));GlassUi.focus(b);android.graphics.drawable.StateListDrawable states=new android.graphics.drawable.StateListDrawable();
++  states.addState(new int[]{-android.R.attr.state_enabled},GlassUi.surface(activity,0xff0b2330,false));b.setTextColor(new android.content.res.ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{0xff8095a1,GlassUi.WHITE}));
+   states.addState(new int[]{android.R.attr.state_focused},GlassUi.glow(activity));states.addState(new int[]{android.R.attr.state_pressed},GlassUi.glow(activity));
+   android.graphics.drawable.GradientDrawable idle=GlassUi.surface(activity,0xff062131,false);idle.setStroke(Math.max(1,dp(1)),0xff087d9e);states.addState(new int[]{},idle);b.setBackground(states);b.setOnClickListener(v->action.run());return b;}
+  private void spacer(LinearLayout box,int n){View gap=new View(activity);box.addView(gap,lp(-1,dp(n)));}
+  private void line(LinearLayout box){spacer(box,7);View v=new View(activity);v.setBackgroundColor(0xff16839a);box.addView(v,lp(-1,dp(1)));spacer(box,7);}
+  void show(){snapshot=NetworkSnapshot.read(activity);dialog=new Dialog(activity);dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+-  LinearLayout box=column();box.setPadding(dp(12),dp(12),dp(12),dp(12));
++  LinearLayout box=column();mainBox=box;box.setPadding(dp(12),dp(12),dp(12),dp(12));
+   android.graphics.drawable.GradientDrawable surface=GlassUi.surface(activity,0xff041522,false);surface.setStroke(Math.max(1,dp(1)),GlassUi.CYAN);
+-  ScrollView scroll=new ScrollView(activity);scroll.setBackground(surface);scroll.setFillViewport(true);scroll.addView(box);dialog.setContentView(scroll);
++  scroll=new ScrollView(activity);scroll.setBackground(surface);scroll.setFillViewport(true);FrameLayout pages=new FrameLayout(activity);pages.addView(box);scroll.addView(pages);dialog.setContentView(scroll);
+   LinearLayout top=new LinearLayout(activity);top.setGravity(Gravity.CENTER_VERTICAL);box.addView(top);
+   top.addView(new Radar(activity),lp(dp(38),dp(38)));LinearLayout heading=column();TextView title=text("Jarvis",22,GlassUi.WHITE);title.setTypeface(null,Typeface.BOLD);heading.addView(title);heading.addView(text("Your Smart Assistant",10,GlassUi.MUTED));
+   LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(0,-2,1);hp.leftMargin=dp(7);top.addView(heading,hp);TextView close=button("Close",()->close());close.setContentDescription("Close Jarvis");top.addView(close,lp(dp(42),dp(32)));
+   spacer(box,12);
+-  actionRow(box,new String[]{"Cuaca "+new RainOptions(RainOptions.prefs(activity)).locationName,"Test Internet"},new Runnable[]{()->activity.weatherDetails(),()->startTest()});
++  actionRow(box,new String[]{"Cuaca "+new RainOptions(RainOptions.prefs(activity)).locationName,"Speedtest"},new Runnable[]{()->activity.weatherDetails(),()->openSpeedtest()});
+   actionRow(box,new String[]{"Buka YouTube","Maklumat Sistem"},new Runnable[]{()->activity.youtube(),()->activity.message("Maklumat Sistem",SystemInfo.report(activity))});
+   actionRow(box,new String[]{"Tetapan Wi-Fi","Aplikasi"},new Runnable[]{()->activity.system(Settings.ACTION_WIFI_SETTINGS),()->activity.installedApps()});
+   line(box);networkStatus=text("",11,GlassUi.WHITE);ssidStatus=text("",11,GlassUi.WHITE);linkStatus=text("",11,GlassUi.WHITE);vpnStatus=text("",11,GlassUi.WHITE);
+@@ -50,26 +53,26 @@
+   TextView settings=button("Jarvis AI Settings",()->{close();activity.aiSettings();});LinearLayout.LayoutParams sp=lp(-1,dp(34));sp.topMargin=dp(7);box.addView(settings,sp);
+   aiButton=button("Explain with AI",()->explainNetwork());aiButton.setContentDescription("Explain native network facts using direct GroqCloud AI");LinearLayout.LayoutParams ap=lp(-1,dp(32));ap.topMargin=dp(5);box.addView(aiButton,ap);
+   speed=text("Internet: not tested",11,GlassUi.WHITE);speed.setPadding(0,dp(6),0,dp(4));box.addView(speed);
+-  TextView detail=text("Link ≠ Internet speed. Test: up to 8 MiB from Cloudflare; download estimate only. No upload, ping or packet loss test.",9,GlassUi.MUTED);box.addView(detail);
+-  speechStatus=text(voice?"Preparing spoken output…":"Spoken output: off",9,GlassUi.MUTED);speechStatus.setPadding(0,dp(6),0,0);box.addView(speechStatus);
++  TextView detail=text("Link ≠ Internet speed. Speedtest: up to 100 MiB from Cloudflare; download only. No upload, ping or packet loss test.",9,GlassUi.MUTED);box.addView(detail);
+   TextView options=button("Options",()->options());LinearLayout.LayoutParams op=lp(-1,dp(30));op.topMargin=dp(5);box.addView(options,op);
+-  dialog.setOnKeyListener((d,key,event)->{if(key!=KeyEvent.KEYCODE_BACK)return false;if(event.getAction()==KeyEvent.ACTION_UP)close();return true;});
++  dialog.setOnKeyListener((d,key,event)->{if(key!=KeyEvent.KEYCODE_BACK)return false;if(event.getAction()==KeyEvent.ACTION_UP){if(speedBox!=null&&speedBox.getVisibility()==View.VISIBLE)leaveSpeedtest();else close();}return true;});
+   dialog.setOnDismissListener(d->release());dialog.show();activity.overlayOpened(dialog);Window window=dialog.getWindow();if(window!=null){window.setBackgroundDrawableResource(android.R.color.transparent);window.setDimAmount(0f);window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+    android.util.DisplayMetrics m=activity.getResources().getDisplayMetrics();int margin=dp(16);window.setLayout(Math.min(m.widthPixels-margin*2,dp(222)),Math.min(m.heightPixels-margin*2,dp(506)));
+    WindowManager.LayoutParams p=window.getAttributes();p.gravity=Gravity.RIGHT|Gravity.TOP;p.x=dp(10);p.y=margin;window.setAttributes(p);}
+   updateNetwork();refreshAiStatus();watchNetwork();speedButton.requestFocus();
+-  if(voice){try{tts=new TextToSpeech(activity,statusCode->handler.post(()->initSpeech(statusCode)));}catch(RuntimeException e){speechStatus.setText(R.string.jarvis_direct_speech_engine_unavailable);}}
++
+  }
+  private void actionRow(LinearLayout box,String[] labels,Runnable[] actions){
+   LinearLayout row=new LinearLayout(activity);LinearLayout.LayoutParams rp=lp(-1,dp(40));rp.bottomMargin=dp(6);box.addView(row,rp);
+   for(int i=0;i<2;i++){TextView b=button(labels[i],actions[i]);
+-   int kind=labels[i].startsWith("Cuaca")?0:labels[i].equals("Test Internet")?1:labels[i].equals("Buka YouTube")?2:labels[i].equals("Maklumat Sistem")?3:labels[i].equals("Tetapan Wi-Fi")?4:5;
++   int kind=labels[i].startsWith("Cuaca")?0:labels[i].equals("Speedtest")?1:labels[i].equals("Buka YouTube")?2:labels[i].equals("Maklumat Sistem")?3:labels[i].equals("Tetapan Wi-Fi")?4:5;
+    android.graphics.drawable.Drawable icon=kind==0?activity.getDrawable(R.drawable.ic_weather_cloudy):kind==3?activity.getDrawable(R.drawable.ic_settings):kind==4?activity.getDrawable(R.drawable.ic_wifi):new ActionGlyph(kind);
+    if(icon!=null){icon.setBounds(0,0,dp(16),dp(16));if(kind==4)icon.setTint(GlassUi.CYAN);b.setCompoundDrawables(icon,null,null,null);b.setCompoundDrawablePadding(dp(3));}
+-   LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,-1,1);if(i==0)p.rightMargin=dp(6);row.addView(b,p);if(labels[i].equals("Test Internet"))speedButton=b;}
++   LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,-1,1);if(i==0)p.rightMargin=dp(6);row.addView(b,p);if(labels[i].equals("Speedtest"))speedButton=b;}
+  }
+  private void refreshAiStatus(){JarvisKeyStore store=new JarvisKeyStore(activity);aiStatus.setText(activity.getString(R.string.jarvis_direct_ai_status,store.configured()?"Key configured":"No key configured",store.model().isEmpty()?"Not selected":store.model(),store.testedAt()==0?"Connection not tested":"Previous test succeeded; not a live status"));}
+  private void updateNetwork(){if(closed)return;snapshot=NetworkSnapshot.read(activity);
++  if(testing&&!testRoute.equals(snapshot.networkKey)){cancelTest();testState.setText("Rangkaian berubah. Sila uji semula.");speed.setText(R.string.jarvis_direct_route_changed);}
+   if(measuredDownload!=null&&!measuredNetwork.equals(snapshot.networkKey)){measuredDownload=null;speed.setText(R.string.jarvis_direct_network_changed);}
+   networkStatus.setText(activity.getString(R.string.jarvis_direct_network_status,snapshot.transport,snapshot.validated?"Internet validated by Android":"Internet not validated"));
+   ssidStatus.setText(activity.getString(R.string.jarvis_direct_wifi_status,snapshot.ssid,snapshot.rssi<0?activity.getString(R.string.jarvis_direct_signal_dbm,snapshot.rssi):""));
+@@ -77,15 +80,48 @@
+   vpnStatus.setText(activity.getString(R.string.jarvis_direct_vpn_status,snapshot.vpn?"Detected":"Not detected"));
+  }
+  private void watchNetwork(){try{cm=(ConnectivityManager)activity.getSystemService(Context.CONNECTIVITY_SERVICE);if(cm==null)return;callback=new ConnectivityManager.NetworkCallback(){public void onAvailable(Network n){handler.post(()->updateNetwork());}public void onLost(Network n){handler.post(()->updateNetwork());}public void onCapabilitiesChanged(Network n,NetworkCapabilities c){handler.post(()->updateNetwork());}};cm.registerDefaultNetworkCallback(callback);}catch(RuntimeException e){callback=null;}}
+- private void initSpeech(int status){if(closed||tts==null)return;if(status!=TextToSpeech.SUCCESS||!EnglishVoice.configure(tts)){speechStatus.setText(R.string.jarvis_direct_spoken_unavailable);return;}
+-  tts.setSpeechRate(.95f);ready=true;speechStatus.setText(R.string.jarvis_direct_spoken_active);speak(snapshot.speech());}
+- private void speak(String message){if(closed||!voice)return;if(ready&&tts!=null)tts.speak(message,TextToSpeech.QUEUE_FLUSH,null,"fayyadh-network");}
+  private void busy(boolean value){speedButton.setEnabled(!value);aiButton.setEnabled(!value);if(value){speed.setFocusable(true);speed.requestFocus();}else{speed.setFocusable(false);speedButton.requestFocus();}}
+- private void startTest(){if(closed||future!=null&&!future.isDone())return;updateNetwork();final String route=snapshot.networkKey;
+-  busy(true);speed.setText(R.string.jarvis_direct_download_loading);probe=new SpeedProbe();
+-  future=worker.submit(()->{try{double result=probe.run();handler.post(()->{if(closed)return;updateNetwork();busy(false);if(!route.equals(snapshot.networkKey)){measuredDownload=null;speed.setText(R.string.jarvis_direct_route_changed);return;}
+-   measuredDownload=result;measuredAt=System.currentTimeMillis();measuredNetwork=route;String n=String.format(Locale.ENGLISH,"%.1f",result);speed.setText(activity.getString(R.string.jarvis_direct_download_estimate,n));speak("Estimated download: "+n+" megabits per second from a limited sample. Results may vary.");});}
+-   catch(Exception e){handler.post(()->{if(closed)return;busy(false);speed.setText(R.string.jarvis_direct_download_failed);});}});
++ private void openSpeedtest(){
++  if(closed||future!=null&&!future.isDone())return;
++  if(speedBox==null){
++   speedBox=column();speedBox.setPadding(dp(12),dp(12),dp(12),dp(12));((FrameLayout)mainBox.getParent()).addView(speedBox);
++   LinearLayout top=new LinearLayout(activity);top.setGravity(Gravity.CENTER_VERTICAL);speedBox.addView(top);
++   top.addView(new Radar(activity),lp(dp(38),dp(38)));TextView heading=text("Jarvis",22,GlassUi.WHITE);heading.setTypeface(null,Typeface.BOLD);LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(0,-2,1);hp.leftMargin=dp(7);top.addView(heading,hp);top.addView(button("Close",()->close()),lp(dp(42),dp(32)));
++   spacer(speedBox,12);speedBox.addView(button("‹ Diagnostik",()->leaveSpeedtest()),lp(-1,dp(30)));line(speedBox);
++   TextView title=text("Speedtest",18,GlassUi.WHITE);title.setTypeface(null,Typeface.BOLD);speedBox.addView(title);
++   testState=text("Sedia untuk diuji",11,GlassUi.CYAN);spacer(speedBox,6);speedBox.addView(testState);
++   FrameLayout meterFrame=new FrameLayout(activity);testMeter=new SpeedMeter(activity);meterFrame.addView(testMeter,new FrameLayout.LayoutParams(-1,-1));LinearLayout.LayoutParams mp=lp(dp(118),dp(118));mp.gravity=Gravity.CENTER_HORIZONTAL;mp.topMargin=dp(10);speedBox.addView(meterFrame,mp);
++   testValue=text("—\nMbps",20,GlassUi.WHITE);testValue.setGravity(Gravity.CENTER);meterFrame.addView(testValue,new FrameLayout.LayoutParams(-1,-1));
++   TextView label=text("Kelajuan muat turun",11,GlassUi.WHITE);label.setGravity(Gravity.CENTER);speedBox.addView(label);spacer(speedBox,12);
++   testUsage=text("0 / 100 MiB",12,GlassUi.WHITE);speedBox.addView(testUsage);
++   speedBox.addView(text("Had 100 MiB · Download sahaja · Cloudflare",9,GlassUi.MUTED));spacer(speedBox,10);
++   testStart=button("Mula Speedtest",()->startTest());speedBox.addView(testStart,lp(-1,dp(34)));spacer(speedBox,8);
++   testCancel=button("Batal ujian",()->cancelTest());speedBox.addView(testCancel,lp(-1,dp(30)));testCancel.setEnabled(false);spacer(speedBox,12);
++   speedBox.addView(text("Had 120 saat. Ujian boleh mengganggu streaming. Anggaran satu sambungan, termasuk masa sambungan.",9,GlassUi.MUTED));
++  }
++  mainBox.setVisibility(View.GONE);speedBox.setVisibility(View.VISIBLE);scroll.scrollTo(0,0);testStart.requestFocus();
++ }
++ private void leaveSpeedtest(){cancelTest();speedBox.setVisibility(View.GONE);mainBox.setVisibility(View.VISIBLE);scroll.scrollTo(0,0);speedButton.requestFocus();}
++ private void cancelTest(){
++  if(!testing)return;testing=false;testGeneration++;if(probe!=null)probe.cancel();if(future!=null)future.cancel(true);
++  testState.setText("Ujian dibatalkan");testValue.setText("—\nMbps");speed.setText("Speedtest dibatalkan; tiada keputusan baharu.");finishTestUi();
++ }
++ private void finishTestUi(){testStart.setEnabled(true);testStart.setText("Mula Speedtest");testCancel.setEnabled(false);speedButton.setEnabled(true);aiButton.setEnabled(true);if(speedBox.getVisibility()==View.VISIBLE)testStart.requestFocus();}
++ private void startTest(){
++  if(closed||testing||future!=null&&!future.isDone())return;updateNetwork();testRoute=snapshot.networkKey;
++  final String route=testRoute;final int generation=++testGeneration;final SpeedProbe current=probeFactory.get();probe=current;testing=true;testBytes=0;measuredDownload=null;
++  testState.setText("Sedang menguji…");testValue.setText("—\nMbps");testUsage.setText("0 / 100 MiB");testMeter.progress=0;testMeter.invalidate();testStart.setText("Sedang menguji…");testStart.setEnabled(false);testCancel.setEnabled(true);testCancel.requestFocus();speedButton.setEnabled(false);aiButton.setEnabled(false);speed.setText("Measuring download…");
++  future=worker.submit(()->{
++   try{double result=current.run((bytes,seconds)->handler.post(()->{
++    if(closed||generation!=testGeneration||!testing)return;testBytes=bytes;testUsage.setText(String.format(Locale.ENGLISH,"%.1f / 100 MiB",bytes/1048576.0));testMeter.progress=(float)bytes/SpeedProbe.LIMIT;testMeter.invalidate();
++    testValue.setText(String.format(Locale.ENGLISH,"%.1f\nMbps",SpeedProbe.mbps(bytes,seconds)));
++   }));handler.post(()->{
++    if(closed||generation!=testGeneration)return;testing=false;updateNetwork();finishTestUi();
++    if(!route.equals(snapshot.networkKey)){testState.setText("Rangkaian berubah. Sila uji semula.");testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_route_changed);return;}
++    measuredDownload=result;measuredAt=System.currentTimeMillis();measuredNetwork=route;
++    testBytes=SpeedProbe.LIMIT;testUsage.setText("100 / 100 MiB");testMeter.progress=1;testMeter.invalidate();testState.setText("Selesai · Anggaran download");testValue.setText(String.format(Locale.ENGLISH,"%.1f\nMbps",result));speed.setText(activity.getString(R.string.jarvis_direct_download_estimate,String.format(Locale.ENGLISH,"%.1f",result)));
++   });}catch(Exception e){handler.post(()->{if(closed||generation!=testGeneration)return;testing=false;measuredDownload=null;testState.setText("Ujian gagal / tamat masa. Cuba semula.");testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_download_failed);finishTestUi();});}
++  });
+  }
+  private void explainNetwork(){
+   if(closed||future!=null&&!future.isDone())return;updateNetwork();
+@@ -94,20 +130,19 @@
+   try{context=new org.json.JSONObject().put("transport",snapshot.transport).put("validated",snapshot.validated).put("vpn",snapshot.vpn).put("linkMbps",snapshot.link);
+    if(measuredDownload!=null)context.put("estimatedDownloadMbps",measuredDownload).put("downloadMeasuredAt",java.time.Instant.ofEpochMilli(measuredAt).toString());
+   }catch(org.json.JSONException e){speed.setText(R.string.jarvis_ai_preparation_error);return;}
+-  speak(snapshot.speech());busy(true);speed.setText(R.string.jarvis_ai_loading);
++  busy(true);speed.setText(R.string.jarvis_ai_loading);
+   future=worker.submit(()->{String response;try{response="GroqCloud AI · "+ai.explain(context);}catch(Exception e){response="GroqCloud unavailable · "+JarvisAiClient.safeError(e);}final String result=response;
+    handler.post(()->{if(closed)return;speed.setText(result);busy(false);refreshAiStatus();});});
+  }
+- private void options(){close();activity.show(new AlertDialog.Builder(activity).setTitle("Jarvis · Options").setItems(new String[]{"Allow Wi-Fi name","English spoken output settings","Wi-Fi settings","Network / LAN settings","Light boost","Restore before Boost",activity.startupGreetingEnabled()?"Startup greeting: ON":"Startup greeting: OFF","Play greeting",voice?"Spoken output: ON":"Spoken output: OFF"},(d,i)->{
++ private void options(){close();activity.show(new AlertDialog.Builder(activity).setTitle("Jarvis · Options").setItems(new String[]{"Allow Wi-Fi name","Tentang Speedtest","Wi-Fi settings","Network / LAN settings","Light boost","Restore before Boost",activity.startupGreetingEnabled()?"Startup greeting: ON":"Startup greeting: OFF","Play greeting"},(d,i)->{
+   if(i==0){if(activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED)activity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION},72);else activity.message("Wi-Fi name","Location permission is granted. Some firmware also requires Location services. Jarvis does not read GPS coordinates.");}
+-  else if(i==1)activity.system("com.android.settings.TTS_SETTINGS");else if(i==2)activity.system(Settings.ACTION_WIFI_SETTINGS);else if(i==3)activity.system(Settings.ACTION_WIRELESS_SETTINGS);
++  else if(i==1)activity.message("Speedtest","Download sahaja, maksimum 100 MiB dari Cloudflare. Tiada upload. Bukan Ookla. Keputusan ialah anggaran satu sambungan, bukan Wi-Fi link speed.");else if(i==2)activity.system(Settings.ACTION_WIFI_SETTINGS);else if(i==3)activity.system(Settings.ACTION_WIRELESS_SETTINGS);
+   else if(i==4)activity.show(new AlertDialog.Builder(activity).setTitle("Enable light boost?").setMessage("Pause this launcher's automatic prayer and Places refresh only. Cached data and manual refresh remain. No DNS, router, VPN or bandwidth changes; weather still follows its own refresh policy.").setPositiveButton("Enable",(x,w)->{NetworkFocus.enable(activity);activity.modeChanged();}).setNegativeButton("Cancel",null));
+   else if(i==5)activity.show(new AlertDialog.Builder(activity).setTitle("Restore before Boost?").setMessage("Restore saved launcher refresh preferences, not system network settings.").setPositiveButton("Restore",(x,w)->{boolean restored=NetworkFocus.restore(activity);activity.modeChanged();if(!restored)activity.message("Restore","No complete snapshot is available. No settings were changed.");}).setNegativeButton("Cancel",null));
+   else if(i==6){activity.toggleStartupGreeting();activity.showJarvis();}else if(i==7)activity.replayWelcome();
+-  else if(i==8){activity.getSharedPreferences("jarvis",0).edit().putBoolean("voice",!voice).apply();activity.showJarvis();}
+  }).setNegativeButton("Close",null));}
+  void close(){if(dialog!=null&&dialog.isShowing())dialog.dismiss();release();}
+- private void release(){if(closed)return;closed=true;if(callback!=null&&cm!=null){try{cm.unregisterNetworkCallback(callback);}catch(RuntimeException ignored){}callback=null;}activity.overlayClosed(dialog);handler.removeCallbacksAndMessages(null);ai.cancel();if(probe!=null)probe.cancel();if(future!=null)future.cancel(true);worker.shutdownNow();if(tts!=null){tts.stop();tts.shutdown();tts=null;}}
++ private void release(){if(closed)return;closed=true;testGeneration++;testing=false;if(callback!=null&&cm!=null){try{cm.unregisterNetworkCallback(callback);}catch(RuntimeException ignored){}callback=null;}activity.overlayClosed(dialog);handler.removeCallbacksAndMessages(null);ai.cancel();if(probe!=null)probe.cancel();if(future!=null)future.cancel(true);worker.shutdownNow();}
+  private static final class ActionGlyph extends android.graphics.drawable.Drawable {
+   private final int kind;private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);ActionGlyph(int k){kind=k;}
+   public void draw(Canvas canvas){canvas.save();canvas.translate(getBounds().left,getBounds().top);canvas.scale(getBounds().width()/24f,getBounds().height()/24f);p.setColor(GlassUi.CYAN);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(1.8f);
+@@ -117,7 +152,17 @@
+   }
+   public void setAlpha(int a){p.setAlpha(a);}public void setColorFilter(ColorFilter f){p.setColorFilter(f);}public int getOpacity(){return android.graphics.PixelFormat.TRANSLUCENT;}
+  }
+- private static final class Radar extends View{private final Paint p=new Paint(3);Radar(Context c){super(c);setContentDescription("Jarvis assistant emblem");}
+-  protected void onDraw(Canvas c){float x=getWidth()/2f,y=getHeight()/2f,r=Math.min(x,y)*.83f;p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(2);p.setColor(0xff16839a);c.drawCircle(x,y,r,p);c.drawCircle(x,y,r*.72f,p);p.setStrokeWidth(4);p.setColor(GlassUi.CYAN);c.drawArc(x-r,y-r,x+r,y+r,-80,285,false,p);}
++ private static final class SpeedMeter extends View {
++  private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);float progress;
++  SpeedMeter(Context c){super(c);setContentDescription("Kemajuan download Speedtest");}
++  protected void onDraw(Canvas c){float x=getWidth()/2f,y=getHeight()/2f,r=Math.min(x,y)*.85f;p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(4);p.setColor(0xff173b4b);c.drawCircle(x,y,r,p);p.setColor(GlassUi.CYAN);p.setStrokeCap(Paint.Cap.ROUND);c.drawArc(x-r,y-r,x+r,y+r,-90,Math.max(3,360*progress),false,p);}
++ }
++ private static final class Radar extends View {
++  private final Paint p=new Paint(3);private float angle=-80;private boolean active;
++  private final Runnable frame=new Runnable(){public void run(){if(!active)return;angle=(angle+3)%360;invalidate();postDelayed(this,50);}};
++  Radar(Context c){super(c);setContentDescription("Jarvis animated assistant emblem");}
++  public void onVisibilityAggregated(boolean visible){super.onVisibilityAggregated(visible);removeCallbacks(frame);active=visible&&android.animation.ValueAnimator.areAnimatorsEnabled();if(active)postDelayed(frame,50);}
++  protected void onDetachedFromWindow(){active=false;removeCallbacks(frame);super.onDetachedFromWindow();}
++  protected void onDraw(Canvas c){float x=getWidth()/2f,y=getHeight()/2f,r=Math.min(x,y)*.83f;p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(2);p.setColor(0xff16839a);c.drawCircle(x,y,r,p);c.drawCircle(x,y,r*.72f,p);p.setStrokeWidth(4);p.setColor(GlassUi.CYAN);c.drawArc(x-r,y-r,x+r,y+r,angle,285,false,p);}
+  }
+ }
+--- a/app/src/main/java/com/gathin/tvhome/SpeedProbe.java
++++ b/app/src/main/java/com/gathin/tvhome/SpeedProbe.java
+@@ -1,36 +1,51 @@
+ package com.gathin.tvhome;
++
+ import javax.net.ssl.HttpsURLConnection;
+ import java.net.URL;
+ import java.io.*;
++import java.util.Locale;
+ import java.util.concurrent.*;
+ import java.util.concurrent.atomic.AtomicBoolean;
+-/** Explicit-only limited download sample; no upload, polling, or system-setting writes. */
++
++/** Explicit, single-stream download only. Bounded memory/data; never uploads or starts itself. */
+ final class SpeedProbe {
+- static final int LIMIT=8*1024*1024;
++ static final int LIMIT=100*1024*1024;
++ static final int DEADLINE_SECONDS=120;
++ interface Progress { void update(long bytes,double seconds); }
++ interface ConnectionFactory { HttpsURLConnection open() throws IOException; }
++ private final ConnectionFactory factory;
+  private volatile boolean cancelled;private volatile HttpsURLConnection connection;
++ SpeedProbe(){this(()->(HttpsURLConnection)new URL("https://speed.cloudflare.com/__down?bytes="+LIMIT).openConnection());}
++ SpeedProbe(ConnectionFactory factory){this.factory=factory;}
+  static double mbps(long bytes,double seconds){if(bytes<=0||seconds<=0||!Double.isFinite(seconds))throw new IllegalArgumentException("Invalid sample");return bytes*8.0/seconds/1000000.0;}
+- double run() throws Exception {
+-  if(cancelled)throw new InterruptedIOException("Cancelled");
+-  HttpsURLConnection c=(HttpsURLConnection)new URL("https://speed.cloudflare.com/__down?bytes="+LIMIT).openConnection();connection=c;
++ double run() throws Exception {return run((bytes,seconds)->{});}
++ double run(Progress progress) throws Exception {
++  checkCancelled();HttpsURLConnection c=factory.open();connection=c;
+   ScheduledExecutorService timer=Executors.newSingleThreadScheduledExecutor();AtomicBoolean expired=new AtomicBoolean();
+-  ScheduledFuture<?> deadline=timer.schedule(()->{expired.set(true);c.disconnect();},8,TimeUnit.SECONDS);
+-  c.setConnectTimeout(5000);c.setReadTimeout(3500);c.setInstanceFollowRedirects(false);c.setUseCaches(false);c.setRequestProperty("Accept-Encoding","identity");
+-  long count=0;long start=System.nanoTime();
++  ScheduledFuture<?> deadline=timer.schedule(()->{expired.set(true);c.disconnect();},DEADLINE_SECONDS,TimeUnit.SECONDS);
++  long count=0,start=System.nanoTime(),last=start;
+   try{
+-   if(cancelled)throw new InterruptedIOException("Cancelled");
++   c.setConnectTimeout(10000);c.setReadTimeout(5000);c.setInstanceFollowRedirects(false);c.setUseCaches(false);
++   c.setRequestProperty("Accept-Encoding","identity");c.setRequestProperty("Cache-Control","no-cache");
++   checkCancelled();
+    if(c.getResponseCode()!=200)throw new IOException("Download endpoint unavailable");
+-   String type=c.getContentType();if(type!=null&&(type.toLowerCase(java.util.Locale.ROOT).contains("text/html")||type.toLowerCase(java.util.Locale.ROOT).contains("application/json")))throw new IOException("Unexpected download response");
++   String type=c.getContentType();if(type!=null&&(type.toLowerCase(Locale.ROOT).contains("text/")||type.toLowerCase(Locale.ROOT).contains("json")))throw new IOException("Unexpected download response");
++   String encoding=c.getContentEncoding();if(encoding!=null&&!encoding.equalsIgnoreCase("identity"))throw new IOException("Unexpected encoded response");
++   long length=c.getContentLengthLong();if(length>=0&&length!=LIMIT)throw new IOException("Unexpected download length");
++   // Elapsed time includes connection/TLS/response setup: an honest end-to-end estimate, not link speed.
+    try(InputStream in=c.getInputStream()){
+-    byte[] buffer=new byte[65536];int n;
+-    while(!cancelled&&!Thread.currentThread().isInterrupted()&&count<LIMIT&&!expired.get()){
+-     n=in.read(buffer,0,(int)Math.min(buffer.length,LIMIT-count));if(n<0)break;count+=n;
++    byte[] buffer=new byte[65536];
++    while(count<LIMIT){
++     checkCancelled();if(expired.get())throw new IOException("Download timed out");
++     int n=in.read(buffer,0,(int)Math.min(buffer.length,LIMIT-count));
++     if(n<0)throw new EOFException("Incomplete download");if(n==0)continue;count+=n;
++     long now=System.nanoTime();if(now-last>=250_000_000L){progress.update(count,(now-start)/1e9);last=now;}
+     }
+    }
+-   if(cancelled||Thread.currentThread().isInterrupted())throw new InterruptedIOException("Cancelled");
+-   if(expired.get())throw new IOException("Sample timed out");
+-   double duration=(System.nanoTime()-start)/1e9;
+-   if(count<16384)throw new IOException("Insufficient sample");return mbps(count,duration);
++   checkCancelled();if(expired.get())throw new IOException("Download timed out");
++   double seconds=(System.nanoTime()-start)/1e9;progress.update(count,seconds);checkCancelled();return mbps(count,seconds);
+   }finally{deadline.cancel(false);timer.shutdownNow();c.disconnect();connection=null;}
+  }
++ private void checkCancelled() throws InterruptedIOException {if(cancelled||Thread.currentThread().isInterrupted())throw new InterruptedIOException("Cancelled");}
+  void cancel(){cancelled=true;HttpsURLConnection c=connection;if(c!=null)c.disconnect();}
+ }
+--- a/app/src/test/java/com/gathin/tvhome/DashboardTest.java
++++ b/app/src/test/java/com/gathin/tvhome/DashboardTest.java
+@@ -36,20 +36,9 @@
+  @Test public void newHomeDoesNotRequireZoneOrLocationPermission(){try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){assertNotNull(c.get().findViewById(R.id.btnSettings));assertEquals("",ctx().getSharedPreferences("solat",0).getString("zone",""));}}
+  @Test public void savedOrderAndHideAreUsedByNewGrid(){demoApps();DashboardApps a=new DashboardApps(ctx());String key=DashboardApps.key(a.visible().get(0));assertTrue(a.move(key,1));assertEquals(key,DashboardApps.key(new DashboardApps(ctx()).visible().get(1)));AppVisibility.setHidden(ctx(),a.visible().get(0).activityInfo.packageName,true);assertEquals(6,a.visible().size());}
+  @Test public void emptyAppListStillHasSettingsAndPrayer(){try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){assertEquals(0,new DashboardApps(ctx()).visible().size());c.get().settings();assertTrue(org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog().isShowing());}}
+- @Test public void speechReadsEnglishStatusAndShutsDownOnClose()throws Exception{
+-  org.robolectric.shadows.ShadowTextToSpeech.addLanguageAvailability(Locale.US);
+-  try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
+-   JarvisPanel p=new JarvisPanel(c.get());p.show();
+-   android.speech.tts.TextToSpeech t=org.robolectric.shadows.ShadowTextToSpeech.getLastTextToSpeechInstance();assertNotNull(t);
+-   var shadow=Shadows.shadowOf(t);shadow.getOnInitListener().onInit(android.speech.tts.TextToSpeech.SUCCESS);Shadows.shadowOf(Looper.getMainLooper()).idle();
+-   assertNotNull("TTS must receive status text",shadow.getLastSpokenText());
+-   assertTrue(shadow.getLastSpokenText(),shadow.getLastSpokenText().contains("Network report"));
+-   assertEquals("en",shadow.getCurrentLanguage().getLanguage());
+-   p.close();
+-   assertTrue("TTS engine must shut down",shadow.isShutdown());
+-   assertTrue("Speech must stop on close",shadow.isStopped());
+-  }
+- }
++ @Test public void jarvisDoesNotCreateSpokenOutput(){try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
++  android.speech.tts.TextToSpeech before=org.robolectric.shadows.ShadowTextToSpeech.getLastTextToSpeechInstance();JarvisPanel panel=new JarvisPanel(c.get());panel.show();assertSame(before,org.robolectric.shadows.ShadowTextToSpeech.getLastTextToSpeechInstance());panel.close();
++ }}
+  @Test public void settingsAndHideDialogsRender()throws Exception{demoApps();try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
+   c.get().settings();AlertDialog d=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();captureDialog(d,"dashboard-settings");d.dismiss();c.get().hidden();d=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();captureDialog(d,"dashboard-hide");d.dismiss();}}
+  void captureDialog(Dialog d,String name)throws Exception{View v=d.getWindow().getDecorView();v.measure(View.MeasureSpec.makeMeasureSpec(1120,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(1000,View.MeasureSpec.AT_MOST));v.layout(0,0,1120,v.getMeasuredHeight());capture(v,name);}
+--- a/app/src/test/java/com/gathin/tvhome/JarvisRepairTest.java
++++ b/app/src/test/java/com/gathin/tvhome/JarvisRepairTest.java
+@@ -88,7 +88,8 @@
+   fixture.render(c.get(),1920,1080);AlertDialog one=c.get().show(new AlertDialog.Builder(c.get()).setTitle("One"));AlertDialog two=c.get().show(new AlertDialog.Builder(c.get()).setTitle("Two"));c.pause();pump();assertFalse(one.isShowing());assertFalse(two.isShowing());assertTrue(((java.util.Map<?,?>)field(c.get(),"overlays")).isEmpty());
+  }}
+  @Test public void closingDuringDownloadCancelsProbeAndWorkerWithoutAiOrStaleUi()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
+-  fixture.render(c.get(),1920,1080);FakeAi ai=new FakeAi();JarvisPanel panel=new JarvisPanel(c.get(),ai);panel.show();find(ShadowDialog.getLatestDialog().getWindow().getDecorView(),"Test Internet").performClick();
++  fixture.render(c.get(),1920,1080);FakeAi ai=new FakeAi();JarvisSpeedtestTest.Controlled conn=new JarvisSpeedtestTest.Controlled();JarvisPanel panel=new JarvisPanel(c.get(),ai,()->new SpeedProbe(()->conn));panel.show();find(ShadowDialog.getLatestDialog().getWindow().getDecorView(),"Speedtest").performClick();
++  find(ShadowDialog.getLatestDialog().getWindow().getDecorView(),"Mula Speedtest").performClick();
+   TextView result=(TextView)field(panel,"speed");assertEquals("Measuring download…",result.getText().toString());panel.close();assertEquals(true,field(field(panel,"probe"),"cancelled"));assertTrue(((Future<?>)field(panel,"future")).isCancelled());
+   assertTrue(((ExecutorService)field(panel,"worker")).awaitTermination(12,TimeUnit.SECONDS));pump();assertEquals(0,ai.calls.get());assertEquals("Measuring download…",result.getText().toString());assertEquals(View.VISIBLE,home(c.get()).getVisibility());
+  }}
+@@ -99,7 +100,7 @@
+  @Test public void longAiResultUsesExistingScrollContainerWithoutEllipsis()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
+   fixture.render(c.get(),1920,1080);FakeAi ai=new FakeAi();ai.result="TEST FIXTURE, NOT LIVE. "+"Network explanation for TV remote use. ".repeat(35);ai.finish.countDown();JarvisPanel panel=new JarvisPanel(c.get(),ai);panel.show();Dialog dialog=ShadowDialog.getLatestDialog();TextView button=find(dialog.getWindow().getDecorView(),"Explain with AI");button.performClick();await(button::isEnabled);
+   View decor=dialog.getWindow().getDecorView();int width=dialog.getWindow().getAttributes().width,height=dialog.getWindow().getAttributes().height;decor.measure(View.MeasureSpec.makeMeasureSpec(width,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(height,View.MeasureSpec.EXACTLY));decor.layout(0,0,width,height);
+-  TextView result=(TextView)field(panel,"speed");assertTrue(result.getText().toString().endsWith(ai.result));assertNull(result.getEllipsize());ScrollView scroll=(ScrollView)result.getParent().getParent();assertTrue(scroll.getChildAt(0).getHeight()>scroll.getHeight());assertTrue(button.isFocusable());panel.close();
++  TextView result=(TextView)field(panel,"speed");assertTrue(result.getText().toString().endsWith(ai.result));assertNull(result.getEllipsize());ScrollView scroll=(ScrollView)field(panel,"scroll");assertTrue(scroll.getChildAt(0).getHeight()>scroll.getHeight());assertTrue(button.isFocusable());panel.close();
+  }}
+ 
+ }
+--- a/app/src/test/java/com/gathin/tvhome/JarvisSidebarTest.java
++++ b/app/src/test/java/com/gathin/tvhome/JarvisSidebarTest.java
+@@ -19,8 +19,8 @@
+   View root=helper.render(c.get(),screenW,screenH);View grid=root.findViewById(R.id.grid);int before=grid.getWidth();c.get().showJarvis();Dialog d=ShadowDialog.getLatestDialog();WindowManager.LayoutParams p=d.getWindow().getAttributes();
+   assertEquals(Gravity.RIGHT|Gravity.TOP,p.gravity);assertTrue(p.width<=screenW/3);assertTrue(p.height<=screenH);assertTrue(p.y+p.height<=screenH);assertEquals(before,grid.getWidth());
+   View decor=d.getWindow().getDecorView();decor.measure(View.MeasureSpec.makeMeasureSpec(p.width,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(p.height,View.MeasureSpec.EXACTLY));decor.layout(0,0,p.width,p.height);
+-  for(String label:new String[]{"Cuaca Kinarut","Test Internet","Buka YouTube","Maklumat Sistem","Tetapan Wi-Fi","Aplikasi","Jarvis AI Settings","Explain with AI","Options","Close"}){TextView b=JarvisRepairTest.find(decor,label);assertNotNull(label,b);assertTrue(label,b.isFocusable());assertTrue(label,b.isClickable());}
+-  ScrollView scroll=(ScrollView)((TextView)JarvisRepairTest.field(JarvisRepairTest.field(c.get(),"jarvis"),"speed")).getParent().getParent();View box=scroll.getChildAt(0);
++  for(String label:new String[]{"Cuaca Kinarut","Speedtest","Buka YouTube","Maklumat Sistem","Tetapan Wi-Fi","Aplikasi","Jarvis AI Settings","Explain with AI","Options","Close"}){TextView b=JarvisRepairTest.find(decor,label);assertNotNull(label,b);assertTrue(label,b.isFocusable());assertTrue(label,b.isClickable());}
++  ScrollView scroll=(ScrollView)JarvisRepairTest.field(JarvisRepairTest.field(c.get(),"jarvis"),"scroll");View box=scroll.getChildAt(0);
+   Bitmap pixels=Bitmap.createBitmap(p.width,p.height,Bitmap.Config.ARGB_8888);decor.draw(new Canvas(pixels));assertEquals("Opaque panel interior",255,Color.alpha(pixels.getPixel(p.width/2,p.height/2)));pixels.recycle();
+   Bitmap composite=Bitmap.createBitmap(screenW,screenH,Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(composite);root.draw(canvas);canvas.save();canvas.translate(screenW-p.x-p.width,p.y);decor.draw(canvas);canvas.restore();try(var out=new java.io.FileOutputStream(new java.io.File(System.getProperty("user.dir"),"build/"+name+"-FIXTURE.png"))){composite.compress(Bitmap.CompressFormat.PNG,100,out);}composite.recycle();
+   JarvisRepairTest.find(decor,"Close").performClick();JarvisRepairTest.pump();helper.render(c.get(),screenW,screenH);assertEquals(before,grid.getWidth());assertFalse(d.isShowing());
+--- /dev/null
++++ b/app/src/test/java/com/gathin/tvhome/SpeedProbeTest.java
+@@ -0,0 +1,19 @@
++package com.gathin.tvhome;
++import org.junit.Test;import static org.junit.Assert.*;
++import javax.net.ssl.*;import java.security.cert.Certificate;import java.net.*;import java.io.*;import java.util.concurrent.atomic.AtomicInteger;
++public class SpeedProbeTest {
++ static class FakeConnection extends HttpsURLConnection {
++  long remaining=SpeedProbe.LIMIT,read;boolean disconnected;int code=200;String type="application/octet-stream",encoding;long length=SpeedProbe.LIMIT;
++  FakeConnection()throws Exception{super(new URL("https://fixture.invalid/download"));}
++  public void connect(){}public boolean usingProxy(){return false;}public void disconnect(){disconnected=true;}
++  public int getResponseCode(){return code;}public String getContentType(){return type;}public String getContentEncoding(){return encoding;}public long getContentLengthLong(){return length;}
++  public InputStream getInputStream(){return new InputStream(){public int read(){if(remaining<=0)return -1;remaining--;read++;return 0;}public int read(byte[] b,int off,int len){if(remaining<=0)return -1;int n=(int)Math.min(remaining,len);remaining-=n;read+=n;return n;}};}
++  public String getCipherSuite(){return "FIXTURE";}public Certificate[] getLocalCertificates(){return null;}public Certificate[] getServerCertificates(){return null;}
++ }
++ @Test public void exact100MiBCapAndFinalProgress()throws Exception{FakeConnection c=new FakeConnection();c.remaining+=999;long[] last={0};double result=new SpeedProbe(()->c).run((bytes,seconds)->last[0]=bytes);assertEquals(104857600,c.read);assertEquals(SpeedProbe.LIMIT,last[0]);assertTrue(result>0);assertTrue(c.disconnected);assertFalse(c.getUseCaches());assertFalse(c.getInstanceFollowRedirects());assertEquals("GET",c.getRequestMethod());assertEquals("identity",c.getRequestProperty("Accept-Encoding"));}
++ @Test public void cancelBeforeOpenDoesNotMakeRequest()throws Exception{AtomicInteger calls=new AtomicInteger();SpeedProbe p=new SpeedProbe(()->{calls.incrementAndGet();throw new IOException();});p.cancel();assertThrows(InterruptedIOException.class,()->p.run());assertEquals(0,calls.get());}
++ @Test public void shortReadIsFailureNotSuccess()throws Exception{FakeConnection c=new FakeConnection();c.remaining=16384;assertThrows(EOFException.class,()->new SpeedProbe(()->c).run());assertTrue(c.disconnected);}
++ @Test public void wrongStatusHtmlEncodingAndLengthAreRejected()throws Exception{for(int kind=0;kind<4;kind++){FakeConnection c=new FakeConnection();if(kind==0)c.code=503;if(kind==1)c.type="text/html";if(kind==2)c.encoding="gzip";if(kind==3)c.length=123;assertThrows(IOException.class,()->new SpeedProbe(()->c).run());assertEquals(0,c.read);assertTrue(c.disconnected);}}
++ @Test public void cancellationDuringProgressStopsRead()throws Exception{FakeConnection c=new FakeConnection();SpeedProbe p=new SpeedProbe(()->c);assertThrows(InterruptedIOException.class,()->p.run((bytes,seconds)->p.cancel()));assertTrue(c.disconnected);}
++ @Test public void invalidThroughputIsRejected(){assertThrows(IllegalArgumentException.class,()->SpeedProbe.mbps(1,Double.NaN));assertEquals(8,SpeedProbe.mbps(1_000_000,1),0.00001);}
++}
+--- /dev/null
++++ b/app/src/test/java/com/gathin/tvhome/JarvisSpeedtestTest.java
+@@ -0,0 +1,46 @@
++package com.gathin.tvhome;
++import android.app.*;import android.graphics.*;import android.os.*;import android.view.*;import android.widget.*;
++import org.junit.*;import static org.junit.Assert.*;import org.junit.runner.RunWith;import org.robolectric.*;import org.robolectric.annotation.*;import org.robolectric.shadows.ShadowDialog;
++import java.io.*;import java.util.concurrent.*;
++@RunWith(RobolectricTestRunner.class) @org.robolectric.annotation.Config(sdk=34,qualifiers="w960dp-h540dp-land-xhdpi") @GraphicsMode(GraphicsMode.Mode.NATIVE)
++public class JarvisSpeedtestTest {
++ final DashboardTest helper=new DashboardTest();
++ static class Controlled extends SpeedProbeTest.FakeConnection {
++  final CountDownLatch release=new CountDownLatch(1);boolean paused;Controlled()throws Exception{}
++  public InputStream getInputStream(){InputStream base=super.getInputStream();return new InputStream(){public int read()throws IOException{return base.read();}public int read(byte[] b,int off,int len)throws IOException{
++   if(read>=32L*1024*1024&&!paused){paused=true;try{Thread.sleep(300);}catch(InterruptedException e){throw new InterruptedIOException();}}
++   if(read>=33L*1024*1024){try{release.await(5,TimeUnit.SECONDS);}catch(InterruptedException e){throw new InterruptedIOException();}}
++   return base.read(b,off,len);
++  }};}
++  public void disconnect(){super.disconnect();release.countDown();}
++ }
++ void click(Dialog d,String text){TextView b=JarvisRepairTest.find(d.getWindow().getDecorView(),text);assertNotNull(text,b);b.performClick();JarvisRepairTest.pump();}
++ void capture(View root,Dialog dialog,String name,int w,int h)throws Exception{
++  Bitmap b=Bitmap.createBitmap(w,h,Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(b);root.draw(canvas);
++  if(dialog!=null){View decor=dialog.getWindow().getDecorView();WindowManager.LayoutParams a=dialog.getWindow().getAttributes();decor.measure(View.MeasureSpec.makeMeasureSpec(a.width,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(a.height,View.MeasureSpec.EXACTLY));decor.layout(0,0,a.width,a.height);canvas.save();canvas.translate(w-a.x-a.width,a.y);decor.draw(canvas);canvas.restore();}
++  Paint p=new Paint(3);p.setColor(0xdd041522);canvas.drawRect(0,h-42,w*.74f,h,p);p.setColor(Color.WHITE);p.setTextSize(w/1920f*20);canvas.drawText("PRATONTON SIMULASI · UI daripada kod Android · aplikasi/data contoh · bukan ujian internet sebenar",30,h-14,p);
++  File f=new File(System.getProperty("user.dir"),"build/speedtest-previews/"+name+".png");f.getParentFile().mkdirs();try(var out=new FileOutputStream(f)){b.compress(Bitmap.CompressFormat.PNG,100,out);}b.recycle();
++ }
++ @Test public void fullFlowWithFixtureProgressResultAndBackRestoresHome()throws Exception{
++  helper.demoApps();helper.seedApiCache();try(var a=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++   View root=helper.render(a.get(),1920,1080);View grid=root.findViewById(R.id.grid);int before=grid.getWidth();capture(root,null,"01-home",1920,1080);
++   Controlled connection=new Controlled();JarvisPanel panel=new JarvisPanel(a.get(),new JarvisAiClient(a.get()),()->new SpeedProbe(()->connection));panel.show();Dialog d=ShadowDialog.getLatestDialog();capture(root,d,"02-jarvis",1920,1080);
++   click(d,"Speedtest");assertEquals(View.GONE,((View)JarvisRepairTest.field(panel,"mainBox")).getVisibility());capture(root,d,"03-ready",1920,1080);
++   click(d,"Mula Speedtest");assertFalse(((TextView)JarvisRepairTest.field(panel,"testStart")).isEnabled());assertTrue(((TextView)JarvisRepairTest.field(panel,"testCancel")).hasFocus());
++   JarvisRepairTest.await(()->{try{return (long)JarvisRepairTest.field(panel,"testBytes")>0;}catch(Exception e){return false;}});capture(root,d,"04-running",1920,1080);
++   connection.release.countDown();JarvisRepairTest.await(()->{try{return !(boolean)JarvisRepairTest.field(panel,"testing");}catch(Exception e){return false;}});
++   assertEquals("100 / 100 MiB",((TextView)JarvisRepairTest.field(panel,"testUsage")).getText().toString());assertTrue(((TextView)JarvisRepairTest.field(panel,"testState")).getText().toString().startsWith("Selesai"));assertNotNull(JarvisRepairTest.field(panel,"measuredDownload"));capture(root,d,"05-result-FIXTURE",1920,1080);
++   d.dispatchKeyEvent(new KeyEvent(0,KeyEvent.KEYCODE_BACK));d.dispatchKeyEvent(new KeyEvent(1,KeyEvent.KEYCODE_BACK));assertTrue(d.isShowing());assertTrue(((View)JarvisRepairTest.field(panel,"speedButton")).hasFocus());
++   click(d,"Close");helper.render(a.get(),1920,1080);assertEquals(before,grid.getWidth());capture(root,null,"06-closed",1920,1080);
++  }
++ }
++ @Test public void cancelClearsResultAndStaleProgressCannotRestoreSuccess()throws Exception{try(var a=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  helper.render(a.get(),1920,1080);Controlled connection=new Controlled();JarvisPanel panel=new JarvisPanel(a.get(),new JarvisAiClient(a.get()),()->new SpeedProbe(()->connection));panel.show();Dialog d=ShadowDialog.getLatestDialog();click(d,"Speedtest");click(d,"Mula Speedtest");click(d,"Batal ujian");connection.release.countDown();Thread.sleep(100);JarvisRepairTest.pump();assertEquals("Ujian dibatalkan",((TextView)JarvisRepairTest.field(panel,"testState")).getText().toString());assertNull(JarvisRepairTest.field(panel,"measuredDownload"));assertEquals("—\nMbps",((TextView)JarvisRepairTest.field(panel,"testValue")).getText().toString());assertTrue(((TextView)JarvisRepairTest.field(panel,"testStart")).isEnabled());panel.close();
++ }}
++ @Test public void failureDoesNotPublishSpeed()throws Exception{try(var a=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  helper.render(a.get(),1920,1080);SpeedProbeTest.FakeConnection conn=new SpeedProbeTest.FakeConnection();conn.code=503;JarvisPanel panel=new JarvisPanel(a.get(),new JarvisAiClient(a.get()),()->new SpeedProbe(()->conn));panel.show();Dialog d=ShadowDialog.getLatestDialog();click(d,"Speedtest");click(d,"Mula Speedtest");JarvisRepairTest.await(()->{try{return !(boolean)JarvisRepairTest.field(panel,"testing");}catch(Exception e){return false;}});assertNull(JarvisRepairTest.field(panel,"measuredDownload"));assertEquals("—\nMbps",((TextView)JarvisRepairTest.field(panel,"testValue")).getText().toString());panel.close();
++ }}
++ @Test @org.robolectric.annotation.Config(qualifiers="w640dp-h360dp-land-xhdpi") public void speedtest720FitsAndBackCancels()throws Exception{try(var a=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  View root=helper.render(a.get(),1280,720);Controlled conn=new Controlled();JarvisPanel panel=new JarvisPanel(a.get(),new JarvisAiClient(a.get()),()->new SpeedProbe(()->conn));panel.show();Dialog d=ShadowDialog.getLatestDialog();click(d,"Speedtest");capture(root,d,"07-ready-720",1280,720);assertTrue(d.getWindow().getAttributes().height+d.getWindow().getAttributes().y<=720);click(d,"Mula Speedtest");d.dispatchKeyEvent(new KeyEvent(0,4));d.dispatchKeyEvent(new KeyEvent(1,4));assertEquals(false,JarvisRepairTest.field(panel,"testing"));assertTrue(d.isShowing());panel.close();
++ }}
++}

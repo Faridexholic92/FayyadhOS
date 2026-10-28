@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.RainPerformanceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-27T03:42:38" hostname="37e1e9f6-e1b" time="7.031">
+  <properties/>
+  <testcase name="recordBeforeAfterSoftwareCanvasAndInactiveBudget" classname="com.gathin.tvhome.RainPerformanceTest" time="7.031"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

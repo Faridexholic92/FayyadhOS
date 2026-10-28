@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.PlaceWallpapersTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-26T22:46:28" hostname="dd1e2106-3ed" time="0.003">
+  <properties/>
+  <testcase name="namesTheThingAndItsCountry" classname="com.gathin.tvhome.PlaceWallpapersTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

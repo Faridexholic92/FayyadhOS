@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.WeatherWidgetTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-27T00:51:22" hostname="10d092ef-e1b" time="10.03">
+  <properties/>
+  <testcase name="successfulRefreshReplacesCacheLabelWithoutChangingWeatherBounds" classname="com.gathin.tvhome.WeatherWidgetTest" time="0.089"/>
+  <testcase name="transparent720AndNoOverlaps" classname="com.gathin.tvhome.WeatherWidgetTest" time="0.819"/>
+  <testcase name="offlineMissingAndFreshCacheAndNetworkFailure" classname="com.gathin.tvhome.WeatherWidgetTest" time="0.36"/>
+  <testcase name="disabledKinarutFetchesPaparOnceWithoutEnablingRainAndPauses" classname="com.gathin.tvhome.WeatherWidgetTest" time="0.151"/>
+  <testcase name="noRepeatedTextLayoutAndTransparentOverBrightAndDarkWallpaper" classname="com.gathin.tvhome.WeatherWidgetTest" time="0.388"/>
+  <testcase name="missingNullInvalidTemperaturesDoNotInventValues" classname="com.gathin.tvhome.WeatherWidgetTest" time="0.014"/>
+  <testcase name="transparent1080AndNoOverlaps" classname="com.gathin.tvhome.WeatherWidgetTest" time="1.725"/>
+  <testcase name="missingExpiredAndWrongLocationHideUnsupportedData" classname="com.gathin.tvhome.WeatherWidgetTest" time="0.096"/>
+  <testcase name="liveResponseRangeIsForecastNotCurrent" classname="com.gathin.tvhome.WeatherWidgetTest" time="0.01"/>
+  <testcase name="freshDiskCacheIsLabelledEvenWithoutAnErrorOrNetworkRequest" classname="com.gathin.tvhome.WeatherWidgetTest" time="0.098"/>
+  <testcase name="failedRefreshLabelsPreviouslyFetchedMemoryDataAsRetainedCache" classname="com.gathin.tvhome.WeatherWidgetTest" time="0.097"/>
+  <testcase name="transparent4kAndNoOverlaps" classname="com.gathin.tvhome.WeatherWidgetTest" time="6.177"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

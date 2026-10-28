@@ -1,0 +1,3 @@
+Starting: Intent { cmp=dev.farred.fayyadhos.tv.jarvis.fix/com.gathin.tvhome.DashboardActivity }
+3019
+    mResumedActivity: ActivityRecord{9710bd4 u0 dev.farred.fayyadhos.tv.jarvis.fix/com.gathin.tvhome.DashboardActivity t3}

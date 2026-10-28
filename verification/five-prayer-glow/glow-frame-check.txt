@@ -1,0 +1,1 @@
+36 animation frames compared to frame 0. All changed pixels were confined to x=219..317, y=168..211 around the current Zohor label on the 1920x1080 preview. No time values, other labels, wallpaper or rest of widget changed.

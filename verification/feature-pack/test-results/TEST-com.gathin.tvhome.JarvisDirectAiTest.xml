@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.JarvisDirectAiTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-10-27T22:40:20" hostname="c123154c-d5c" time="0.437">
+  <properties/>
+  <testcase name="connectionTestRequiresRealCompletionResponseNotModelListing" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.037"/>
+  <testcase name="eachFailureStatusIsExplicitAndDoesNotExposeProviderBody" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.032"/>
+  <testcase name="corruptCiphertextFailsWithoutPlaintextFallback" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.022"/>
+  <testcase name="unavailableKeystoreFailsClosed" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.018"/>
+  <testcase name="noModelDoesNotRunCompletion" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.035"/>
+  <testcase name="directCompletionUsesActualChosenModelAndSanitizedFacts" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.025"/>
+  <testcase name="encryptedKeyRoundTripAndNoPlaintextPreference" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.012"/>
+  <testcase name="removalClearsEncryptedMaterialModelAndTestStatus" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.027"/>
+  <testcase name="keyReplacementInvalidatesSelectedModelAndSuccessfulTest" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.027"/>
+  <testcase name="encryptionUsesNewRandomNonceOnReplacement" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.019"/>
+  <testcase name="staleTestCannotMarkNewConfigurationSuccessful" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.029"/>
+  <testcase name="malformedWrongTypeEmptyAndOversizedResponsesCannotSucceed" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.026"/>
+  <testcase name="configurationChangeDuringRequestRejectsStaleResponse" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.022"/>
+  <testcase name="timeoutAndNetworkFailuresAreDistinctAndSanitized" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.016"/>
+  <testcase name="modelDiscoveryUsesOfficialHostAndSavedKeyOnly" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.035"/>
+  <testcase name="cancelPreventsRequestsAndCancelsTransport" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.028"/>
+  <testcase name="noKeyDoesNotContactAnyEndpoint" classname="com.gathin.tvhome.JarvisDirectAiTest" time="0.014"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

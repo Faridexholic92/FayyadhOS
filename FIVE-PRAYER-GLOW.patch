@@ -1,0 +1,265 @@
+--- a/app/src/test/java/com/gathin/tvhome/PrayerWeatherUpgradeTest.java
++++ b/app/src/test/java/com/gathin/tvhome/PrayerWeatherUpgradeTest.java
+@@ -43,20 +43,18 @@
+   PrayerRepository r=new PrayerRepository(activity,clock,(z,m)->official());r.fetch("SBH07",YearMonth.of(2026,10),true);
+   PrayerPanel panel=new PrayerPanel(activity,clock);panel.dashboardScale(1);return panel;
+  }
+- @Test public void rotatesFiveNotSyurukAndPausesForFocusDialogAndBackground()throws Exception{try(var c=Robolectric.buildActivity(Activity.class).setup().visible()){
+-  PrayerPanel p=configured(c.get(),new Time());LinearLayout host=new LinearLayout(c.get());host.setFocusableInTouchMode(true);host.addView(p,new LinearLayout.LayoutParams(520,228));c.get().setContentView(host);host.requestFocus();p.start();idle(10);
+-  TextView name=(TextView)field(p,"rotatingName");Set<String> seen=new HashSet<>();for(int i=0;i<5;i++){seen.add(name.getText().toString());idle(8000);}assertEquals(new HashSet<>(Arrays.asList("Subuh","Zohor","Asar","Maghrib","Isyak")),seen);
+-  p.obscured(true);String before=name.getText().toString();idle(16000);assertEquals(before,name.getText().toString());p.obscured(false);p.requestFocus();idle(16000);assertEquals(before,name.getText().toString());
+-  assertTrue(p.cycle(1));assertNotEquals(before,name.getText().toString());before=name.getText().toString();p.stop();idle(16000);assertEquals(before,name.getText().toString());p.destroy();
++ @Test public void fiveTimesDoNotRotateWhenTimePassesOrRemoteArrowsArePressed()throws Exception{try(var c=Robolectric.buildActivity(Activity.class).setup().visible()){
++  PrayerPanel p=configured(c.get(),new Time());c.get().setContentView(p);p.start();idle(10);ViewGroup row=p.findViewWithTag("fivePrayerRow");assertEquals(5,row.getChildCount());
++  String before=p.getContentDescription().toString();idle(16000);assertEquals(before,p.getContentDescription().toString());assertFalse(p.cycle(1));assertEquals(before,p.getContentDescription().toString());p.destroy();
+  }}
+- @Test public void currentBadgeIsIndependentOfRotatingSlotAndMissingDayHasNoOldTime()throws Exception{try(var c=Robolectric.buildActivity(Activity.class).setup()){
+-  Time clock=new Time();PrayerPanel p=configured(c.get(),clock);c.get().setContentView(p);p.start();idle(10);assertTrue(((TextView)field(p,"currentBadge")).getText().toString().contains("Zohor"));p.cycle(1);p.cycle(1);assertTrue(((TextView)field(p,"currentBadge")).getText().toString().contains("Zohor"));
+-  clock.value=Instant.parse("2026-12-01T04:30:00Z");render(p);assertEquals("--:--",((TextView)field(p,"rotatingTime")).getText().toString());assertFalse(((TextView)field(p,"currentBadge")).getText().toString().contains("SEMASA"));p.destroy();
++ @Test public void currentNameIsIndependentOfFocusAndMissingDayClearsEveryTime()throws Exception{try(var c=Robolectric.buildActivity(Activity.class).setup()){
++  Time clock=new Time();PrayerPanel p=configured(c.get(),clock);c.get().setContentView(p);p.start();idle(10);assertEquals(2,field(p,"glowingIndex"));p.requestFocus();render(p);assertEquals(2,field(p,"glowingIndex"));
++  clock.value=Instant.parse("2026-12-01T04:30:00Z");render(p);for(TextView t:(TextView[])field(p,"values"))assertEquals("--:--",t.getText().toString());assertEquals(-1,field(p,"glowingIndex"));p.destroy();
+  }}
+  @Test public void newDefaultsAutoRainButExistingOffAndLightningOptInAreRespected(){var prefs=RainOptions.prefs(RuntimeEnvironment.getApplication());RainOptions o=new RainOptions(prefs);assertTrue(o.enabled);assertTrue(o.forecastDriven);assertFalse(o.lightning);prefs.edit().putBoolean("enabled",false).putBoolean("forecast",false).commit();o=new RainOptions(prefs);assertFalse(o.enabled);assertFalse(o.forecastDriven);}
+  @Test public void lightningRequiresOptInThunderAndMotionAndRespectsReducedMotion(){var ctx=RuntimeEnvironment.getApplication();var prefs=RainOptions.prefs(ctx);RainGlassView view=new RainGlassView(ctx);view.configure(new RainOptions(prefs));view.setThunder(true);assertFalse(view.thunderEnabled());prefs.edit().putBoolean("lightning",true).commit();view.configure(new RainOptions(prefs));assertTrue(view.thunderEnabled());view.setThunder(false);assertFalse(view.thunderEnabled());view.setThunder(true);android.provider.Settings.Global.putFloat(ctx.getContentResolver(),android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,0);view.configure(new RainOptions(prefs));assertFalse(view.thunderEnabled());assertEquals(0,view.activeMovingCount());assertTrue(view.streakCount()<=48);view.destroy();}
+  @Test public void clearHomeAndStormNativePreviewsAreExplicitFixtures()throws Exception{helper.demoApps();try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
+-  DashboardActivity a=c.get();View root=helper.render(a,1920,1080);PrayerPanel old=a.findViewById(R.id.prayerPanel);old.destroy();ViewGroup body=(ViewGroup)old.getParent();ViewGroup.LayoutParams params=old.getLayoutParams();body.removeView(old);Time clock=new Time();PrayerPanel p=configured(a,clock);body.addView(p,params);p.start();p.obscured(true);p.cycle(1); // Zohor, matching the fixture's MYT 12:30.
++  DashboardActivity a=c.get();View root=helper.render(a,1920,1080);PrayerPanel old=a.findViewById(R.id.prayerPanel);old.destroy();ViewGroup body=(ViewGroup)old.getParent();ViewGroup.LayoutParams params=old.getLayoutParams();body.removeView(old);Time clock=new Time();PrayerPanel p=configured(a,clock);body.addView(p,params);p.start();p.obscured(true);// All five visible; current Zohor follows the fixture clock.
+   ((TextView)field(a,"clock")).setText("12:30 PM");((TextView)field(a,"date")).setText("Sunday, 25 Oct 2026");((TextView)field(a,"greeting")).setText("Good afternoon");
+   TextView mark=new TextView(a);mark.setText("PRATONTON • 25 Okt 2026 • aplikasi & cuaca simulasi • bukan tangkapan TV sebenar");mark.setTextColor(Color.WHITE);mark.setTextSize(12);mark.setBackgroundColor(0xd0041720);FrameLayout.LayoutParams mp=new FrameLayout.LayoutParams(-2,-2,Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL);mp.bottomMargin=36;((FrameLayout)root).addView(mark,mp);
+   helper.render(a,1920,1080);
+--- a/app/src/main/java/com/gathin/tvhome/DashboardActivity.java
++++ b/app/src/main/java/com/gathin/tvhome/DashboardActivity.java
+@@ -76,7 +76,7 @@
+   grid.setLayoutManager(new LinearLayoutManager(this,RecyclerView.HORIZONTAL,false));grid.setItemAnimator(null);
+   grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,40,258,778,112);
+   empty=text("No visible apps. Open Settings to unhide apps or install TV apps.",16,GlassUi.WHITE);empty.setGravity(Gravity.CENTER_VERTICAL);place(body,empty,46,264,770,96);
+-  prayer=new PrayerPanel(this);prayer.dashboardScale(scale);place(body,prayer,370,132,260,114);
++  prayer=new PrayerPanel(this);prayer.dashboardScale(scale);place(body,prayer,40,84,390,40);
+   prayer.setNextFocusUpId(R.id.btnWifi);prayer.setNextFocusDownId(R.id.grid);
+   net.setNextFocusDownId(R.id.prayerPanel);settings.setNextFocusDownId(R.id.prayerPanel);
+   net.setNextFocusRightId(R.id.btnSettings);settings.setNextFocusLeftId(R.id.btnWifi);
+--- a/app/src/main/java/com/gathin/tvhome/PrayerPanel.java
++++ b/app/src/main/java/com/gathin/tvhome/PrayerPanel.java
+@@ -28,10 +28,9 @@
+     private final SharedPreferences prefs;
+     private final PrayerRepository repository;
+     private final Clock clock;
+-    private TextView rotatingName,rotatingTime,currentBadge,syurukLine;
+-    private int rotation;
++    private int glowingIndex=-1;
++    private android.animation.ValueAnimator glowAnimator;
+     private boolean obscured;
+-    private final Runnable rotate=new Runnable(){public void run(){if(active&&dashboard&&!obscured&&!hasFocus()){rotation=(rotation+1)%5;render();}scheduleRotation();}};
+     private final Handler handler=new Handler(Looper.getMainLooper());
+     private final ExecutorService worker=Executors.newSingleThreadExecutor();
+     private final Map<LocalDate,PrayerTimes.Day> days=new TreeMap<>();
+@@ -63,7 +62,7 @@
+         setContentDescription("JAKIM prayer times. Press OK for zone and options. Hold OK for FayyadhOS wallpapers.");
+         setNextFocusDownId(R.id.grid); setNextFocusUpId(R.id.btnSettings);
+         setBackground(panelBackground(false));
+-        setOnFocusChangeListener((v,focus)->{setBackground(panelBackground(focus));scheduleRotation();});
++        setOnFocusChangeListener((v,focus)->{setBackground(panelBackground(focus));invalidate();});
+         setOnClickListener(v->showOptions());
+         setOnLongClickListener(v->{
+             if(activity instanceof DashboardActivity) { ((DashboardActivity)activity).wallpapers(); return true; }
+@@ -132,39 +131,69 @@
+         }
+     }
+     private GradientDrawable panelBackground(boolean focused) {
+-        GradientDrawable b=new GradientDrawable(); b.setColor(dashboard?0xc00b2028:Color.TRANSPARENT);
+-        b.setCornerRadius(dp(dashboard?12*dashboardScale:8)); b.setStroke(dp(focused?2:dashboard?1:0),focused?GlassUi.CYAN:dashboard?0x708facb9:Color.TRANSPARENT); return b;
+-    }
+-    /** One lightweight glass tile below the clock; the six-time legacy strip remains intact. */
++        GradientDrawable b=new GradientDrawable(); b.setColor(Color.TRANSPARENT);
++        b.setCornerRadius(dp(8)); b.setStroke(dp(!dashboard&&focused?2:0),!dashboard&&focused?GlassUi.CYAN:Color.TRANSPARENT); return b;
++    }
++    /** Five simultaneous fardu times below the brand; no card, Syuruk or rotating slot. */
+     void dashboardScale(float scale) {
+         dashboard=true;dashboardScale=scale;setFocusableInTouchMode(true);
+-        for(TextView label:labels) ((ViewGroup)label.getParent()).removeView(label);
+-        for(TextView value:values) {((ViewGroup)value.getParent()).removeView(value);value.setTextSize(21*scale);}
+-        ((ViewGroup)heading.getParent()).removeView(heading);
+-        ((ViewGroup)subtitle.getParent()).removeView(subtitle);
+-        removeAllViews();setPadding(scaled(12),scaled(7),scaled(12),scaled(7));
+-        heading.setContentDescription(activity.getString(R.string.dashboard_prayer_title));heading.setTextSize(8*scale);heading.setLetterSpacing(.08f);heading.setTextColor(GlassUi.CYAN);addView(heading,new LayoutParams(-1,scaled(12)));
+-        LinearLayout row=new LinearLayout(activity);row.setGravity(Gravity.CENTER_VERTICAL);
+-        rotatingName=text(14,WHITE);rotatingName.setTextSize(14*scale);rotatingName.setSingleLine(true);rotatingName.setTag("rotatingPrayerName");row.addView(rotatingName,new LayoutParams(0,-2,1));
+-        rotatingTime=text(23,WHITE);rotatingTime.setTextSize(23*scale);rotatingTime.setTag("rotatingPrayerTime");row.addView(rotatingTime,new LayoutParams(-2,-2));
+-        addView(row,new LayoutParams(-1,scaled(29)));
+-        currentBadge=text(9,GlassUi.CYAN);currentBadge.setTextSize(9*scale);currentBadge.setGravity(Gravity.CENTER);currentBadge.setSingleLine(true);currentBadge.setTag("currentPrayerBadge");
+-        addView(currentBadge,new LayoutParams(-1,scaled(19)));
+-        syurukLine=text(10,MUTED);syurukLine.setTextSize(10*scale);syurukLine.setSingleLine(true);syurukLine.setTag("prayerSyuruk");addView(syurukLine,new LayoutParams(-1,scaled(16)));
+-        subtitle.setTextSize(8*scale);subtitle.setTypeface(null,Typeface.NORMAL);addView(subtitle,new LayoutParams(-1,scaled(14)));
+-        setBackground(panelBackground(hasFocus()));render();
+-    }
+-    void obscured(boolean value){obscured=value;scheduleRotation();}
+-    private void scheduleRotation(){handler.removeCallbacks(rotate);if(active&&dashboard&&!obscured&&!hasFocus())handler.postDelayed(rotate,8000);}
+-    boolean cycle(int direction){if(!dashboard)return false;rotation=(rotation+direction+5)%5;render();return true;}
++        for(TextView label:labels) if(label.getParent()!=null)((ViewGroup)label.getParent()).removeView(label);
++        for(TextView value:values) if(value.getParent()!=null)((ViewGroup)value.getParent()).removeView(value);
++        if(heading.getParent()!=null)((ViewGroup)heading.getParent()).removeView(heading);
++        if(subtitle.getParent()!=null)((ViewGroup)subtitle.getParent()).removeView(subtitle);
++        removeAllViews();setPadding(0,scaled(1),0,0);setClipChildren(false);setClipToPadding(false);
++        LinearLayout row=new LinearLayout(activity);row.setClipChildren(false);row.setClipToPadding(false);row.setTag("fivePrayerRow");
++        for(int index:PrayerTimes.PRAYERS){
++            LinearLayout cell=new LinearLayout(activity);cell.setOrientation(VERTICAL);cell.setClipChildren(false);cell.setClipToPadding(false);
++            labels[index].setTextSize(12*scale);labels[index].setSingleLine(true);labels[index].setTag("prayerName-"+index);
++            values[index].setTextSize(18*scale);values[index].setSingleLine(true);values[index].setTag("prayerTime-"+index);
++            cell.addView(labels[index],new LayoutParams(-1,scaled(15)));
++            cell.addView(values[index],new LayoutParams(-1,scaled(22)));
++            row.addView(cell,new LayoutParams(0,-2,1));
++        }
++        addView(row,new LayoutParams(-1,-2));setBackground(panelBackground(hasFocus()));render();
++    }
++    void obscured(boolean value){obscured=value;syncGlow();}
++    // All five remain visible. Left/right must never rotate or replace the current slot.
++    boolean cycle(int direction){return false;}
++    private void cancelGlow(){if(glowAnimator!=null){glowAnimator.cancel();glowAnimator=null;}}
++    private void staticGlow(){
++        if(glowingIndex>=0)labels[glowingIndex].setShadowLayer(scaled(4),0,0,0x9967dce8);
++    }
++    private void syncGlow(){
++        if(!dashboard)return;
++        boolean animate=active&&!obscured&&isAttachedToWindow()&&isShown()&&getWindowVisibility()==VISIBLE&&glowingIndex>=0&&android.animation.ValueAnimator.areAnimatorsEnabled()&&android.provider.Settings.Global.getFloat(activity.getContentResolver(),android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,1f)>0;
++        if(!animate){cancelGlow();staticGlow();return;}
++        if(glowAnimator!=null&&glowAnimator.isRunning())return;
++        final TextView name=labels[glowingIndex];
++        glowAnimator=android.animation.ValueAnimator.ofFloat(0f,1f);glowAnimator.setDuration(1800);glowAnimator.setRepeatCount(android.animation.ValueAnimator.INFINITE);glowAnimator.setRepeatMode(android.animation.ValueAnimator.REVERSE);
++        glowAnimator.addUpdateListener(a->{float v=(float)a.getAnimatedValue();int alpha=Math.round(90+100*v);name.setShadowLayer(scaled(3+4*v),0,0,Color.argb(alpha,103,220,232));});
++        glowAnimator.start();
++    }
++    private void updateGlow(int index){
++        if(index!=glowingIndex){cancelGlow();glowingIndex=index;}
++        for(int i:PrayerTimes.PRAYERS){
++            labels[i].setTextColor(i==glowingIndex?GlassUi.CYAN:GlassUi.WHITE);
++            if(i!=glowingIndex)labels[i].setShadowLayer(dp(2),0,dp(1),0xe6000000);
++            values[i].setTextColor(GlassUi.WHITE); // Only the current NAME glows, never the time or widget.
++        }
++        syncGlow();
++    }
++    @Override public void onVisibilityAggregated(boolean visible){super.onVisibilityAggregated(visible);if(dashboard)syncGlow();}
++    @Override protected void onDetachedFromWindow(){cancelGlow();super.onDetachedFromWindow();}
++    @Override protected void dispatchDraw(android.graphics.Canvas canvas){
++        super.dispatchDraw(canvas);
++        // A focus underline, not a filled card or rectangle; remote OK still opens all settings.
++        if(dashboard&&hasFocus()){android.graphics.Paint p=new android.graphics.Paint(3);p.setColor(GlassUi.CYAN);p.setStrokeWidth(Math.max(1,scaled(1)));canvas.drawLine(0,getHeight()-scaled(1),getWidth(),getHeight()-scaled(1),p);}
++    }
+     private int scaled(float n){return dp(n*dashboardScale);}
+     private String regionName(){for(String[] z:zones)if(z[0].equals(zone))return z[1].toUpperCase(Locale.getDefault());return "SELECT ZONE";}
+     void modeChanged() { render(); if(active) refresh(false); }
+     void start() {
+-        if(active) return; active=true; loadCache(); handler.removeCallbacks(tick); handler.post(tick); scheduleRotation();
++        if(active) return; active=true; loadCache(); handler.removeCallbacks(tick); handler.post(tick); syncGlow();
+     }
+     void stop() {
+-        active=false; handler.removeCallbacks(tick);handler.removeCallbacks(rotate);
++        active=false; handler.removeCallbacks(tick);cancelGlow();
+         if(dialog!=null) dialog.dismiss();
+     }
+     void destroy() { stop(); generation++; worker.shutdownNow(); }
+@@ -223,9 +252,14 @@
+         for(int i=0;i<6;i++) {
+             values[i].setText(day==null?"--:--":PrayerTimes.hhmm(day.times[i]));
+             boolean selected=i==PrayerTimes.current(day,now);
+-            values[i].setTextColor(selected?GOLD:WHITE); labels[i].setTextColor(selected?GOLD:MUTED);
+-        }
+-        if(dashboard)renderCompact(day,now);
++            if(!dashboard){values[i].setTextColor(selected?GOLD:WHITE); labels[i].setTextColor(selected?GOLD:MUTED);}
++        }
++        if(dashboard){
++            int current=PrayerTimes.current(day,now);updateGlow(current);
++            StringBuilder description=new StringBuilder(zone.isEmpty()?"Pilih zon JAKIM. ":zoneName()+". ");
++            for(int index:PrayerTimes.PRAYERS)description.append(PrayerTimes.NAMES[index]).append(" ").append(values[index].getText()).append(current==index?" semasa. ":". ");
++            description.append("OK: jadual lengkap dan tetapan. Tekan lama: wallpaper.");setContentDescription(description.toString());
++        }
+         if(zone.isEmpty()) { subtitle.setText("Press OK to select your state and zone. No location is selected automatically."); return; }
+         if(day==null) {
+             if(!NetworkFocus.automaticPrayer(activity) && !busy) { subtitle.setText("Focus mode · No schedule for today. Refresh from prayer options."); return; }
+@@ -247,17 +281,6 @@
+         if(dashboard){String source=busy?"Memuat…":online?"e-Solat JAKIM":"Cache JAKIM";subtitle.setText(activity.getString(R.string.solat_source_stamp,source,updated.isEmpty()?"—":updated,failure.isEmpty()?"":" · gagal kemas kini"));return;}
+         subtitle.setText(line+status+(!NetworkFocus.automaticPrayer(activity)?" · Focus: manual refresh":"")+" · MYT (UTC+8)");
+     }
+-    private void renderCompact(PrayerTimes.Day day,Instant now){
+-        int index=PrayerTimes.PRAYERS[rotation],current=PrayerTimes.current(day,now);
+-        rotatingName.setText(PrayerTimes.NAMES[index]);rotatingTime.setText(day==null?"--:--":PrayerTimes.hhmm(day.times[index]));
+-        boolean selected=current==index;rotatingTime.setTextColor(selected?GlassUi.CYAN:WHITE);
+-        currentBadge.setText(current<0?(day==null?"Pilih negeri / zon · tekan OK":"Menunggu Subuh / Zohor"):
+-                "SEMASA · "+PrayerTimes.NAMES[current]+"  "+PrayerTimes.hhmm(day.times[current]));
+-        GradientDrawable badge=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{current<0?0x1800e5ff:0x5567dce8,0x180b2638});
+-        badge.setCornerRadius(scaled(6));badge.setStroke(scaled(1),current<0?0x3067dce8:0xa067dce8);currentBadge.setBackground(badge);
+-        syurukLine.setText(activity.getString(R.string.solat_rotation_syuruk,day==null?"--:--":PrayerTimes.hhmm(day.times[1]),rotation+1));
+-        setContentDescription((zone.isEmpty()?"Pilih zon JAKIM":zoneName())+". "+rotatingName.getText()+" "+rotatingTime.getText()+". "+currentBadge.getText()+". OK: jadual lengkap dan tetapan. Kiri kanan: tukar waktu.");
+-    }
+     private void showSchedule(){
+         Instant now=clock.instant();PrayerTimes.Day day=days.get(now.atZone(PrayerTimes.MALAYSIA).toLocalDate());
+         StringBuilder message=new StringBuilder(zoneName()+"\n"+now.atZone(PrayerTimes.MALAYSIA).toLocalDate()+" · MYT\n\n");
+@@ -283,8 +306,8 @@
+                                     "Negeri dan bandar dipadankan kepada zon JAKIM yang anda pilih. Tiada zon dipilih secara automatik. " +
+                                     "Jadual bulanan yang disahkan disimpan pada TV; hanya tarikh hari ini dipaparkan. Data cache ditanda, bukan dianggap muat turun baharu. " +
+                                     "Muat semula pada tengah malam Malaysia semasa Home aktif; jika TV tidur, semak semula apabila Home dibuka. Tiada servis latar belakang.\n\n"+
+-                                    "Waktu semasa mengikut sela jadual; Subuh berhenti diserlah selepas Syuruk. Sebelum Subuh tiada badge semasa. Ini bukan fatwa had waktu solat. " +
+-                                    "Syuruk bukan solat fardu. Tekan kiri/kanan untuk menukar waktu; giliran 8 saat dijeda semasa fokus/dialog.\n\n"+
++                                    "Waktu semasa mengikut sela jadual; Subuh berhenti diserlah selepas Syuruk. Sebelum Subuh tiada nama diserlah. Ini bukan fatwa had waktu solat. " +
++                                    "Syuruk bukan solat fardu. Lima waktu dipaparkan serentak di Home; hanya nama waktu semasa bercahaya lembut. Animasi dijeda semasa dialog/TV tidur dan menghormati tetapan animasi sistem.\n\n"+
+                                     "Aplikasi komuniti, bukan aplikasi rasmi JAKIM. Zon dihantar terus ke www.e-solat.gov.my. Tiada GPS, akaun atau kunci API diperlukan.")
+                             .setPositiveButton("Close",null) );
+                 }).setNegativeButton("Close",null) );
+--- /dev/null
++++ b/app/src/test/java/com/gathin/tvhome/FivePrayerGlowTest.java
+@@ -0,0 +1,55 @@
++package com.gathin.tvhome;
++import android.animation.ValueAnimator;import android.app.*;import android.graphics.*;import android.graphics.drawable.GradientDrawable;import android.os.*;import android.view.*;import android.widget.*;
++import org.junit.*;import org.junit.runner.RunWith;import org.robolectric.*;import org.robolectric.annotation.GraphicsMode;
++import java.lang.reflect.*;import java.time.*;import java.io.*;import static org.junit.Assert.*;
++@RunWith(RobolectricTestRunner.class) @org.robolectric.annotation.Config(sdk=34,qualifiers="w960dp-h540dp-land-xhdpi") @GraphicsMode(GraphicsMode.Mode.NATIVE)
++public class FivePrayerGlowTest {
++ final DashboardTest helper=new DashboardTest();final PrayerWeatherUpgradeTest fixture=new PrayerWeatherUpgradeTest();
++ Object field(Object o,String n)throws Exception{return fixture.field(o,n);}
++ TextView[] labels(PrayerPanel p)throws Exception{return (TextView[])field(p,"labels");}TextView[] values(PrayerPanel p)throws Exception{return (TextView[])field(p,"values");}
++ void tick(PrayerPanel p,PrayerWeatherUpgradeTest.Time clock,String local)throws Exception{clock.value=LocalDateTime.parse("2026-10-25T"+local).atZone(PrayerTimes.MALAYSIA).toInstant();fixture.render(p);}
++ @Test public void fiveOrderedColumnsTransparentAndNoSyurukOrMetadataOnHome()throws Exception{try(var a=Robolectric.buildActivity(Activity.class).setup().visible()){
++  PrayerPanel p=fixture.configured(a.get(),new PrayerWeatherUpgradeTest.Time());a.get().setContentView(p);p.start();JarvisRepairTest.pump();ViewGroup row=p.findViewWithTag("fivePrayerRow");assertEquals(5,row.getChildCount());
++  String[] names={"Subuh","Zohor","Asar","Maghrib","Isyak"};for(int i=0;i<5;i++)assertEquals(names[i],((TextView)((ViewGroup)row.getChildAt(i)).getChildAt(0)).getText().toString());
++  assertNull(labels(p)[1].getParent());assertNull(((TextView)field(p,"heading")).getParent());assertNull(((TextView)field(p,"subtitle")).getParent());assertEquals(Color.TRANSPARENT,((GradientDrawable)p.getBackground()).getColor().getDefaultColor());
++  assertEquals("04:52",values(p)[0].getText().toString());assertEquals("12:02",values(p)[2].getText().toString());assertEquals("19:10",values(p)[5].getText().toString());p.destroy();
++ }}
++ @Test public void onlyCurrentNameGlowsAndExactBoundariesMoveIt()throws Exception{try(var a=Robolectric.buildActivity(Activity.class).setup().visible()){
++  var clock=new PrayerWeatherUpgradeTest.Time();PrayerPanel p=fixture.configured(a.get(),clock);a.get().setContentView(p);p.start();JarvisRepairTest.pump();
++  String[] times={"04:51:59","04:52:00","06:01:00","12:02:00","15:20:59","15:21:00","17:59:00","19:10:00"};int[] selected={-1,0,-1,2,2,3,4,5};
++  for(int j=0;j<times.length;j++){tick(p,clock,times[j]);assertEquals(selected[j],field(p,"glowingIndex"));for(int i:PrayerTimes.PRAYERS){assertEquals(i==selected[j]?GlassUi.CYAN:GlassUi.WHITE,labels(p)[i].getCurrentTextColor());assertEquals(GlassUi.WHITE,values(p)[i].getCurrentTextColor());}}
++  p.destroy();
++ }}
++ @Test public void pulseStopsForOverlayBackgroundHiddenViewAndReducedMotion()throws Exception{try(var a=Robolectric.buildActivity(Activity.class).setup().visible()){
++  PrayerPanel p=fixture.configured(a.get(),new PrayerWeatherUpgradeTest.Time());a.get().setContentView(p);p.start();JarvisRepairTest.pump();assertNotNull(field(p,"glowAnimator"));
++  p.obscured(true);assertNull(field(p,"glowAnimator"));p.obscured(false);assertNotNull(field(p,"glowAnimator"));p.setVisibility(View.GONE);assertNull(field(p,"glowAnimator"));p.setVisibility(View.VISIBLE);assertNotNull(field(p,"glowAnimator"));
++  android.provider.Settings.Global.putFloat(a.get().getContentResolver(),android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,0);fixture.render(p);assertNull(field(p,"glowAnimator"));assertEquals(GlassUi.CYAN,labels(p)[2].getCurrentTextColor());
++  android.provider.Settings.Global.putFloat(a.get().getContentResolver(),android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,1);fixture.render(p);assertNotNull(field(p,"glowAnimator"));p.stop();assertNull(field(p,"glowAnimator"));p.destroy();
++ }}
++ @Test public void missingCurrentDayOrZoneDoesNotInventTimesOrGlow()throws Exception{try(var a=Robolectric.buildActivity(Activity.class).setup().visible()){
++  PrayerPanel empty=new PrayerPanel(a.get());empty.dashboardScale(1);a.get().setContentView(empty);empty.start();JarvisRepairTest.pump();for(int i:PrayerTimes.PRAYERS)assertEquals("--:--",values(empty)[i].getText().toString());assertEquals(-1,field(empty,"glowingIndex"));assertTrue(empty.getContentDescription().toString().contains("Pilih zon"));empty.destroy();
++ }}
++ void capture(View root,Dialog dialog,String name,int w,int h)throws Exception{
++  Bitmap b=Bitmap.createBitmap(w,h,Bitmap.Config.ARGB_8888);Canvas c=new Canvas(b);root.draw(c);
++  if(dialog!=null){View decor=dialog.getWindow().getDecorView();var p=dialog.getWindow().getAttributes();decor.measure(View.MeasureSpec.makeMeasureSpec(p.width,1073741824),View.MeasureSpec.makeMeasureSpec(p.height,1073741824));decor.layout(0,0,p.width,p.height);c.save();c.translate(w-p.width-p.x,p.y);decor.draw(c);c.restore();}
++  Paint paint=new Paint(3);paint.setColor(0xdd041522);c.drawRect(0,h-h*.039f,w*.74f,h,paint);paint.setTextSize(w/1920f*20);paint.setColor(Color.WHITE);c.drawText("PRATONTON UI ANDROID · jadual / tarikh / cuaca / aplikasi contoh · bukan tangkapan TV sebenar",w/64f,h-h*.013f,paint);
++  File file=new File(System.getProperty("user.dir"),"build/five-prayer-previews/"+name+".png");file.getParentFile().mkdirs();try(var out=new FileOutputStream(file)){b.compress(Bitmap.CompressFormat.PNG,100,out);}b.recycle();
++ }
++ void preview(int w,int h,String suffix,boolean animation)throws Exception{
++  helper.demoApps();try(var a=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++   DashboardActivity activity=a.get();View root=helper.render(activity,w,h);PrayerPanel old=activity.findViewById(R.id.prayerPanel);old.destroy();ViewGroup parent=(ViewGroup)old.getParent();ViewGroup.LayoutParams lp=old.getLayoutParams();parent.removeView(old);
++   var clock=new PrayerWeatherUpgradeTest.Time();PrayerPanel p=fixture.configured(activity,clock);p.dashboardScale(w/1920f);parent.addView(p,lp);Field f=DashboardActivity.class.getDeclaredField("prayer");f.setAccessible(true);f.set(activity,p);p.start();helper.render(activity,w,h);
++   ((TextView)field(activity,"clock")).setText("12:30 PM");((TextView)field(activity,"date")).setText("Sunday, 25 Oct 2026");((TextView)field(activity,"greeting")).setText("Good afternoon");
++   WeatherWidget weather=root.findViewWithTag("weather-widget");weather.update(WeatherForecastTest.data("Tiada Hujan",0),WeatherForecastTest.ID,"Kinarut · simulasi",WeatherForecastTest.NOW,false);
++   View row=p.findViewWithTag("fivePrayerRow");assertEquals(5,((ViewGroup)row).getChildCount());assertTrue(p.getBottom()<=root.findViewWithTag("greeting").getTop()+((View)root.findViewWithTag("greeting").getParent()).getTop());
++   for(int index:PrayerTimes.PRAYERS){TextView t=values(p)[index];assertTrue("Unclipped time "+index,t.getWidth()>=t.getPaint().measureText(t.getText().toString()));}
++   ValueAnimator pulse=(ValueAnimator)field(p,"glowAnimator");assertNotNull(pulse);pulse.setCurrentPlayTime(0);capture(root,null,"home-low-"+suffix,w,h);pulse.setCurrentPlayTime(1800);capture(root,null,"home-glow-"+suffix,w,h);
++   if(animation){for(int i=0;i<36;i++){pulse.setCurrentPlayTime(i*100L);capture(root,null,String.format(java.util.Locale.ROOT,"glow-%03d",i),w,h);}}
++   tick(p,clock,"15:21:00");((TextView)field(activity,"clock")).setText("3:21 PM");((TextView)field(activity,"greeting")).setText("Good evening");ValueAnimator asar=(ValueAnimator)field(p,"glowAnimator");asar.setCurrentPlayTime(1800);capture(root,null,"home-asar-"+suffix,w,h);
++   activity.showJarvis();Dialog jarvis=org.robolectric.shadows.ShadowDialog.getLatestDialog();capture(root,jarvis,"jarvis-"+suffix,w,h);JarvisRepairTest.find(jarvis.getWindow().getDecorView(),"Speedtest").performClick();JarvisRepairTest.pump();capture(root,jarvis,"speedtest-"+suffix,w,h);jarvis.dismiss();p.destroy();
++  }
++ }
++ @Test public void native1080AndGlowVideoFrames()throws Exception{preview(1920,1080,"1080",true);}
++ @Test @org.robolectric.annotation.Config(qualifiers="w640dp-h360dp-land-xhdpi") public void native720FitsAllFiveTimes()throws Exception{preview(1280,720,"720",false);}
++ @Test @org.robolectric.annotation.Config(qualifiers="w1920dp-h1080dp-land-xhdpi") public void native4kFitsAllFiveTimes()throws Exception{preview(3840,2160,"4k",false);}
++}

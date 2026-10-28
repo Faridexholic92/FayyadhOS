@@ -1,0 +1,2 @@
+APK: FayyadhOS-TV-Fix-2.8.1.apk ; app class definitions: 350 ; manifest components: 12
+PASS: all declared application components have DEX class definitions

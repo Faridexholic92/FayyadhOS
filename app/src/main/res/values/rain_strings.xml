@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rain_settings_entry" translatable="false">Rain-on-Glass · Weather</string>
+    <string name="rain_settings_title" translatable="false">Rain-on-Glass · Forecast effect</string>
+    <string name="rain_enabled_label" translatable="false">Enable Rain-on-Glass: %1$s</string>
+    <string name="rain_location_label" translatable="false">Weather location: %1$s</string>
+    <string name="rain_forecast_label" translatable="false">Activate for period forecast: %1$s</string>
+    <string name="rain_intensity_label" translatable="false">Visual intensity: %1$s</string>
+    <string name="rain_density_label" translatable="false">Droplet density: %1$s</string>
+    <string name="rain_speed_label" translatable="false">Animation speed: %1$s</string>
+    <string name="rain_moving_label" translatable="false">Moving droplets: %1$s</string>
+    <string name="rain_preview_label" translatable="false">Manual preview (not weather): %1$s</string>
+    <string name="rain_status_label" translatable="false">Forecast status, source and period policy</string>
+    <string name="rain_refresh_label" translatable="false">Refresh forecast (cooldown applies)</string>
+    <string name="rain_on" translatable="false">ON</string>
+    <string name="rain_off" translatable="false">OFF</string>
+    <string name="rain_not_selected" translatable="false">Not selected</string>
+    <string name="rain_close" translatable="false">Close</string>
+    <string name="rain_cancel" translatable="false">Cancel</string>
+    <string name="rain_choose_location" translatable="false">MET Malaysia · Choose location type</string>
+    <string name="rain_location_explanation" translatable="false">Choose an explicit MET location. The wallpaper and prayer zone do not select a weather location. No GPS permission is used. The bundled location catalogue was retrieved from data.gov.my on 24 Oct 2026.</string>
+    <string name="rain_choose_enabled" translatable="false">Enable Rain-on-Glass first, then select preview.</string>
+    <string name="rain_refresh_message" translatable="false">Refresh requested. Enable the feature, allow forecast activation and select a location. Requests obey cooldown and Retry-After.</string>
+    <string name="rain_about_locations" translatable="false">About locations</string>
+    <string name="rain_catalogue_error" translatable="false">The bundled MET location catalogue is unavailable.</string>
+    <string-array name="rain_quality_choices" translatable="false"><item>Low</item><item>Medium</item><item>High</item></string-array>
+    <string-array name="rain_speed_choices" translatable="false"><item>Slow</item><item>Normal</item><item>Faster</item></string-array>
+    <string-array name="rain_location_categories" translatable="false"><item>State</item><item>District</item><item>Town</item><item>Division</item><item>Recreation centre</item></string-array>
+</resources>

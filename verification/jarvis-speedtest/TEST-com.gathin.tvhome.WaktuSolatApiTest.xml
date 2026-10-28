@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.WaktuSolatApiTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-26T22:46:44" hostname="dd1e2106-3ed" time="0.059">
+  <properties/>
+  <testcase name="wrongZoneRejected" classname="com.gathin.tvhome.WaktuSolatApiTest" time="0.003"/>
+  <testcase name="missingTimeRejected" classname="com.gathin.tvhome.WaktuSolatApiTest" time="0.006"/>
+  <testcase name="wrongYearRejected" classname="com.gathin.tvhome.WaktuSolatApiTest" time="0.003"/>
+  <testcase name="liveSwkFixtureParsesAll31DaysAndEpochSeconds" classname="com.gathin.tvhome.WaktuSolatApiTest" time="0.001"/>
+  <testcase name="emptyScheduleRejected" classname="com.gathin.tvhome.WaktuSolatApiTest" time="0.001"/>
+  <testcase name="liveWlyFixtureIsDistinctAndValid" classname="com.gathin.tvhome.WaktuSolatApiTest" time="0.001"/>
+  <testcase name="duplicateDateRejected" classname="com.gathin.tvhome.WaktuSolatApiTest" time="0.007"/>
+  <testcase name="phoneTimezoneDoesNotChangeApiTimes" classname="com.gathin.tvhome.WaktuSolatApiTest" time="0.001"/>
+  <testcase name="foreignDateEpochRejected" classname="com.gathin.tvhome.WaktuSolatApiTest" time="0.01"/>
+  <testcase name="unorderedTimesRejected" classname="com.gathin.tvhome.WaktuSolatApiTest" time="0.002"/>
+  <testcase name="millisecondEpochRejected" classname="com.gathin.tvhome.WaktuSolatApiTest" time="0.003"/>
+  <testcase name="wrongMonthRejected" classname="com.gathin.tvhome.WaktuSolatApiTest" time="0.02"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

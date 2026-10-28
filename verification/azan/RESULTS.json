@@ -1,0 +1,232 @@
+{
+  "lint": {
+    "status": "failed-inherited-errors",
+    "errors": 45,
+    "warnings": 76,
+    "error_source_files_unchanged_from_supplied_zip": [
+      "app/src/main/res/values/strings.xml",
+      "app/src/main/java/com/gathin/tvhome/Config.java"
+    ]
+  },
+  "android": {
+    "tests": 300,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "android_passed": 299,
+  "backend": {
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "provider": "mocked"
+  },
+  "apk_sha256": "dbb2ff949ccbc6720653c5dd05b764d5f9071ac69336858c39936452619ddd64",
+  "protected_files_unchanged": {
+    "app/src/main/java/com/gathin/tvhome/JarvisPanel.java": true,
+    "app/src/main/java/com/gathin/tvhome/SpeedProbe.java": true,
+    "app/src/main/java/com/gathin/tvhome/WeatherWidget.java": true,
+    "app/src/main/java/com/gathin/tvhome/RainGlassView.java": true
+  },
+  "suites": [
+    {
+      "suite": "com.gathin.tvhome.AzanTest",
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.CardFeatureTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.CardsTest",
+      "tests": 37,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.DashboardRedesignTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.DashboardTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.FivePrayerGlowTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.JarvisDirectAiTest",
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.JarvisLogicTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.JarvisRepairTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.JarvisSettingsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.JarvisSidebarTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.JarvisSpeedtestTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.KinarutWeatherTest",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.MetLiveVerificationTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "suite": "com.gathin.tvhome.PersonalisationTest",
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.PlaceWallpapersTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.PrayerPanelTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.PrayerTimesTest",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.PrayerWeatherUpgradeTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.RainFeatureTest",
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.RainPerformanceTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.SpeedProbeTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.TransparentPanelTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.WaktuSolatApiTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.WeatherForecastTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.WeatherIconTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.WeatherWidgetTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.gathin.tvhome.WelcomeSpeechTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "physical_tv_tested": false,
+  "live_audio_tested": false,
+  "live_prayer_api_tested": false
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.DashboardRedesignTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-10-26T22:45:39" hostname="dd1e2106-3ed" time="14.755">
+  <properties/>
+  <testcase name="hideFromCardOptionsRemovesOnlySelectedApp" classname="com.gathin.tvhome.DashboardRedesignTest" time="6.828"/>
+  <testcase name="savedWallpaperSelectionIsNotOverwritten" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.237"/>
+  <testcase name="remoteMovesAcrossCardsAndCenterLaunchesMappedComponent" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.267"/>
+  <testcase name="dashboardDoesNotSelectSabahOrInventPrayerData" classname="com.gathin.tvhome.DashboardRedesignTest" time="1.505"/>
+  <testcase name="layoutAndSettingsLabelFitAt720p" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.286"/>
+  <testcase name="localeAwareClockIsDynamic" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.311"/>
+  <testcase name="carouselIsHorizontalAndStartsOnFirstInstalledApp" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.192"/>
+  <testcase name="returningFromAppKeepsPreviouslyFocusedCard" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.393"/>
+  <testcase name="carouselScrollsToInstalledAppsBeyondFirstSeven" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.412"/>
+  <testcase name="reorderUsesHorizontalArrowsAndBackSavesWithoutLaunching" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.387"/>
+  <testcase name="enterLaunchesAndUpDownRestoresAppFocus" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.143"/>
+  <testcase name="backReturnsToSettingsWithoutFinishingHome" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.155"/>
+  <testcase name="androidEightMinimumSdkCreatesFunctionalCarousel" classname="com.gathin.tvhome.DashboardRedesignTest" time="3.562"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[[Robolectric] WARN: Android SDK 36 requires Java 21 (have Java 17). Tests won't be run on SDK 36 unless explicitly requested.
+[Robolectric] WARN: Android SDK 37 requires Java 21 (have Java 17). Tests won't be run on SDK 37 unless explicitly requested.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+]]></system-err>
+</testsuite>

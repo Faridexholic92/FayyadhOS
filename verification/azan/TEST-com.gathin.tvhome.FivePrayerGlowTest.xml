@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.FivePrayerGlowTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-27T03:40:33" hostname="37e1e9f6-e1b" time="87.88">
+  <properties/>
+  <testcase name="fiveOrderedColumnsTransparentAndNoSyurukOrMetadataOnHome" classname="com.gathin.tvhome.FivePrayerGlowTest" time="0.207"/>
+  <testcase name="missingCurrentDayOrZoneDoesNotInventTimesOrGlow" classname="com.gathin.tvhome.FivePrayerGlowTest" time="0.069"/>
+  <testcase name="native720FitsAllFiveTimes" classname="com.gathin.tvhome.FivePrayerGlowTest" time="3.583"/>
+  <testcase name="native4kFitsAllFiveTimes" classname="com.gathin.tvhome.FivePrayerGlowTest" time="26.232"/>
+  <testcase name="pulseStopsForOverlayBackgroundHiddenViewAndReducedMotion" classname="com.gathin.tvhome.FivePrayerGlowTest" time="0.157"/>
+  <testcase name="onlyCurrentNameGlowsAndExactBoundariesMoveIt" classname="com.gathin.tvhome.FivePrayerGlowTest" time="0.116"/>
+  <testcase name="native1080AndGlowVideoFrames" classname="com.gathin.tvhome.FivePrayerGlowTest" time="57.512"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

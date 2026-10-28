@@ -1,0 +1,20 @@
+✔ HTTP flow: success (provider mocked) (117.153355ms)
+✔ HTTP flow: invalid-key (provider mocked) (26.682978ms)
+✔ HTTP flow: missing-model (provider mocked) (7.736883ms)
+✔ HTTP flow: timeout (provider mocked) (135.26015ms)
+✔ HTTP flow: failure (provider mocked) (16.215426ms)
+✔ HTTP flow: invalid (provider mocked) (6.591815ms)
+✔ Missing key is explicit and never calls provider (9.660643ms)
+✔ Unauthorized and invalid actions/context cannot call provider (13.99052ms)
+✔ Extra text and identifying context are stripped; model list is cached (8.526628ms)
+✔ Duplicate in-flight requests are rejected, timeout recovers (370.565837ms)
+✔ Payload is bounded and six-per-minute rate limit is enforced (28.342509ms)
+✔ Client disconnect aborts provider work and frees the request gate (56.421008ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1023.420656

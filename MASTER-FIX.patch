@@ -1,0 +1,817 @@
+diff --git a/MASTER-FIX-REPORT.md b/MASTER-FIX-REPORT.md
+new file mode 100644
+index 0000000..b27b40a
+--- /dev/null
++++ b/MASTER-FIX-REPORT.md
+@@ -0,0 +1,125 @@
++# FayyadhOS TV Edition — targeted repair report
++
++## Outcome and limits
++
++Targeted source repairs and a secure, configurable GroqCloud request path have been implemented. **This is not a completed exact-mockup restoration or a live-verified TV deployment.** The supplied source does not contain the reference image's right-hand, six-action Jarvis panel. Rebuilding that missing design would conflict with the instruction not to invent or replace components. The existing native UI was retained rather than silently substituting a new design.
++
++No Groq credentials, deployed backend address, production signing key, or accessible Android TV was supplied. Live AI inference, TV-to-backend HTTPS, physical remote behavior, overscan, and the reported persistent-after-exit symptom on the user's television remain unverified.
++
++## 1. Inspected architecture and original behavior
++
++- Native Android Java / Views / RecyclerView, minimum SDK 26, compile/target SDK 34. Not React, Compose, HTML, or WebView.
++- `AndroidManifest.xml` routes HOME and LEANBACK_LAUNCHER to `DashboardActivity`. `MainActivity` is a separate, non-exported legacy screen, not the active home entry point.
++- `DashboardActivity.onCreate` builds wallpaper and a separate full-screen content layer; fixed design-space positions are scaled for landscape. `JarvisPanel` uses its own Android Dialog window, not an allocated sidebar in the home layout.
++- Inspected home placement/styles, app catalog and launch intents, Back handling, Jarvis TTS/worker/probe lifecycle, shared dialogs, prayer/rain dialogs, weather transport/cache, network snapshot and speed probe, manifest, Gradle configuration, assets, tests, and historical verification outputs.
++- No original Git repository, recoverable source history, backup implementation of the reference Jarvis sidebar, or backend was present in the archive. A local Git baseline and `fix/jarvis-layout-groq` branch were created before edits. The uploaded archive remains untouched.
++
++## 2. Blank-space findings — verified versus unverified
++
++**Confirmed source defect:** the original `DashboardActivity.overlayVisible(true)` called:
++
++```java
++root.getChildAt(1).setVisibility(View.INVISIBLE);
++```
++
++That child is the entire home-content layer, not just Jarvis. It removes the visible branding, clock, weather, greeting, app cards and prayer panel behind overlays. It does not remove a sidebar's layout allocation. The source also used one unowned visibility boolean for multiple dialog windows, and overwrote `popup` without distinguishing older dismissal callbacks from the current dialog.
++
++**Important boundary:** an independently built, untouched-source Robolectric test reproduced the original hidden-home behavior while Jarvis was open and verified that ordinary dismissal restored `View.VISIBLE`. The particular **persistent gap after exit on the physical TV was not reproduced**. Its device-specific cause therefore cannot honestly be claimed as confirmed. No dynamic flex/grid/sidebar reservation was found in this native home implementation.
++
++### Targeted fixes
++
++- Removed overlay-driven changes to home visibility/geometry entirely. No negative margins, replacement wallpaper, global shrinking or arbitrary new dimensions.
++- Added per-dialog ownership. Older dismissals cannot clear a newer dialog's state; `popup` is cleared only by its own dismissal.
++- Preserved the previously focused home element, with a Settings fallback when it no longer exists.
++- Routed prayer dialogs through the same ownership/focus lifecycle **without adding common-dialog restyling** to them.
++- Added explicit legacy Android TV Back-key handling; ordinary Android cancel/dismiss also retains cleanup.
++- Activity pause dismisses all tracked windows, not just the latest pointer.
++- Jarvis close immediately shuts down resources and also remains idempotent when the dismissal listener runs later.
++
++## 3. GroqCloud — before and after
++
++**Before:** local network snapshot, bounded Cloudflare speed sampling and Android TTS only. No Groq request, provider configuration, key environment variable, backend or AI response handler existed. Existing text was native diagnostic text, not evidence of AI inference.
++
++**After:** the existing **Read again** button still reads the native report when TTS is enabled, and additionally follows this path:
++
++```text
++Read again → JarvisPanel → JarvisAiClient → HTTPS POST /api/jarvis
++→ authenticated Node backend → Groq models validation + chat completion
++→ validated text → existing Jarvis Internet/result region
++```
++
++- Backend: Node 22+ standard library only. No new Android dependency, SDK, framework, background service, microphone permission or local LLM.
++- Default model: `llama-3.1-8b-instant`, configurable with server-side `GROQ_MODEL`. Official Groq model documentation listed it when inspected. Every deployment also checks its configured model against the authenticated live model list before inference (successful validation cached for one hour).
++- Provider endpoints: `https://api.groq.com/openai/v1/models` and `https://api.groq.com/openai/v1/chat/completions`.
++- App backend endpoint: **POST `/api/jarvis`** on the operator's HTTPS host. No deployed host was supplied or invented.
++- `GROQ_API_KEY` exists only in the backend's environment. The APK never contains it. A separate revocable device-access token protects the backend.
++- Only the predefined network-explanation action is accepted. The backend independently constructs prompts and strips extra context/free-form text. SSID, IP, serial, location and installed-app lists are not sent.
++- Bounded bodies, HTTPS-only Android requests, redirect rejection, server deadline, sanitized failures, one in-flight request and a six-attempts/minute server limit.
++- Existing buttons show loading/failure/completion through the existing result region. Speed and AI actions share the request gate. Close cancels network/future work, shuts down the executor/TTS, clears callbacks and ignores late results. Reopening creates fresh state.
++
++**Real Groq request succeeded? Not verified.** The live-check script explicitly refused to run because server credentials were unavailable. Provider-success/error tests use labelled fixtures and must not be described as live inference.
++
++Provider references: https://console.groq.com/docs/models and https://console.groq.com/docs/api-reference.
++
++## 4. Network and existing actions
++
++- Existing `SpeedProbe` already measures a user-triggered download sample of at most 8 MiB, with a roughly eight-second sampling-loop budget and separate connection/read timeouts. The denominator includes setup time, so it is an estimate, not a full benchmark or a guaranteed strict eight-second wall-clock deadline.
++- Existing labels already distinguish estimated Internet download from Android's Wi-Fi link rate. Upload is not measured. No hardcoded 57.4, 48.4 or 780 Mbps values were found in application production sources.
++- The exact readings described from the TV photographs cannot be traced to a particular request/session/version without those device records. No claim is made that their provenance was established.
++- AI receives an optional **earlier** measured estimate, explicitly marked as potentially no longer current, not an invented or automatically repeated speed test.
++- Weather remains the existing actual MET/data.gov.my integration and cache. No live weather or specifications were invented.
++- Wi-Fi settings remain a native Android settings intent. Installed applications still use `DashboardApps` and explicit Android component launches; no Groq call is made to launch them.
++- The reference's six dedicated Jarvis action buttons do **not** exist in the supplied `JarvisPanel`; its controls are Test Internet, Read again, Voice, Options and Close. Weather exists elsewhere on the home screen; applications use the carousel; Wi-Fi settings are under Options. No dedicated Maklumat Sistem handler was found. These missing reference components were not fabricated or silently declared repaired.
++- NetworkSnapshot's physical-device behavior, VPN-underlay attribution and firmware permission restrictions still need device verification; no unrelated network rewrite was made.
++
++## 5. Exact file changes
++
++### Modified existing production files
++
++1. `app/src/main/java/com/gathin/tvhome/DashboardActivity.java` — overlay ownership, focus return, Back handling and lifecycle cleanup.
++2. `app/src/main/java/com/gathin/tvhome/JarvisPanel.java` — existing-button AI path, shared request gating, response/loading/error handling, cancel/cleanup and Back handling.
++3. `app/src/main/java/com/gathin/tvhome/PrayerPanel.java` — shared dialog lifecycle only; original styling retained.
++4. `app/src/main/AndroidManifest.xml` — managed-configuration declaration only; no microphone permission.
++
++### Added production/configuration files
++
++5. `app/src/main/java/com/gathin/tvhome/JarvisAiClient.java`.
++6. `app/src/main/res/xml/jarvis_restrictions.xml`.
++7. `app/src/main/res/values/jarvis_config.xml`.
++8. `backend/server.mjs`.
++
++### Tests and documentation
++
++- Modified: `app/src/test/java/com/gathin/tvhome/DashboardTest.java` and `RainFeatureTest.java`. Their obsolete assertions requiring the home to be invisible were changed to require visible home content.
++- Added: `app/src/test/java/com/gathin/tvhome/JarvisRepairTest.java`, `backend/server.test.mjs`, `backend/live-check.mjs`, `backend/README.md`, this report, and `verification/master-fix/` evidence. `.gitignore` was added for local build/signing artifacts.
++
++Integrity check against the supplied ZIP: **no original file missing; 348 original files unchanged, including all 13 main asset files**. Only the six original files named above differ. No wallpaper, app-order persistence, card dimensions, home placement, gradients, drawables, font assets or build dependencies were replaced. New strings use existing text regions, not new visual controls.
++
++## 6. Build and test results
++
++See `verification/master-fix/test-summary.json` and accompanying fresh logs/XML for final counts. Historical evidence elsewhere in the archive and failed intermediate iterations are not final results.
++
++- Full Android JVM/Robolectric suite: **216 tests, 215 passed, 1 skipped, 0 failures/errors**. The skipped test is the existing opt-in live MET verification, not a claimed live AI success.
++- **15 new repair tests** pass: Close/Back/Cancel, repeated cycles, nested owners, prayer focus, pause cleanup, response display, missing configuration, timeout/failure recovery, duplicates, closing during AI/download work, native Wi-Fi action without AI, and long text in the existing scroll region.
++- Backend: **12 tests passed** using actual local HTTP requests and explicitly mocked Groq transport. Covers model validation, success contract, missing/invalid key, missing model, failure, timeout, validation/allowlisting, body/rate limits, duplicates, disconnect cancellation and recovery. Provider mocks are not provider test evidence.
++- Debug APK assembly: **passed**. Release Java compilation: **passed**; a production-signed/minified release APK was **not** built.
++- Lint: **failed on 45 pre-existing errors** (44 MissingTranslation, 1 ByteOrderMark). Both baseline and final have 45 errors and 57 warnings, with no new lint issues. The comparison is included. No unrelated translation/BOM edits were made to mask this existing gate.
++- Fresh native-view renders at 720p, 1080p and 4K, plus dismissal/response evidence, were inspected. These are **Robolectric renders**, using fixture-installed apps/default test icons and selected cached prayer data — **not TV screenshots or live weather/AI proof**.
++- ADB device listing: **no connected device**. No emulator or physical TV installation/launch test was performed.
++
++## 7. UI preservation and unfinished reference restoration
++
++The home dimensions, wallpaper assets/positioning code, typography, card order mechanism, weather/prayer content sources, original dialog layouts and existing buttons were preserved. The deliberate behavioral change is that overlays no longer make the whole home invisible. Loading/errors/model text reuse the existing result region.
++
++**Do not interpret this as a claim of pixel-perfect reference restoration.** The supplied source has an italic wordmark, different wallpaper artwork/card treatment, and a centered scrolling diagnostics dialog rather than the reference's narrow right-side six-action panel. That centered modal still overlays home content while open; it was not replaced with a speculative sidebar. Exact reference matching, including its dedicated actions, needs the original matching source/components and clean assets, or explicit approval to reconstruct them from the image. The mockup's microphone/listening imagery was not treated as permission to add speech recognition.
++
++## 8. Remaining deployment and acceptance steps
++
++1. Provide the original source/components and wallpaper/assets that produced the authoritative reference, or approve a separately scoped reconstruction. Confirm the exact TV build/version and capture the reported post-exit gap/reproduction steps/logs.
++2. Deploy `backend/server.mjs` through the existing HTTPS infrastructure; configure server-only `GROQ_API_KEY`, `JARVIS_DEVICE_TOKEN` and optional `GROQ_MODEL`. Follow `backend/README.md`, including proxy limits and safe logging.
++3. Provision the TV endpoint/device token via managed app restrictions. Debug-only private ADB provisioning is documented. **A normal unmanaged release TV still needs an approved secure provisioning mechanism**; none existed in the archive, and no insecure exported receiver or hardcoded token was added.
++4. Run `node backend/live-check.mjs` with server-side credentials, then independently verify real TV → HTTPS backend → Groq → existing result-region display. Exercise genuine credential rejection, timeout/outage, repeat presses and close-during-loading on the deployed path.
++5. Test physical remote focus/Back, repeated/nested dialogs, app launches, Wi-Fi settings, overscan, weather/network permissions and the specific reported persistent gap on the actual TV.
++6. Resolve existing lint errors as a separate authorized task if lint-clean release is required. Build/sign the final production APK using the **original release signing key**.
++
++**Installation warning:** the supplied test APK uses a new Android debug signer and the same package ID as the existing launcher. It may not update the installed app because signatures differ. Do not uninstall the working launcher to force installation; that can lose settings and Home behavior. Verify signatures and retain a working stock launcher/recovery route. This debug APK is for controlled verification, not a production replacement.
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+index 0e4418a..57e405f 100644
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -42,6 +42,8 @@
+         android:allowBackup="false"
+         android:localeConfig="@xml/locales_config">
+ 
++        <meta-data android:name="android.content.APP_RESTRICTIONS" android:resource="@xml/jarvis_restrictions" />
++
+         <activity
+             android:name=".DashboardActivity"
+             android:exported="true"
+diff --git a/app/src/main/java/com/gathin/tvhome/DashboardActivity.java b/app/src/main/java/com/gathin/tvhome/DashboardActivity.java
+index 19243ff..925e47e 100644
+--- a/app/src/main/java/com/gathin/tvhome/DashboardActivity.java
++++ b/app/src/main/java/com/gathin/tvhome/DashboardActivity.java
+@@ -29,6 +29,8 @@ public class DashboardActivity extends Activity {
+  }};
+  private void scheduleWelcome(){handler.removeCallbacks(welcomeTask);handler.postDelayed(welcomeTask,1200);}
+  private JarvisPanel jarvis;private AlertDialog popup;private FrameLayout root;
++ private final Map<Dialog,View> overlays=new LinkedHashMap<>();
++ private View overlayReturnFocus;
+  private final Runnable tick=new Runnable(){public void run(){updateClock();handler.postDelayed(this,30000);}};
+  int d(float n){return GlassUi.dp(this,n*scale);}
+  static String greeting(int hour){return hour>=5&&hour<12?"Good morning":hour<14&&hour>=12?"Good afternoon":hour>=14&&hour<19?"Good evening":"Good night";}
+@@ -62,7 +64,7 @@ public class DashboardActivity extends Activity {
+   date.setEllipsize(android.text.TextUtils.TruncateAt.END);time.addView(clock);time.addView(date);
+   header.addView(time,new FrameLayout.LayoutParams(d(310),-2,Gravity.CENTER_HORIZONTAL|Gravity.TOP));
+   LinearLayout actions=new LinearLayout(this);actions.setGravity(Gravity.CENTER_VERTICAL);
+-  TextView net=button("●  Jarvis",()->showJarvis());net.setContentDescription("Open Jarvis network and voice");net.setId(R.id.btnWifi);actions.addView(net,lp(d(82),d(44)));
++  TextView net=button("●  Jarvis",()->showJarvis());net.setContentDescription("Open Jarvis network diagnostics and AI assistance");net.setId(R.id.btnWifi);actions.addView(net,lp(d(82),d(44)));
+   View divider=new View(this);divider.setBackgroundColor(0x66ffffff);actions.addView(divider,lp(d(1),d(24)));
+   TextView settings=button("Settings",()->settings());android.graphics.drawable.Drawable gear=getDrawable(R.drawable.ic_settings);gear.setBounds(0,0,d(18),d(18));settings.setCompoundDrawables(gear,null,null,null);
+   settings.setCompoundDrawablePadding(d(5));settings.setPadding(d(10),0,d(5),0);settings.setId(R.id.btnSettings);actions.addView(settings,lp(d(100),d(44)));
+@@ -113,8 +115,30 @@ public class DashboardActivity extends Activity {
+  void toggleStartupGreeting(){welcome.setEnabled(!welcome.enabled());}
+  void replayWelcome(){handler.removeCallbacks(welcomeTask);welcome.speak(true);}
+  void modeChanged(){prayer.modeChanged();}
+- void overlayVisible(boolean visible){if(root!=null&&root.getChildCount()>1)root.getChildAt(1).setVisibility(visible?View.INVISIBLE:View.VISIBLE);if(rain!=null)rain.obscured(visible);}
+- void show(AlertDialog.Builder b){popup=b.create();popup.setOnDismissListener(d->overlayVisible(false));popup.show();overlayVisible(true);GlassUi.style(popup);}
++ // Overlay windows must never change the home layer's visibility or geometry.
++ // Track owners, not a boolean: an old dialog may dismiss after its replacement opens.
++ void overlayOpened(Dialog dialog){
++  if(overlays.containsKey(dialog))return;
++  if(overlays.isEmpty())overlayReturnFocus=root.findFocus();
++  overlays.put(dialog,root.findFocus());
++  if(rain!=null)rain.obscured(true);
++ }
++ void overlayClosed(Dialog dialog){
++  if(!overlays.containsKey(dialog))return;
++  overlays.remove(dialog);
++  if(rain!=null)rain.obscured(!overlays.isEmpty());
++  if(!overlays.isEmpty())return;
++  View target=overlayReturnFocus;overlayReturnFocus=null;
++  if(target!=null&&target.isShown()&&target.isFocusable()&&target.getRootView()==root.getRootView())target.requestFocus();
++  else findViewById(R.id.btnSettings).requestFocus();
++ }
++ AlertDialog show(AlertDialog.Builder b){return show(b,true);}
++ AlertDialog show(AlertDialog.Builder b,boolean styled){
++  AlertDialog shown=b.create();popup=shown;
++  shown.setOnKeyListener((dialog,key,event)->{if(key!=KeyEvent.KEYCODE_BACK)return false;if(event.getAction()==KeyEvent.ACTION_UP)shown.cancel();return true;});
++  shown.setOnDismissListener(d->{overlayClosed(shown);if(popup==shown)popup=null;});
++  shown.show();overlayOpened(shown);if(styled)GlassUi.style(shown);return shown;
++ }
+  void message(String title,String body){show(new AlertDialog.Builder(this).setTitle(title).setMessage(body).setPositiveButton("Close",null));}
+  private void reload(){apps=catalog.visible();grid.setAdapter(new Tiles());empty.setVisibility(apps.isEmpty()?View.VISIBLE:View.GONE);if(focusKey!=null)focusApp(focusKey);if(apps.isEmpty()){TextView settings=findViewById(R.id.btnSettings);settings.requestFocus();}}
+  private void appOptions(ResolveInfo r){String key=DashboardApps.key(r);show(new AlertDialog.Builder(this).setTitle(catalog.label(r)).setItems(new String[]{"Move","Hide app","App info"},(d,i)->{
+@@ -155,7 +179,7 @@ public class DashboardActivity extends Activity {
+  }
+  private static final class Tile extends RecyclerView.ViewHolder{final ImageView icon;final TextView name;Tile(View v,ImageView i,TextView n){super(v);icon=i;name=n;}}
+  @Override protected void onResume(){super.onResume();resumed=true;scheduleWelcome();focusKey=lastFocusedKey!=null?lastFocusedKey:apps.isEmpty()?null:DashboardApps.key(apps.get(0));reload();prayer.start();handler.removeCallbacks(tick);handler.post(tick);rain.resume();}
+- @Override protected void onPause(){if(rain!=null)rain.pause();resumed=false;handler.removeCallbacks(welcomeTask);welcome.cancel();handler.removeCallbacks(tick);prayer.stop();if(jarvis!=null)jarvis.close();if(popup!=null)popup.dismiss();super.onPause();}
++ @Override protected void onPause(){if(rain!=null)rain.pause();resumed=false;handler.removeCallbacks(welcomeTask);welcome.cancel();handler.removeCallbacks(tick);prayer.stop();if(jarvis!=null)jarvis.close();for(Dialog shown:new ArrayList<>(overlays.keySet()))shown.dismiss();super.onPause();}
+  @Override protected void onDestroy(){if(rain!=null)rain.destroy();if(screenReceiverRegistered){unregisterReceiver(screenReceiver);screenReceiverRegistered=false;}welcome.cancel();handler.removeCallbacksAndMessages(null);prayer.destroy();wallpaper.setImageDrawable(null);super.onDestroy();}
+  @Override public void onBackPressed(){if(moving!=null){focusKey=moving;moving=null;reload();}else findViewById(R.id.btnSettings).requestFocus();}
+  @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] results){super.onRequestPermissionsResult(request,permissions,results);if(request==72)showJarvis();}
+diff --git a/app/src/main/java/com/gathin/tvhome/JarvisAiClient.java b/app/src/main/java/com/gathin/tvhome/JarvisAiClient.java
+new file mode 100644
+index 0000000..27ff18a
+--- /dev/null
++++ b/app/src/main/java/com/gathin/tvhome/JarvisAiClient.java
+@@ -0,0 +1,54 @@
++package com.gathin.tvhome;
++
++import android.content.Context;
++import android.content.RestrictionsManager;
++import android.os.Bundle;
++import org.json.JSONObject;
++import javax.net.ssl.HttpsURLConnection;
++import java.net.URL;
++import java.io.*;
++import java.nio.charset.StandardCharsets;
++
++/** HTTPS only. Provider key never enters Android. Configuration is provisioned, not compiled. */
++class JarvisAiClient {
++ private final Context context;
++ private volatile HttpsURLConnection connection;
++ private volatile boolean cancelled;
++ JarvisAiClient(Context c){context=c.getApplicationContext();}
++ String explain(JSONObject facts)throws Exception{
++  if(cancelled)throw new InterruptedIOException();
++  RestrictionsManager manager=(RestrictionsManager)context.getSystemService(Context.RESTRICTIONS_SERVICE);
++  Bundle managed=manager==null?null:manager.getApplicationRestrictions();
++  // Private preferences support trusted provisioning on unmanaged TVs; no exported intent accepts secrets.
++  android.content.SharedPreferences prefs=context.getSharedPreferences("jarvis-backend",0);
++  String endpoint=managed!=null&&managed.containsKey("jarvis_endpoint")?managed.getString("jarvis_endpoint",""):prefs.getString("endpoint","");
++  String token=managed!=null&&managed.containsKey("jarvis_device_token")?managed.getString("jarvis_device_token",""):prefs.getString("device_token","");
++  if(endpoint.isEmpty()||token.isEmpty())throw new Failure("Backend not configured on this TV");
++  URL url=new URL(endpoint);
++  if(!"https".equals(url.getProtocol())||url.getHost().isEmpty()||url.getUserInfo()!=null||url.getRef()!=null||url.getQuery()!=null)
++   throw new Failure("Backend requires a valid HTTPS endpoint");
++  HttpsURLConnection c=(HttpsURLConnection)url.openConnection();connection=c;
++  try{
++   if(cancelled)throw new InterruptedIOException();
++   c.setConnectTimeout(5000);c.setReadTimeout(18000);c.setInstanceFollowRedirects(false);c.setUseCaches(false);
++   c.setRequestMethod("POST");c.setDoOutput(true);c.setRequestProperty("Content-Type","application/json");
++   c.setRequestProperty("Accept","application/json");c.setRequestProperty("Authorization","Bearer "+token);
++   byte[] body=new JSONObject().put("action","explain_network").put("context",facts).toString().getBytes(StandardCharsets.UTF_8);
++   c.setFixedLengthStreamingMode(body.length);
++   try(OutputStream out=c.getOutputStream()){out.write(body);}
++   int status=c.getResponseCode();
++   if(status!=200)throw new Failure(status==401?"TV authorization rejected":status==429?"Busy or rate limited; try again shortly":status==503?"Backend or provider is not configured":status==504?"Request timed out":"Backend request failed (HTTP "+status+")");
++   String type=c.getContentType();if(type==null||!type.toLowerCase(java.util.Locale.ROOT).contains("application/json"))throw new Failure("Invalid backend response");
++   try(InputStream in=c.getInputStream();ByteArrayOutputStream out=new ByteArrayOutputStream()){
++    byte[] buffer=new byte[2048];int n;
++    while((n=in.read(buffer))!=-1){if(cancelled||Thread.currentThread().isInterrupted())throw new InterruptedIOException();if(out.size()+n>16384)throw new Failure("Backend response too large");out.write(buffer,0,n);}
++    JSONObject result=new JSONObject(out.toString("UTF-8"));Object text=result.opt("text");
++    if(!(text instanceof String)||((String)text).trim().isEmpty()||((String)text).length()>2400||!"groq".equals(result.optString("provider")))throw new Failure("Invalid backend response");
++    return ((String)text).trim();
++   }
++  }finally{c.disconnect();connection=null;}
++ }
++ void cancel(){cancelled=true;HttpsURLConnection c=connection;if(c!=null)c.disconnect();}
++ static String safeError(Exception e){return e instanceof Failure?e.getMessage():e instanceof java.net.SocketTimeoutException?"Request timed out":"Connection failed; check the network and backend";}
++ static final class Failure extends IOException {Failure(String message){super(message);}}
++}
+diff --git a/app/src/main/java/com/gathin/tvhome/JarvisPanel.java b/app/src/main/java/com/gathin/tvhome/JarvisPanel.java
+index c4ecd65..33d6742 100644
+--- a/app/src/main/java/com/gathin/tvhome/JarvisPanel.java
++++ b/app/src/main/java/com/gathin/tvhome/JarvisPanel.java
+@@ -18,8 +18,9 @@ final class JarvisPanel {
+  private final DashboardActivity activity;private final Handler handler=new Handler(Looper.getMainLooper());
+  private final ExecutorService worker=Executors.newSingleThreadExecutor();private Dialog dialog;
+  private TextToSpeech tts;private boolean ready,closed,voice;private NetworkSnapshot snapshot;
+- private TextView speechStatus,speed,speedButton;private SpeedProbe probe;private Future<?> future;
+- JarvisPanel(DashboardActivity a){activity=a;voice=a.getSharedPreferences("jarvis",0).getBoolean("voice",true);}
++ private final JarvisAiClient ai;private TextView speechStatus,speed,speedButton,aiButton;private Double measuredDownload;private SpeedProbe probe;private Future<?> future;
++ JarvisPanel(DashboardActivity a){this(a,new JarvisAiClient(a));}
++ JarvisPanel(DashboardActivity a,JarvisAiClient client){activity=a;ai=client;voice=a.getSharedPreferences("jarvis",0).getBoolean("voice",true);}
+  private int dp(float n){return GlassUi.dp(activity,n);}
+  private LinearLayout column(){LinearLayout l=new LinearLayout(activity);l.setOrientation(LinearLayout.VERTICAL);return l;}
+  private TextView text(String s,float size,int color){return GlassUi.text(activity,s,size,color);}
+@@ -37,11 +38,12 @@ final class JarvisPanel {
+   speechStatus=text(voice?"Preparing English voice…":"Voice is off",12,GlassUi.CYAN);LinearLayout.LayoutParams vl=lp(-1,-2);vl.topMargin=dp(12);box.addView(speechStatus,vl);
+   LinearLayout controls=new LinearLayout(activity);LinearLayout.LayoutParams cp=lp(-1,dp(48));cp.topMargin=dp(12);box.addView(controls,cp);
+   speedButton=button("Test Internet",()->startTest());addButton(controls,speedButton);
+-  addButton(controls,button("Read again",()->speak(snapshot.speech())));
++  aiButton=button("Read again",()->explainNetwork());aiButton.setContentDescription("Read again and explain network using GroqCloud");addButton(controls,aiButton);
+   addButton(controls,button(voice?"Voice: ON":"Voice: OFF",()->{voice=!voice;activity.getSharedPreferences("jarvis",0).edit().putBoolean("voice",voice).apply();close();activity.showJarvis();}));
+   addButton(controls,button("Options",()->options()));
+   TextView close=button("Close",()->close());LinearLayout.LayoutParams cl=lp(dp(110),dp(44));cl.gravity=Gravity.RIGHT;cl.topMargin=dp(8);box.addView(close,cl);
+-  dialog.setOnDismissListener(d->release());dialog.show();activity.overlayVisible(true);Window window=dialog.getWindow();if(window!=null){window.setBackgroundDrawableResource(android.R.color.transparent);window.setDimAmount(0f);window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);window.setLayout(Math.min(activity.getResources().getDisplayMetrics().widthPixels-dp(32),dp(780)),Math.min(activity.getResources().getDisplayMetrics().heightPixels-dp(24),dp(450)));}
++  dialog.setOnKeyListener((d,key,event)->{if(key!=KeyEvent.KEYCODE_BACK)return false;if(event.getAction()==KeyEvent.ACTION_UP)close();return true;});
++  dialog.setOnDismissListener(d->release());dialog.show();activity.overlayOpened(dialog);Window window=dialog.getWindow();if(window!=null){window.setBackgroundDrawableResource(android.R.color.transparent);window.setDimAmount(0f);window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);window.setLayout(Math.min(activity.getResources().getDisplayMetrics().widthPixels-dp(32),dp(780)),Math.min(activity.getResources().getDisplayMetrics().heightPixels-dp(24),dp(450)));}
+   speedButton.requestFocus();if(voice){try{tts=new TextToSpeech(activity,statusCode->handler.post(()->initSpeech(statusCode)));}catch(RuntimeException e){speechStatus.setText("Speech engine unavailable · Options > Voice settings");}}
+  }
+  private void metric(LinearLayout row,String label,String value){LinearLayout l=column();l.setPadding(dp(10),dp(10),dp(10),dp(10));l.setBackground(GlassUi.surface(activity,0x50395863,false));TextView head=text(label,10,GlassUi.CYAN);l.addView(head);TextView val=text(value,17,GlassUi.WHITE);val.setMaxLines(2);val.setEllipsize(android.text.TextUtils.TruncateAt.END);LinearLayout.LayoutParams vp=lp(-1,-2);vp.topMargin=dp(6);l.addView(val,vp);LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(76),1);p.rightMargin=dp(6);row.addView(l,p);}
+@@ -52,10 +54,30 @@ final class JarvisPanel {
+   tts.setSpeechRate(.95f);ready=true;speechStatus.setText("English voice · Android speech engine");speak(snapshot.speech());
+  }
+  private void speak(String message){if(closed||!voice)return;if(ready&&tts!=null){tts.speak(message,TextToSpeech.QUEUE_FLUSH,null,"fayyadh-network");}else if(speechStatus!=null)speechStatus.setText("Voice not ready · Options > Voice settings");}
+- private void startTest(){if(future!=null&&!future.isDone())return;
+-  speedButton.setEnabled(false);speed.setText("Measuring download…");probe=new SpeedProbe();
+-  future=worker.submit(()->{try{double result=probe.run();handler.post(()->{if(closed)return;String n=String.format(Locale.ENGLISH,"%.1f",result);speed.setText("Estimated download: "+n+" Mbps");speedButton.setEnabled(true);speak("Estimated download speed: "+n+" megabits per second from a limited sample. Results may vary.");});}
+-   catch(Exception e){handler.post(()->{if(closed)return;speed.setText("Test incomplete · try again");speedButton.setEnabled(true);speak("The test did not complete. Check your connection and try again.");});}});
++ private void startTest(){if(closed||future!=null&&!future.isDone())return;
++  speedButton.setEnabled(false);aiButton.setEnabled(false);speed.setText("Measuring download…");probe=new SpeedProbe();
++  future=worker.submit(()->{try{double result=probe.run();handler.post(()->{if(closed)return;measuredDownload=result;String n=String.format(Locale.ENGLISH,"%.1f",result);speed.setText("Estimated download: "+n+" Mbps");speedButton.setEnabled(true);aiButton.setEnabled(true);speak("Estimated download speed: "+n+" megabits per second from a limited sample. Results may vary.");});}
++   catch(Exception e){handler.post(()->{if(closed)return;speed.setText("Test incomplete · try again");speedButton.setEnabled(true);aiButton.setEnabled(true);speak("The test did not complete. Check your connection and try again.");});}});
++ }
++ // Existing button and response region only; no prompt entry or microphone.
++ private void explainNetwork(){
++  if(closed||future!=null&&!future.isDone())return;
++  snapshot=NetworkSnapshot.read(activity);
++  final org.json.JSONObject context;
++  try{context=new org.json.JSONObject().put("transport",snapshot.transport).put("validated",snapshot.validated)
++    .put("vpn",snapshot.vpn).put("linkMbps",snapshot.link);
++   if(measuredDownload!=null)context.put("estimatedDownloadMbps",measuredDownload);
++  }catch(org.json.JSONException invalid){speed.setText(R.string.jarvis_ai_preparation_error);return;}
++  speak(snapshot.speech());
++  speed.setText(R.string.jarvis_ai_loading);
++  speedButton.setEnabled(false);aiButton.setEnabled(false);
++  future=worker.submit(()->{
++   String response;
++   try{response="GroqCloud AI · "+ai.explain(context);}
++   catch(Exception failure){response=closed?"":"GroqCloud unavailable · "+JarvisAiClient.safeError(failure);}
++   final String result=response;
++   handler.post(()->{if(closed)return;speed.setText(result);speedButton.setEnabled(true);aiButton.setEnabled(true);});
++  });
+  }
+  private void options(){close();activity.show(new AlertDialog.Builder(activity).setTitle("Jarvis · Options").setItems(new String[]{"Allow Wi-Fi name","English voice settings","Wi-Fi settings","Network / LAN settings","Light boost","Restore before Boost",activity.startupGreetingEnabled()?"Startup greeting: ON":"Startup greeting: OFF","Play greeting"},(d,i)->{
+   if(i==0){if(activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED)activity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION},72);else activity.message("Wi-Fi name","Location permission is already granted. Some firmware also requires Location services to be on. Check Android privacy settings. Jarvis does not read GPS coordinates.");}
+@@ -65,8 +87,8 @@ final class JarvisPanel {
+   else if(i==6){activity.toggleStartupGreeting();activity.showJarvis();}
+   else if(i==7)activity.replayWelcome();
+  }).setNegativeButton("Close",null));}
+- void close(){release();if(dialog!=null&&dialog.isShowing())dialog.dismiss();}
+- private void release(){if(closed)return;closed=true;activity.overlayVisible(false);handler.removeCallbacksAndMessages(null);if(probe!=null)probe.cancel();if(future!=null)future.cancel(true);worker.shutdownNow();if(tts!=null){tts.stop();tts.shutdown();tts=null;}}
++ void close(){if(dialog!=null&&dialog.isShowing())dialog.dismiss();release();}
++ private void release(){if(closed)return;closed=true;activity.overlayClosed(dialog);handler.removeCallbacksAndMessages(null);ai.cancel();if(probe!=null)probe.cancel();if(future!=null)future.cancel(true);worker.shutdownNow();if(tts!=null){tts.stop();tts.shutdown();tts=null;}}
+  private static final class Radar extends View{private final Paint p=new Paint(3);private final boolean online;Radar(Context c,boolean on){super(c);online=on;setContentDescription(on?"Internet validated":"Internet not validated");}
+   protected void onDraw(Canvas c){float x=getWidth()/2f,y=getHeight()/2f,r=Math.min(x,y)*.83f;p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(2);p.setColor(0x6077e9f0);c.drawCircle(x,y,r,p);c.drawCircle(x,y,r*.72f,p);p.setStrokeWidth(5);p.setColor(GlassUi.CYAN);c.drawArc(x-r,y-r,x+r,y+r,-80,245,false,p);p.setStyle(Paint.Style.FILL);c.drawCircle(x,y,r*.22f,p);}
+  }
+diff --git a/app/src/main/java/com/gathin/tvhome/PrayerPanel.java b/app/src/main/java/com/gathin/tvhome/PrayerPanel.java
+index 895b33f..ef4a56d 100644
+--- a/app/src/main/java/com/gathin/tvhome/PrayerPanel.java
++++ b/app/src/main/java/com/gathin/tvhome/PrayerPanel.java
+@@ -245,15 +245,19 @@ final class PrayerPanel extends LinearLayout {
+         } else line+="Tomorrow's Fajr schedule is unavailable · ";
+         subtitle.setText(line+status+(!NetworkFocus.automaticPrayer(activity)?" · Focus: manual refresh":"")+" · MYT (UTC+8)");
+     }
++    private AlertDialog present(AlertDialog.Builder builder) {
++        if(activity instanceof DashboardActivity) return ((DashboardActivity)activity).show(builder,false);
++        return builder.show();
++    }
+     private void showOptions() {
+         if(zone.isEmpty()) { chooseState(); return; }
+-        dialog=new AlertDialog.Builder(activity).setTitle("Prayer times · "+zone)
++        dialog=present(new AlertDialog.Builder(activity).setTitle("Prayer times · "+zone)
+                 .setItems(new String[]{"Change state / JAKIM zone","Refresh prayer times","FayyadhOS wallpapers","Source & information"},(d,which)->{
+                     if(which==0) chooseState();
+                     else if(which==1) refresh(true);
+                     else if(which==2 && activity instanceof DashboardActivity) ((DashboardActivity)activity).wallpapers();
+                     else if(which==2 && activity instanceof MainActivity) ((MainActivity)activity).showFayyadhWallpaperPicker();
+-                    else dialog=new AlertDialog.Builder(activity).setTitle("Prayer time source")
++                    else dialog=present(new AlertDialog.Builder(activity).setTitle("Prayer time source")
+                             .setMessage("Waktu Solat API v2\nhttps://api.waktusolat.app/\nThe API provider states that its data comes from JAKIM.\n\n"+
+                                     "Monthly data is cached on this TV. Only matching dates and zones are displayed. "+
+                                     "Prayer times and countdowns use Malaysia time (UTC+8), even if the TV uses another time zone. "+
+@@ -261,14 +265,14 @@ final class PrayerPanel extends LinearLayout {
+                                     "Glass TV + TidyTV is a community modification, not an official JAKIM app. "+
+                                     "Your zone is sent to api.waktusolat.app. No GPS, account or API key is required. "+
+                                     "Places/Bing still uses the Internet when enabled.")
+-                            .setPositiveButton("Close",null) .show();
+-                }).setNegativeButton("Close",null) .show();
++                            .setPositiveButton("Close",null) );
++                }).setNegativeButton("Close",null) );
+     }
+     private void chooseState() {
+         LinkedHashSet<String> states=new LinkedHashSet<>(); for(String[] z:zones) states.add(z[1]);
+         String[] names=states.toArray(new String[0]);
+-        dialog=new AlertDialog.Builder(activity).setTitle("Select your state")
+-                .setItems(names,(d,i)->chooseZone(names[i])).setNegativeButton("Cancel",null) .show();
++        dialog=present(new AlertDialog.Builder(activity).setTitle("Select your state")
++                .setItems(names,(d,i)->chooseZone(names[i])).setNegativeButton("Cancel",null) );
+     }
+     private void chooseZone(String state) {
+         List<String[]> matching=new ArrayList<>(); for(String[] z:zones) if(z[1].equals(state)) matching.add(z);
+@@ -276,11 +280,11 @@ final class PrayerPanel extends LinearLayout {
+         for(int i=0;i<names.length;i++) {
+             String[] z=matching.get(i); names[i]=z[0]+" — "+z[2]; if(z[0].equals(zone)) selected=i;
+         }
+-        dialog=new AlertDialog.Builder(activity).setTitle("JAKIM zone · "+state)
++        dialog=present(new AlertDialog.Builder(activity).setTitle("JAKIM zone · "+state)
+                 .setSingleChoiceItems(names,selected,(d,i)->{
+                     d.dismiss(); zone=matching.get(i)[0]; generation++; busy=false;
+                     prefs.edit().putString("zone",zone).apply();
+                     retryAt=0; lastDate=""; loadCache(); render(); refresh(true);
+-                }).setNegativeButton("Back",(d,i)->chooseState()) .show();
++                }).setNegativeButton("Back",(d,i)->chooseState()) );
+     }
+ }
+diff --git a/app/src/main/res/values/jarvis_config.xml b/app/src/main/res/values/jarvis_config.xml
+new file mode 100644
+index 0000000..2c0bd73
+--- /dev/null
++++ b/app/src/main/res/values/jarvis_config.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <string name="jarvis_backend_endpoint" translatable="false">Jarvis HTTPS backend endpoint</string>
++    <string name="jarvis_backend_token" translatable="false">Jarvis device access token (not the Groq API key)</string>
++    <string name="jarvis_ai_loading" translatable="false">GroqCloud · requesting network explanation…</string>
++    <string name="jarvis_ai_preparation_error" translatable="false">AI request could not be prepared</string>
++</resources>
+diff --git a/app/src/main/res/xml/jarvis_restrictions.xml b/app/src/main/res/xml/jarvis_restrictions.xml
+new file mode 100644
+index 0000000..ad0a35a
+--- /dev/null
++++ b/app/src/main/res/xml/jarvis_restrictions.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<restrictions xmlns:android="http://schemas.android.com/apk/res/android">
++    <restriction android:key="jarvis_endpoint" android:title="@string/jarvis_backend_endpoint" android:restrictionType="string" />
++    <restriction android:key="jarvis_device_token" android:title="@string/jarvis_backend_token" android:restrictionType="string" />
++</restrictions>
+diff --git a/app/src/test/java/com/gathin/tvhome/DashboardTest.java b/app/src/test/java/com/gathin/tvhome/DashboardTest.java
+index d730168..c7e4fb1 100644
+--- a/app/src/test/java/com/gathin/tvhome/DashboardTest.java
++++ b/app/src/test/java/com/gathin/tvhome/DashboardTest.java
+@@ -24,7 +24,7 @@ public class DashboardTest {
+  @Test public void dashboard1080AndJarvisRenderWithRealCachedFixture()throws Exception{demoApps();seedApiCache();try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
+   View root=render(c.get(),1920,1080);assertNotNull(root.findViewById(R.id.prayerPanel));assertTrue(root.findViewById(R.id.grid).getHeight()>100);View first=((androidx.recyclerview.widget.RecyclerView)root.findViewById(R.id.grid)).getChildAt(0);assertNotNull(first);assertTrue("App card must accept remote focus",first.requestFocus());first.refreshDrawableState();capture(root,"dashboard-1080");
+   c.get().findViewById(R.id.btnWifi).performClick();Dialog d=ShadowDialog.getLatestDialog();assertTrue(d.isShowing());View decor=d.getWindow().getDecorView();int w=1560,h=900;decor.measure(View.MeasureSpec.makeMeasureSpec(w,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(h,View.MeasureSpec.EXACTLY));decor.layout(0,0,w,h);capture(decor,"jarvis-1080");
+-  assertEquals(View.INVISIBLE,((android.view.ViewGroup)root).getChildAt(1).getVisibility());
++  assertEquals("Home stays visible behind Jarvis",View.VISIBLE,((android.view.ViewGroup)root).getChildAt(1).getVisibility());
+   Bitmap composite=Bitmap.createBitmap(1920,1080,Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(composite);root.draw(canvas);canvas.save();canvas.translate(180,90);decor.draw(canvas);canvas.restore();try(var out=new FileOutputStream(new File(System.getProperty("user.dir"),"build/jarvis-composite.png"))){composite.compress(Bitmap.CompressFormat.PNG,100,out);}composite.recycle();
+   d.dismiss();Shadows.shadowOf(Looper.getMainLooper()).idle();assertEquals(View.VISIBLE,((android.view.ViewGroup)root).getChildAt(1).getVisibility());
+  }}
+diff --git a/app/src/test/java/com/gathin/tvhome/JarvisRepairTest.java b/app/src/test/java/com/gathin/tvhome/JarvisRepairTest.java
+new file mode 100644
+index 0000000..26bc11f
+--- /dev/null
++++ b/app/src/test/java/com/gathin/tvhome/JarvisRepairTest.java
+@@ -0,0 +1,105 @@
++package com.gathin.tvhome;
++
++import android.app.*;
++import android.os.*;
++import android.view.*;
++import android.widget.*;
++import org.json.JSONObject;
++import org.junit.*;
++import org.junit.runner.RunWith;
++import org.robolectric.*;
++import org.robolectric.annotation.Config;
++import org.robolectric.annotation.GraphicsMode;
++import org.robolectric.shadows.ShadowDialog;
++import java.lang.reflect.Field;
++import java.time.Duration;
++import java.util.concurrent.*;
++import java.util.concurrent.atomic.AtomicInteger;
++import static org.junit.Assert.*;
++
++@RunWith(RobolectricTestRunner.class)
++@Config(sdk=34,qualifiers="w960dp-h540dp-land-xhdpi")
++@GraphicsMode(GraphicsMode.Mode.NATIVE)
++public class JarvisRepairTest {
++ private final DashboardTest fixture=new DashboardTest();
++ @Before public void noTts(){RuntimeEnvironment.getApplication().getSharedPreferences("jarvis",0).edit().putBoolean("voice",false).commit();}
++ static Object field(Object target,String name)throws Exception{Field f=target.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(target);}
++ static TextView find(View root,String label){if(root instanceof TextView&&label.contentEquals(((TextView)root).getText()))return (TextView)root;if(root instanceof ViewGroup)for(int i=0;i<((ViewGroup)root).getChildCount();i++){TextView v=find(((ViewGroup)root).getChildAt(i),label);if(v!=null)return v;}return null;}
++ static void pump(){Shadows.shadowOf(Looper.getMainLooper()).idle();}
++ static void await(java.util.function.BooleanSupplier done)throws Exception{long until=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);while(!done.getAsBoolean()&&System.nanoTime()<until){Thread.sleep(10);pump();}assertTrue("Async action completed",done.getAsBoolean());}
++ View home(DashboardActivity a){return ((ViewGroup)a.findViewById(R.id.root)).getChildAt(1);}
++ static class FakeAi extends JarvisAiClient {
++  final AtomicInteger calls=new AtomicInteger();final CountDownLatch started=new CountDownLatch(1),finish=new CountDownLatch(1);volatile boolean cancelled;String result="TEST FIXTURE: Wi-Fi link speed is not Internet throughput.";Exception failure;JSONObject sent;
++  FakeAi(){super(RuntimeEnvironment.getApplication());}
++  @Override String explain(JSONObject context)throws Exception{calls.incrementAndGet();sent=context;started.countDown();finish.await(3,TimeUnit.SECONDS);if(failure!=null)throw failure;return result;}
++  @Override void cancel(){cancelled=true;finish.countDown();}
++ }
++ @Test public void closeButtonKeepsHomeGeometryAndRestoresFocus()throws Exception{fixture.demoApps();try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  View root=fixture.render(c.get(),1920,1080);View settings=c.get().findViewById(R.id.btnSettings);settings.requestFocus();View grid=c.get().findViewById(R.id.grid);int width=grid.getWidth(),left=grid.getLeft();
++  c.get().showJarvis();Dialog dialog=ShadowDialog.getLatestDialog();assertEquals(View.VISIBLE,home(c.get()).getVisibility());
++  find(dialog.getWindow().getDecorView(),"Close").performClick();pump();fixture.render(c.get(),1920,1080);
++  assertFalse(dialog.isShowing());assertEquals(View.VISIBLE,home(c.get()).getVisibility());assertEquals(width,grid.getWidth());assertEquals(left,grid.getLeft());assertTrue(settings.hasFocus());
++  fixture.capture(root,"repair-after-close-1080");
++ }}
++ @Test public void remoteBackDismissesJarvisAndRestoresHome()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  fixture.render(c.get(),1920,1080);c.get().findViewById(R.id.btnWifi).requestFocus();c.get().showJarvis();Dialog dialog=ShadowDialog.getLatestDialog();
++  dialog.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_BACK));dialog.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_BACK));pump();
++  assertFalse(dialog.isShowing());assertEquals(View.VISIBLE,home(c.get()).getVisibility());assertTrue(c.get().findViewById(R.id.btnWifi).hasFocus());
++ }}
++ @Test public void repeatedCloseReopenDoesNotReserveSpaceOrKeepModalState()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  fixture.render(c.get(),1920,1080);for(int i=0;i<12;i++){c.get().showJarvis();Dialog d=ShadowDialog.getLatestDialog();assertTrue(d.isShowing());d.dismiss();pump();assertTrue(((java.util.Map<?,?>)field(c.get(),"overlays")).isEmpty());assertEquals(View.VISIBLE,home(c.get()).getVisibility());}
++ }}
++ @Test public void replacedDialogDismissalDoesNotClearNewOwner()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  fixture.render(c.get(),1920,1080);AlertDialog first=c.get().show(new AlertDialog.Builder(c.get()).setTitle("First"));AlertDialog second=c.get().show(new AlertDialog.Builder(c.get()).setTitle("Second"));
++  first.dismiss();pump();assertEquals(1,((java.util.Map<?,?>)field(c.get(),"overlays")).size());assertSame(second,field(c.get(),"popup"));assertEquals(true,field(c.get().rain,"obscured"));
++  second.dismiss();pump();assertTrue(((java.util.Map<?,?>)field(c.get(),"overlays")).isEmpty());assertEquals(false,field(c.get().rain,"obscured"));assertNull(field(c.get(),"popup"));
++ }}
++ @Test public void dialogCloseCancelAndBackLeaveNoHiddenHome()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  fixture.render(c.get(),1920,1080);
++  for(int mode=0;mode<3;mode++){AlertDialog d=c.get().show(new AlertDialog.Builder(c.get()).setTitle("Dialog").setPositiveButton("Close",null).setNegativeButton("Cancel",null));
++   if(mode==0)d.getButton(AlertDialog.BUTTON_POSITIVE).performClick();else if(mode==1)d.getButton(AlertDialog.BUTTON_NEGATIVE).performClick();else{d.dispatchKeyEvent(new KeyEvent(0,KeyEvent.KEYCODE_BACK));d.dispatchKeyEvent(new KeyEvent(1,KeyEvent.KEYCODE_BACK));}
++   pump();assertFalse(d.isShowing());assertEquals(View.VISIBLE,home(c.get()).getVisibility());assertTrue(((java.util.Map<?,?>)field(c.get(),"overlays")).isEmpty());
++  }
++ }}
++ @Test public void nestedSettingsToJarvisAndOptionsMaintainOwnership()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  fixture.render(c.get(),1920,1080);c.get().settings();AlertDialog settings=(AlertDialog)ShadowDialog.getLatestDialog();settings.getListView().performItemClick(null,3,3);settings.dismiss();pump();Dialog jarvis=ShadowDialog.getLatestDialog();assertTrue(jarvis.isShowing());assertEquals(1,((java.util.Map<?,?>)field(c.get(),"overlays")).size());
++  find(jarvis.getWindow().getDecorView(),"Options").performClick();pump();assertFalse(jarvis.isShowing());Dialog options=ShadowDialog.getLatestDialog();assertTrue(options.isShowing());options.dismiss();pump();assertTrue(((java.util.Map<?,?>)field(c.get(),"overlays")).isEmpty());
++ }}
++ @Test public void prayerCancelUsesSameFocusRestoration()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  fixture.render(c.get(),1920,1080);View prayer=c.get().findViewById(R.id.prayerPanel);prayer.requestFocus();prayer.performClick();Dialog d=ShadowDialog.getLatestDialog();assertTrue(d.isShowing());assertEquals(1,((java.util.Map<?,?>)field(c.get(),"overlays")).size());d.cancel();pump();assertTrue(prayer.hasFocus());assertEquals(View.VISIBLE,home(c.get()).getVisibility());
++ }}
++ @Test public void existingButtonDisplaysReturnedTextAndDoesNotDuplicateRequests()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  fixture.render(c.get(),1920,1080);FakeAi ai=new FakeAi();JarvisPanel panel=new JarvisPanel(c.get(),ai);panel.show();Dialog dialog=ShadowDialog.getLatestDialog();TextView button=find(dialog.getWindow().getDecorView(),"Read again");button.performClick();assertTrue(ai.started.await(2,TimeUnit.SECONDS));button.performClick();assertEquals(1,ai.calls.get());assertFalse(((TextView)field(panel,"speedButton")).isEnabled());ai.finish.countDown();await(button::isEnabled);
++  assertEquals("GroqCloud AI · "+ai.result,((TextView)field(panel,"speed")).getText().toString());assertFalse(ai.sent.has("ssid"));assertFalse(ai.sent.has("estimatedDownloadMbps"));fixture.captureDialog(dialog,"repair-ai-response-FIXTURE");panel.close();
++ }}
++ @Test public void closingDuringAiCancelsAndReopeningCannotShowStaleResponse()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  fixture.render(c.get(),1920,1080);FakeAi ai=new FakeAi();JarvisPanel panel=new JarvisPanel(c.get(),ai);panel.show();TextView old=(TextView)field(panel,"speed");find(ShadowDialog.getLatestDialog().getWindow().getDecorView(),"Read again").performClick();assertTrue(ai.started.await(2,TimeUnit.SECONDS));panel.close();assertTrue(ai.cancelled);assertTrue(((ExecutorService)field(panel,"worker")).awaitTermination(2,TimeUnit.SECONDS));pump();assertFalse(old.getText().toString().contains("TEST FIXTURE"));
++  c.get().showJarvis();JarvisPanel fresh=(JarvisPanel)field(c.get(),"jarvis");assertEquals("Internet: not tested",((TextView)field(fresh,"speed")).getText().toString());assertEquals(View.VISIBLE,home(c.get()).getVisibility());ShadowDialog.getLatestDialog().dismiss();
++ }}
++ @Test public void aiFailureAndTimeoutRestoreButtonsWithoutFabricatingSuccess()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  fixture.render(c.get(),1920,1080);for(Exception failure:new Exception[]{new JarvisAiClient.Failure("Backend not configured on this TV"),new java.net.SocketTimeoutException(),new java.io.IOException("SECRET MUST NOT LEAK")}){
++   FakeAi ai=new FakeAi();ai.failure=failure;ai.finish.countDown();JarvisPanel panel=new JarvisPanel(c.get(),ai);panel.show();TextView button=find(ShadowDialog.getLatestDialog().getWindow().getDecorView(),"Read again");button.performClick();await(button::isEnabled);String text=((TextView)field(panel,"speed")).getText().toString();assertTrue(text.startsWith("GroqCloud unavailable"));assertFalse(text.contains("SECRET"));assertTrue(((TextView)field(panel,"speedButton")).isEnabled());panel.close();
++  }
++ }}
++ @Test public void missingConfigurationIsActionableWithoutNetworkCall()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  fixture.render(c.get(),1920,1080);JarvisPanel panel=new JarvisPanel(c.get());panel.show();TextView button=find(ShadowDialog.getLatestDialog().getWindow().getDecorView(),"Read again");button.performClick();await(button::isEnabled);assertTrue(((TextView)field(panel,"speed")).getText().toString().contains("Backend not configured"));panel.close();
++ }}
++ @Test public void lifecyclePauseClosesEveryTrackedOverlay()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  fixture.render(c.get(),1920,1080);AlertDialog one=c.get().show(new AlertDialog.Builder(c.get()).setTitle("One"));AlertDialog two=c.get().show(new AlertDialog.Builder(c.get()).setTitle("Two"));c.pause();pump();assertFalse(one.isShowing());assertFalse(two.isShowing());assertTrue(((java.util.Map<?,?>)field(c.get(),"overlays")).isEmpty());
++ }}
++ @Test public void closingDuringDownloadCancelsProbeAndWorkerWithoutAiOrStaleUi()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  fixture.render(c.get(),1920,1080);FakeAi ai=new FakeAi();JarvisPanel panel=new JarvisPanel(c.get(),ai);panel.show();find(ShadowDialog.getLatestDialog().getWindow().getDecorView(),"Test Internet").performClick();
++  TextView result=(TextView)field(panel,"speed");assertEquals("Measuring download…",result.getText().toString());panel.close();assertEquals(true,field(field(panel,"probe"),"cancelled"));assertTrue(((Future<?>)field(panel,"future")).isCancelled());
++  assertTrue(((ExecutorService)field(panel,"worker")).awaitTermination(12,TimeUnit.SECONDS));pump();assertEquals(0,ai.calls.get());assertEquals("Measuring download…",result.getText().toString());assertEquals(View.VISIBLE,home(c.get()).getVisibility());
++ }}
++ @Test public void nativeWifiSettingsDoesNotCallAi()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  fixture.render(c.get(),1920,1080);FakeAi ai=new FakeAi();JarvisPanel panel=new JarvisPanel(c.get(),ai);panel.show();find(ShadowDialog.getLatestDialog().getWindow().getDecorView(),"Options").performClick();pump();
++  AlertDialog options=(AlertDialog)ShadowDialog.getLatestDialog();options.getListView().performItemClick(null,2,2);options.dismiss();pump();assertEquals(android.provider.Settings.ACTION_WIFI_SETTINGS,Shadows.shadowOf(c.get()).getNextStartedActivity().getAction());assertEquals(0,ai.calls.get());
++ }}
++ @Test public void longAiResultUsesExistingScrollContainerWithoutEllipsis()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
++  fixture.render(c.get(),1920,1080);FakeAi ai=new FakeAi();ai.result="TEST FIXTURE, NOT LIVE. "+"Network explanation for TV remote use. ".repeat(35);ai.finish.countDown();JarvisPanel panel=new JarvisPanel(c.get(),ai);panel.show();Dialog dialog=ShadowDialog.getLatestDialog();TextView button=find(dialog.getWindow().getDecorView(),"Read again");button.performClick();await(button::isEnabled);
++  View decor=dialog.getWindow().getDecorView();decor.measure(View.MeasureSpec.makeMeasureSpec(1560,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(900,View.MeasureSpec.EXACTLY));decor.layout(0,0,1560,900);
++  TextView result=(TextView)field(panel,"speed");assertTrue(result.getText().toString().endsWith(ai.result));assertNull(result.getEllipsize());ScrollView scroll=(ScrollView)result.getParent().getParent();assertTrue(scroll.getChildAt(0).getHeight()>scroll.getHeight());assertTrue(button.isFocusable());panel.close();
++ }}
++
++}
+diff --git a/app/src/test/java/com/gathin/tvhome/RainFeatureTest.java b/app/src/test/java/com/gathin/tvhome/RainFeatureTest.java
+index 5fcf8cd..c0694e2 100644
+--- a/app/src/test/java/com/gathin/tvhome/RainFeatureTest.java
++++ b/app/src/test/java/com/gathin/tvhome/RainFeatureTest.java
+@@ -86,7 +86,7 @@ public class RainFeatureTest {
+  }}
+  @Test public void settingsCanEnableAndStartManualPreview()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
+   View root=helper.render(c.get(),1920,1080);c.get().settings();AlertDialog old=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();old.getListView().performItemClick(null,7,7);old.dismiss();idle(5);
+-  AlertDialog rain=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();assertEquals(10,rain.getListView().getCount());assertEquals(View.INVISIBLE,((FrameLayout)root).getChildAt(1).getVisibility());rain.getListView().performItemClick(null,0,0);rain.dismiss();idle(5);
++  AlertDialog rain=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();assertEquals(10,rain.getListView().getCount());assertEquals("Home remains visible behind settings",View.VISIBLE,((FrameLayout)root).getChildAt(1).getVisibility());rain.getListView().performItemClick(null,0,0);rain.dismiss();idle(5);
+   rain=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();rain.getListView().performItemClick(null,7,7);rain.dismiss();idle(900);assertTrue(c.get().rain.previewing());assertTrue(c.get().rain.view.effectVisible());assertEquals(View.VISIBLE,((FrameLayout)root).getChildAt(1).getVisibility());
+  }}
+  @Test public void turningEffectOffRestoresExactlyTheOriginalHomePixels()throws Exception{prefs(false);helper.demoApps();try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
+diff --git a/backend/README.md b/backend/README.md
+new file mode 100644
+index 0000000..18767db
+--- /dev/null
++++ b/backend/README.md
+@@ -0,0 +1,61 @@
++# Jarvis GroqCloud backend
++
++## Status and scope
++
++This backend adds a real Groq HTTP request path, not a local model or canned fallback.
++There was no backend in the supplied archive. Node 22+ standard library only; no npm install.
++The existing Android **Read again** button first reads the native network report (if voice output is enabled), then requests a short AI explanation. The AI result uses the existing Internet-result text region. No new panel, input, keyboard, speech recognition or microphone permission is added.
++
++**Not live-verified in the repair environment:** no Groq key, deployed HTTPS host or TV connection was supplied. Automated provider-success/error tests use explicitly marked fixtures. They are not evidence of successful Groq inference.
++
++## Server configuration
++
++Set secrets using your hosting platform's secret store/environment, not Android or Git:
++
++- `GROQ_API_KEY`: provider key, server only.
++- `JARVIS_DEVICE_TOKEN`: at least 32 cryptographically random characters, unique to this TV/deployment. This is a restricted backend-access credential, **not** the Groq key. Provision its matching value to the TV. Rotate if compromised.
++- `GROQ_MODEL`: optional; default `llama-3.1-8b-instant`.
++- `PORT`: optional; default 8080.
++
++Start: `node backend/server.mjs`.
++
++It binds **127.0.0.1**. Publish it through your existing trusted HTTPS reverse proxy with a publicly valid certificate. Do not expose loopback HTTP directly or disable certificate validation. Route **POST /api/jarvis** to this process. Use a 2 KiB body cap, a 10-second client-body timeout, and an upstream timeout of at least 15 seconds at the proxy. Do not log Authorization headers, request bodies or secret environment values. Do not enable open CORS; it is unnecessary for a native Android client. Keep process secrets out of crash reporting.
++
++The backend validates the configured model against Groq's actual `/openai/v1/models` list before inference and caches successful validation for one hour. It fails clearly if unavailable; it does not quietly switch models. The default was listed in official Groq production-model documentation when inspected; account-specific availability still requires this authenticated check.
++
++One authenticated TV, one in-flight request, six attempts/minute. A proxy-level connection/request limit is also recommended against unauthenticated flooding. A fleet requires per-device credentials and distributed quotas; the intentionally small in-process limiter is not a fleet gateway.
++
++## Provision the TV without typing on it
++
++### Managed production TVs
++
++Use the existing EMM/device-policy controller's **managed application configuration** for package `dev.farred.fayyadhos.tv.jarvis`:
++
++- `jarvis_endpoint`: full URL such as `https://YOUR-HOST/api/jarvis` (replace YOUR-HOST).
++- `jarvis_device_token`: matching restricted device token.
++
++The app declares these restrictions in `res/xml/jarvis_restrictions.xml`. The EMM/device owner, not this app, writes the restrictions. They take priority over private preferences. The provider key must never be provisioned to Android.
++
++### Debug-only unmanaged-TV verification
++
++For a debug build, an authorized administrator can use ADB `run-as` to write app-private `shared_prefs/jarvis-backend.xml` **while the application is stopped**. Create an XML preferences map locally with string entries `endpoint` and `device_token`, XML-escaping both values, then pipe it to the package's private file through `adb shell run-as dev.farred.fayyadhos.tv.jarvis`. Create `shared_prefs` first if needed. Do not put the token in shell command arguments, shell history, screenshots or reports. Restrict the provisioning file's permissions and delete it after use. Restart the app afterward.
++
++`run-as` is unavailable on a normal release build. **Unmanaged release TVs need an approved private provisioning mechanism before deployment.** None existed in the supplied source; no exported setup receiver, new text field, hardcoded token or insecure public configuration file was added as a workaround. Do not root or weaken the TV's security to provision it. Agree on managed provisioning or a secure provisioning flow before building a production rollout.
++
++## Data and behavior
++
++Only the predefined `explain_network` action is accepted. The server independently creates its prompts. Context is allowlisted: transport category, Android validation boolean, VPN transport boolean, Wi-Fi link Mbps, and an optional earlier user-triggered measured download estimate. No SSID, IP address, serial, location, installed-app list or free-form prompt is sent.
++
++The download measurement is explicitly labelled earlier/estimated, not a live reading. No upload is measured. AI cannot launch apps or change Android settings. Native app launching, Wi-Fi settings, prayer times and weather remain native/existing flows and never depend on Groq. There is no AI polling or automatic AI invocation on rendering.
++
++Provider errors are never copied to the client; responses use safe codes. Failures never return synthetic successful AI text. Requests have a shared 12-second server deadline; Android has bounded connect/read timeouts, bounded bodies and refuses redirects/cleartext URLs. Closing Jarvis cancels its transport/future, shuts down its executor/TTS, removes callbacks, and guards late UI updates.
++
++## Verification
++
++- `node --test backend/server.test.mjs`: HTTP tests with mocked provider transport, no billable calls.
++- `node backend/live-check.mjs`: **real** models-list and inference calls using server environment secrets. It refuses to run without credentials. Records safe response metadata/text; do not substitute fixture output for this evidence.
++- After HTTPS deployment and device provisioning, select **Jarvis → Read again** using the TV remote. Check the real provider output appears in the existing region. Test a missing key, invalid key, provider timeout/outage, rapid repeat presses, and close/reopen while loading. Restore valid credentials after deliberate failure tests.
++
++A backend-only live check does not prove TV-to-backend HTTPS/focus behavior. Both must be tested separately.
++
++Official provider references: https://console.groq.com/docs/models and https://console.groq.com/docs/api-reference.
+diff --git a/backend/live-check.mjs b/backend/live-check.mjs
+new file mode 100644
+index 0000000..f523faa
+--- /dev/null
++++ b/backend/live-check.mjs
+@@ -0,0 +1,15 @@
++// Explicit opt-in, real provider call. Never substitutes fixture data.
++import {createJarvisServer} from './server.mjs';
++import {once} from 'node:events';
++if(!process.env.GROQ_API_KEY || (process.env.JARVIS_DEVICE_TOKEN || '').length<32){
++  console.error('Live verification NOT RUN: configure GROQ_API_KEY and JARVIS_DEVICE_TOKEN on the server.');process.exit(2);
++}
++const server=createJarvisServer();server.listen(0,'127.0.0.1');await once(server,'listening');
++try{
++ const response=await fetch(`http://127.0.0.1:${server.address().port}/api/jarvis`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${process.env.JARVIS_DEVICE_TOKEN}`},body:JSON.stringify({action:'explain_network',context:{transport:'No connection',validated:false,vpn:false,linkMbps:-1}})});
++ const body=await response.json();
++ if(!response.ok || body.provider!=='groq' || !body.text)throw new Error(`Live request failed: HTTP ${response.status}`);
++ // No request headers, API key or identifying device data are printed.
++ console.log(JSON.stringify({verified_at:new Date().toISOString(),http_status:response.status,provider:body.provider,model:body.model,text:body.text},null,2));
++}catch(error){console.error(error.message);process.exitCode=1;}
++finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
+diff --git a/backend/server.mjs b/backend/server.mjs
+new file mode 100644
+index 0000000..abe92fe
+--- /dev/null
++++ b/backend/server.mjs
+@@ -0,0 +1,95 @@
++import http from 'node:http';
++import { timingSafeEqual } from 'node:crypto';
++import { pathToFileURL } from 'node:url';
++
++const ROOT = 'https://api.groq.com/openai/v1';
++const DEFAULT_MODEL = 'llama-3.1-8b-instant';
++class Failure extends Error { constructor(status, code) { super(code); this.status = status; } }
++function authenticated(header, token) {
++  const a = Buffer.from(header || ''), b = Buffer.from(`Bearer ${token}`);
++  return token.length >= 32 && a.length === b.length && timingSafeEqual(a, b);
++}
++function factsOnly(body) {
++  if (!body || body.action !== 'explain_network' || !body.context || typeof body.context !== 'object' || Array.isArray(body.context)) throw new Failure(400, 'invalid_action');
++  const c = body.context;
++  const transports = ['No connection','Wi-Fi','LAN / Ethernet','Wi-Fi / LAN','VPN','Other network'];
++  if (!transports.includes(c.transport) || typeof c.validated !== 'boolean' || typeof c.vpn !== 'boolean' || !Number.isInteger(c.linkMbps) || c.linkMbps < -1 || c.linkMbps > 100000) throw new Failure(400, 'invalid_context');
++  const facts = { transport:c.transport, internetValidatedByAndroid:c.validated, vpnTransportReported:c.vpn, wifiLinkMbps:c.linkMbps > 0 ? c.linkMbps : null };
++  if ('estimatedDownloadMbps' in c) {
++    if (typeof c.estimatedDownloadMbps !== 'number' || !Number.isFinite(c.estimatedDownloadMbps) || c.estimatedDownloadMbps <= 0 || c.estimatedDownloadMbps > 100000) throw new Failure(400,'invalid_context');
++    facts.estimatedDownloadMbps = c.estimatedDownloadMbps;
++    facts.measurementMethod = 'Earlier user-initiated download sample, at most 8 MiB / roughly 8 seconds including connection setup; not a full benchmark. May no longer reflect current conditions.';
++  }
++  facts.upload = 'Not measured';
++  return facts;
++}
++async function readJson(stream, maxBytes) {
++  let bytes = 0, chunks = [];
++  for await (const chunk of stream) { const b = Buffer.from(chunk); bytes += b.length; if (bytes > maxBytes) throw new Failure(413,'payload_too_large'); chunks.push(b); }
++  try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { throw new Failure(400,'invalid_json'); }
++}
++async function providerJson(response) {
++  if (!response.ok) {
++    await response.body?.cancel();
++    throw new Failure(response.status === 401 || response.status === 403 ? 503 : response.status === 429 ? 429 : 502,
++      response.status === 401 || response.status === 403 ? 'provider_auth_failed' : response.status === 429 ? 'provider_rate_limited' : 'provider_failed');
++  }
++  if (!response.headers.get('content-type')?.includes('application/json')) { await response.body?.cancel(); throw new Failure(502,'invalid_provider_response'); }
++  try { return await readJson(response.body, 65536); } catch { throw new Failure(502,'invalid_provider_response'); }
++}
++export function createJarvisServer({ env = process.env, fetchImpl = fetch, timeoutMs = 12000 } = {}) {
++  const key = env.GROQ_API_KEY || '', token = env.JARVIS_DEVICE_TOKEN || '', model = env.GROQ_MODEL || DEFAULT_MODEL;
++  let busy = false, windowStart = 0, requests = 0, verifiedAt = 0;
++  const server = http.createServer(async (req, res) => {
++    res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
++    const reply = (status, value) => { if (!res.destroyed && !res.writableEnded) { res.writeHead(status); res.end(JSON.stringify(value)); } };
++    if (req.url !== '/api/jarvis' || req.method !== 'POST') return reply(404,{error:'not_found'});
++    if (!authenticated(req.headers.authorization, token)) return reply(401,{error:'unauthorized'});
++    if (!key) return reply(503,{error:'provider_not_configured'});
++    if (!req.headers['content-type']?.startsWith('application/json')) return reply(415,{error:'json_required'});
++    if (busy) return reply(429,{error:'request_in_progress'});
++    const now = Date.now();if (now - windowStart >= 60000) { windowStart = now;requests = 0; }
++    if (++requests > 6) return reply(429,{error:'rate_limited'});
++    busy = true;
++    const controller = new AbortController();let timedOut = false;
++    const timer = setTimeout(() => { timedOut = true;controller.abort(); },timeoutMs);
++    const disconnect = () => { if (!res.writableEnded) controller.abort(); };
++    res.on('close',disconnect);
++    try {
++      // Bound slow request bodies as well as provider requests.
++      const abortBody = () => { if (!req.complete) req.destroy(); };
++      controller.signal.addEventListener('abort',abortBody,{once:true});
++      const body = await readJson(req,2048);controller.signal.removeEventListener('abort',abortBody);
++      const facts = factsOnly(body);
++      if (controller.signal.aborted) throw new Error('aborted');
++      const headers = { Authorization:`Bearer ${key}`, 'Content-Type':'application/json' };
++      // Verify the configurable model against the live supported list; no guessed/deprecated fallback.
++      if (!verifiedAt || Date.now()-verifiedAt > 3600000) {
++        const available = await providerJson(await fetchImpl(`${ROOT}/models`,{ headers, signal:controller.signal, redirect:'error' }));
++        if (!Array.isArray(available.data) || !available.data.some(m => m.id === model && m.active !== false)) throw new Failure(503,'configured_model_unavailable');
++        verifiedAt = Date.now();
++      }
++      const completion = await providerJson(await fetchImpl(`${ROOT}/chat/completions`,{
++        method:'POST',headers,signal:controller.signal,redirect:'error',body:JSON.stringify({
++          model, temperature:0.2, max_completion_tokens:300,
++          messages:[
++            {role:'system',content:'You are Jarvis on FayyadhOS Android TV. Explain only the supplied Android network facts in concise Bahasa Melayu (at most 120 words). Distinguish Wi-Fi link rate from estimated Internet download; upload is unmeasured. Do not invent weather, speeds, device specifications or live observations. Android validation is not proof of speed. Do not claim to change settings or launch apps. Give safe button-based troubleshooting advice. No tools, microphone or text entry.'},
++            {role:'user',content:`Explain these measured/reported facts: ${JSON.stringify(facts)}`}
++          ]
++        })
++      }));
++      const choice = completion.choices?.[0], text = choice?.message?.content;
++      if (typeof text !== 'string' || !text.trim() || text.length > 2400 || choice.finish_reason !== 'stop') throw new Failure(502,'invalid_provider_response');
++      if (controller.signal.aborted) throw new Error('aborted');
++      reply(200,{provider:'groq',model,text:text.trim()});
++    } catch (error) {
++      reply(timedOut ? 504 : error instanceof Failure ? error.status : 502,{error:timedOut ? 'provider_timeout' : error instanceof Failure ? error.message : 'provider_unavailable'});
++    } finally { clearTimeout(timer);res.off('close',disconnect);busy = false; }
++  });
++  server.requestTimeout = 15000;server.headersTimeout = 10000;
++  return server;
++}
++if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
++  if ((process.env.JARVIS_DEVICE_TOKEN || '').length < 32) throw new Error('Set JARVIS_DEVICE_TOKEN to at least 32 random characters');
++  createJarvisServer().listen(Number(process.env.PORT || 8080),'127.0.0.1',() => console.log('Jarvis backend listening on loopback; configure HTTPS reverse proxy'));
++}
+diff --git a/backend/server.test.mjs b/backend/server.test.mjs
+new file mode 100644
+index 0000000..4fdeda6
+--- /dev/null
++++ b/backend/server.test.mjs
+@@ -0,0 +1,57 @@
++import {test} from 'node:test';
++import assert from 'node:assert/strict';
++import {once} from 'node:events';
++import {createJarvisServer} from './server.mjs';
++const token='test-only-device-token-0123456789abcdef', key='test-only-provider-key';
++const context={transport:'Wi-Fi',validated:true,vpn:false,linkMbps:780,estimatedDownloadMbps:48.4};
++const json=(o,status=200)=>new Response(JSON.stringify(o),{status,headers:{'Content-Type':'application/json'}});
++function fakeProvider(calls, variant='success') { return async (url,options) => {
++  calls.push({url,options});
++  if(variant==='invalid-key')return json({error:{message:key}},401);
++  if(url.endsWith('/models'))return json({data:[{id:variant==='missing-model'?'not-available':'llama-3.1-8b-instant'}]});
++  if(variant==='timeout')return new Promise((resolve,reject)=>options.signal.addEventListener('abort',()=>reject(new Error('abort')),{once:true}));
++  if(variant==='failure')throw new Error(key);
++  if(variant==='invalid')return json({choices:[{message:{content:''}}]});
++  return json({choices:[{message:{content:'TEST FIXTURE — NOT A LIVE AI RESPONSE'},finish_reason:'stop'}]});
++};}
++async function withServer(options,fn){const s=createJarvisServer(options);s.listen(0,'127.0.0.1');await once(s,'listening');try{await fn(`http://127.0.0.1:${s.address().port}/api/jarvis`);}finally{s.closeAllConnections();await new Promise(r=>s.close(r));}}
++const post=(url,body={action:'explain_network',context},auth=token)=>fetch(url,{method:'POST',headers:{'Authorization':`Bearer ${auth}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
++for(const [variant,status] of [['success',200],['invalid-key',503],['missing-model',503],['timeout',504],['failure',502],['invalid',502]])test(`HTTP flow: ${variant} (provider mocked)`,async()=>{
++ const calls=[];await withServer({env:{GROQ_API_KEY:key,JARVIS_DEVICE_TOKEN:token},fetchImpl:fakeProvider(calls,variant),timeoutMs:120},async url=>{
++  const response=await post(url);assert.equal(response.status,status);const body=await response.text();assert.ok(!body.includes(key));
++  if(status===200){assert.ok(body.includes('TEST FIXTURE'));const sent=JSON.parse(calls[1].options.body);assert.equal(sent.model,'llama-3.1-8b-instant');assert.ok(sent.messages[1].content.includes('780'));assert.ok(sent.messages[1].content.includes('48.4'));assert.ok(!sent.messages[1].content.includes('ssid'));}
++ });
++});
++test('Missing key is explicit and never calls provider',async()=>{await withServer({env:{JARVIS_DEVICE_TOKEN:token},fetchImpl:()=>assert.fail()},async url=>assert.equal((await post(url)).status,503));});
++test('Unauthorized and invalid actions/context cannot call provider',async()=>{await withServer({env:{GROQ_API_KEY:key,JARVIS_DEVICE_TOKEN:token},fetchImpl:()=>assert.fail()},async url=>{
++ assert.equal((await post(url,undefined,'bad')).status,401);
++ assert.equal((await post(url,{action:'launch_youtube',context})).status,400);
++ assert.equal((await post(url,{action:'explain_network',context:{...context,transport:'arbitrary prompt'}})).status,400);
++ assert.equal((await post(url,{action:'explain_network',context:{...context,estimatedDownloadMbps:'pretend'}})).status,400);
++});});
++test('Extra text and identifying context are stripped; model list is cached',async()=>{const calls=[];await withServer({env:{GROQ_API_KEY:key,JARVIS_DEVICE_TOKEN:token},fetchImpl:fakeProvider(calls)},async url=>{
++ for(let i=0;i<2;i++)assert.equal((await post(url,{action:'explain_network',context:{...context,ssid:'PRIVATE-SSID',prompt:'INJECTED'}})).status,200);
++ assert.equal(calls.filter(c=>c.url.endsWith('/models')).length,1);assert.ok(!calls[1].options.body.includes('PRIVATE-SSID'));assert.ok(!calls[1].options.body.includes('INJECTED'));
++});});
++test('Duplicate in-flight requests are rejected, timeout recovers',async()=>{const calls=[];await withServer({env:{GROQ_API_KEY:key,JARVIS_DEVICE_TOKEN:token},fetchImpl:fakeProvider(calls,'timeout'),timeoutMs:180},async url=>{
++ const first=post(url);while(calls.length<2)await new Promise(r=>setTimeout(r,5));assert.equal((await post(url)).status,429);assert.equal((await first).status,504);assert.equal((await post(url)).status,504);
++});});
++test('Payload is bounded and six-per-minute rate limit is enforced',async()=>{const calls=[];await withServer({env:{GROQ_API_KEY:key,JARVIS_DEVICE_TOKEN:token},fetchImpl:fakeProvider(calls)},async url=>{
++ assert.equal((await post(url,{action:'explain_network',context,padding:'x'.repeat(3000)})).status,413);
++ for(let i=0;i<5;i++)assert.equal((await post(url)).status,200);
++ assert.equal((await post(url)).status,429);
++});});
++test('Client disconnect aborts provider work and frees the request gate',async()=>{
++ let aborted=false,block=true;
++ const fetchImpl=async(url,options)=>{
++  if(url.endsWith('/models'))return json({data:[{id:'llama-3.1-8b-instant'}]});
++  if(!block)return json({choices:[{message:{content:'TEST FIXTURE AFTER CANCEL'},finish_reason:'stop'}]});
++  return new Promise((resolve,reject)=>options.signal.addEventListener('abort',()=>{aborted=true;reject(new Error('cancelled'));},{once:true}));
++ };
++ await withServer({env:{GROQ_API_KEY:key,JARVIS_DEVICE_TOKEN:token},fetchImpl,timeoutMs:1000},async url=>{
++  const controller=new AbortController();const request=fetch(url,{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({action:'explain_network',context}),signal:controller.signal});
++  await new Promise(r=>setTimeout(r,40));controller.abort();await assert.rejects(request);
++  for(let i=0;i<40&&!aborted;i++)await new Promise(r=>setTimeout(r,5));assert.ok(aborted);block=false;
++  assert.equal((await post(url)).status,200);
++ });
++});

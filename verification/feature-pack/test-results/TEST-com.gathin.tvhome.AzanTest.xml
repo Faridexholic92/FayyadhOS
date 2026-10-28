@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.AzanTest" tests="25" skipped="0" failures="0" errors="0" timestamp="2026-10-27T22:38:35" hostname="c123154c-d5c" time="5.716">
+  <properties/>
+  <testcase name="cacheRemovalInvalidatesAlreadyScheduledAlarm" classname="com.gathin.tvhome.AzanTest" time="2.135"/>
+  <testcase name="exactlyNinetySecondsIsAcceptedButOnlyOnce" classname="com.gathin.tvhome.AzanTest" time="0.092"/>
+  <testcase name="alarmIsClaimedOnceThenNextPrayerScheduled" classname="com.gathin.tvhome.AzanTest" time="0.061"/>
+  <testcase name="oversizedAudioIsRejectedAndOriginalKept" classname="com.gathin.tvhome.AzanTest" time="0.06"/>
+  <testcase name="bootDoesNotStartAudioAndMissingCacheDoesNotInventSchedule" classname="com.gathin.tvhome.AzanTest" time="0.046"/>
+  <testcase name="returningHomeAtBoundaryDoesNotReplaceUndeliveredAlarm" classname="com.gathin.tvhome.AzanTest" time="0.048"/>
+  <testcase name="onlyOneAlarmAndPersistedNetworkJobAreScheduled" classname="com.gathin.tvhome.AzanTest" time="0.052"/>
+  <testcase name="disablingCancelsAlarmJobAndStopsOnlyOwnService" classname="com.gathin.tvhome.AzanTest" time="0.052"/>
+  <testcase name="serviceUsesLocalFixtureWithoutRequestingAudioFocusAndStops" classname="com.gathin.tvhome.AzanTest" time="0.262"/>
+  <testcase name="settingsStartsDisabledAndPickerUsesOnlyAudioContent" classname="com.gathin.tvhome.AzanTest" time="1.466"/>
+  <testcase name="subuhHasOptionalOwnAudioAndOthersUseGeneral" classname="com.gathin.tvhome.AzanTest" time="0.035"/>
+  <testcase name="clockRollbackDoesNotReplayClaimedPrayer" classname="com.gathin.tvhome.AzanTest" time="0.069"/>
+  <testcase name="MalaysiaScheduleDoesNotFollowDeviceTimezone" classname="com.gathin.tvhome.AzanTest" time="0.04"/>
+  <testcase name="lateOrEarlyAlarmsNeverPlayOldAudio" classname="com.gathin.tvhome.AzanTest" time="0.051"/>
+  <testcase name="importsUserContentPrivatelyAndEmptyInputCannotReplaceGoodFile" classname="com.gathin.tvhome.AzanTest" time="0.049"/>
+  <testcase name="afterIsyakSchedulesTomorrowSubuhFromCache" classname="com.gathin.tvhome.AzanTest" time="0.033"/>
+  <testcase name="optInDefaultsOffAndMissingAudioDoesNotSchedule" classname="com.gathin.tvhome.AzanTest" time="0.025"/>
+  <testcase name="notificationDenialAlsoBlocksScheduling" classname="com.gathin.tvhome.AzanTest" time="0.02"/>
+  <testcase name="arbitraryRemoteAndFileUrisAreNotImported" classname="com.gathin.tvhome.AzanTest" time="0.016"/>
+  <testcase name="missingCacheRequestsRecoveryJobWithoutInventingAlarm" classname="com.gathin.tvhome.AzanTest" time="0.037"/>
+  <testcase name="mainSettingsExposesAzanWithoutChangingExistingMenuIndexes" classname="com.gathin.tvhome.AzanTest" time="0.916"/>
+  <testcase name="blockedNotificationChannelPreventsAutomaticAudio" classname="com.gathin.tvhome.AzanTest" time="0.046"/>
+  <testcase name="schedulesExactlyFivePrayerBoundariesAndNeverSunrise" classname="com.gathin.tvhome.AzanTest" time="0.03"/>
+  <testcase name="forgedStaleZoneAndSunrisePayloadsAreRejected" classname="com.gathin.tvhome.AzanTest" time="0.027"/>
+  <testcase name="missingPermissionPreventsSchedulingWithoutInexactFallback" classname="com.gathin.tvhome.AzanTest" time="0.02"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[[Robolectric] WARN: Android SDK 36 requires Java 21 (have Java 17). Tests won't be run on SDK 36 unless explicitly requested.
+[Robolectric] WARN: Android SDK 37 requires Java 21 (have Java 17). Tests won't be run on SDK 37 unless explicitly requested.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+]]></system-err>
+</testsuite>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.JarvisLogicTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-26T22:46:04" hostname="dd1e2106-3ed" time="0.014">
+  <properties/>
+  <testcase name="ssidDoesNotInventMissingNames" classname="com.gathin.tvhome.JarvisLogicTest" time="0.001"/>
+  <testcase name="greetingUses24HourInternallyWithEnglishPeriods" classname="com.gathin.tvhome.JarvisLogicTest" time="0.011"/>
+  <testcase name="missingNetworkReportDoesNotClaimMeasuredSpeed" classname="com.gathin.tvhome.JarvisLogicTest" time="0.0"/>
+  <testcase name="wifiBandIsDerivedFromActualFrequency" classname="com.gathin.tvhome.JarvisLogicTest" time="0.0"/>
+  <testcase name="throughputUsesBytesAndSecondsNotWifiLinkRate" classname="com.gathin.tvhome.JarvisLogicTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

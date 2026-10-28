@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.JarvisSettingsTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-26T22:46:09" hostname="dd1e2106-3ed" time="1.099">
+  <properties/>
+  <testcase name="savedKeyIsNeverPrefilledAndRemovalNeedsConfirmation" classname="com.gathin.tvhome.JarvisSettingsTest" time="0.434"/>
+  <testcase name="backDismissalRestoresHomeFocusWithoutGeometryChanges" classname="com.gathin.tvhome.JarvisSettingsTest" time="0.252"/>
+  <testcase name="everySettingsActionCanReceiveRemoteFocus" classname="com.gathin.tvhome.JarvisSettingsTest" time="0.167"/>
+  <testcase name="savingKeyDoesNotCallNetworkAndClearsTheEditor" classname="com.gathin.tvhome.JarvisSettingsTest" time="0.141"/>
+  <testcase name="secretInputIsMaskedNotSavedAndWindowIsSecure" classname="com.gathin.tvhome.JarvisSettingsTest" time="0.104"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+]]></system-err>
+</testsuite>

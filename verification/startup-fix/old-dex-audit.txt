@@ -1,0 +1,2 @@
+APK: FayyadhOS-2.8-Weather-debug.apk ; app class definitions: 0 ; manifest components: 12
+FAIL: missing component class definitions: Lcom/gathin/tvhome/AzanReceiver;, Lcom/gathin/tvhome/AzanRefreshJob;, Lcom/gathin/tvhome/AzanRescheduleReceiver;, Lcom/gathin/tvhome/AzanService;, Lcom/gathin/tvhome/AzanSettingsActivity;, Lcom/gathin/tvhome/ClockDream;, Lcom/gathin/tvhome/DashboardActivity;, Lcom/gathin/tvhome/HomeKeyService;, Lcom/gathin/tvhome/HomeSettingsActivity;, Lcom/gathin/tvhome/InputKeyService;, Lcom/gathin/tvhome/MainActivity;, Lcom/gathin/tvhome/ThemeProvider;

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.PrayerTimesTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-10-27T03:42:33" hostname="37e1e9f6-e1b" time="0.079">
+  <properties/>
+  <testcase name="neverReusesYesterdayAsToday" classname="com.gathin.tvhome.PrayerTimesTest" time="0.004"/>
+  <testcase name="parsesOfficialShape" classname="com.gathin.tvhome.PrayerTimesTest" time="0.012"/>
+  <testcase name="rejectsHtmlError" classname="com.gathin.tvhome.PrayerTimesTest" time="0.001"/>
+  <testcase name="afterIshaUsesTomorrow" classname="com.gathin.tvhome.PrayerTimesTest" time="0.0"/>
+  <testcase name="tvTimezoneDoesNotChangePrayer" classname="com.gathin.tvhome.PrayerTimesTest" time="0.001"/>
+  <testcase name="yearRollover" classname="com.gathin.tvhome.PrayerTimesTest" time="0.0"/>
+  <testcase name="exactBoundaryAdvances" classname="com.gathin.tvhome.PrayerTimesTest" time="0.0"/>
+  <testcase name="sunriseNotCountedAsPrayer" classname="com.gathin.tvhome.PrayerTimesTest" time="0.0"/>
+  <testcase name="countdownRoundsUp" classname="com.gathin.tvhome.PrayerTimesTest" time="0.0"/>
+  <testcase name="rejectsWrongZone" classname="com.gathin.tvhome.PrayerTimesTest" time="0.001"/>
+  <testcase name="rejectsOutOfOrder" classname="com.gathin.tvhome.PrayerTimesTest" time="0.0"/>
+  <testcase name="beforeFajr" classname="com.gathin.tvhome.PrayerTimesTest" time="0.001"/>
+  <testcase name="malayMonthsAndEnglishMonths" classname="com.gathin.tvhome.PrayerTimesTest" time="0.0"/>
+  <testcase name="rejectsWrongMonth" classname="com.gathin.tvhome.PrayerTimesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

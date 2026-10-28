@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.DashboardRedesignTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-10-27T10:09:42" hostname="d1c32ed0-28c" time="21.31">
+  <properties/>
+  <testcase name="hideFromCardOptionsRemovesOnlySelectedApp" classname="com.gathin.tvhome.DashboardRedesignTest" time="7.96"/>
+  <testcase name="savedWallpaperSelectionIsNotOverwritten" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.302"/>
+  <testcase name="remoteMovesAcrossCardsAndCenterLaunchesMappedComponent" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.561"/>
+  <testcase name="dashboardDoesNotSelectSabahOrInventPrayerData" classname="com.gathin.tvhome.DashboardRedesignTest" time="2.476"/>
+  <testcase name="layoutAndSettingsLabelFitAt720p" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.541"/>
+  <testcase name="localeAwareClockIsDynamic" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.361"/>
+  <testcase name="carouselIsHorizontalAndStartsOnFirstInstalledApp" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.624"/>
+  <testcase name="returningFromAppKeepsPreviouslyFocusedCard" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.709"/>
+  <testcase name="carouselScrollsToInstalledAppsBeyondFirstSeven" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.857"/>
+  <testcase name="reorderUsesHorizontalArrowsAndBackSavesWithoutLaunching" classname="com.gathin.tvhome.DashboardRedesignTest" time="1.001"/>
+  <testcase name="enterLaunchesAndUpDownRestoresAppFocus" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.384"/>
+  <testcase name="backReturnsToSettingsWithoutFinishingHome" classname="com.gathin.tvhome.DashboardRedesignTest" time="0.357"/>
+  <testcase name="androidEightMinimumSdkCreatesFunctionalCarousel" classname="com.gathin.tvhome.DashboardRedesignTest" time="5.114"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+]]></system-err>
+</testsuite>

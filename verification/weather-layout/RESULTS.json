@@ -1,0 +1,25 @@
+{
+  "tests": {
+    "tests": 308,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "changed_source_files": [
+    "app/src/main/assets/weather-wallpapers/cloudy.jpg",
+    "app/src/main/assets/weather-wallpapers/rain.jpg",
+    "app/src/main/assets/weather-wallpapers/storm.jpg",
+    "app/src/main/java/com/gathin/tvhome/DashboardActivity.java",
+    "app/src/main/java/com/gathin/tvhome/RainController.java",
+    "app/src/main/java/com/gathin/tvhome/WeatherWallpapers.java",
+    "app/src/test/java/com/gathin/tvhome/WeatherLayoutTest.java"
+  ],
+  "lint_errors": 45,
+  "lint_warnings": 76,
+  "lint_error_bearing_files_unchanged": [
+    "Config.java",
+    "res/values/strings.xml"
+  ],
+  "apk_sha256": "0b28760d36c1cc60c3f7759392be017281268d99c1fdae62471717d4fee3afb6",
+  "physical_tv_tested": false
+}

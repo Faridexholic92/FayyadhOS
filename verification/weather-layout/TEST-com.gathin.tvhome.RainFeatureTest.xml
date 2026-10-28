@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gathin.tvhome.RainFeatureTest" tests="21" skipped="0" failures="0" errors="0" timestamp="2026-10-27T10:11:59" hostname="d1c32ed0-28c" time="5.414">
+  <properties/>
+  <testcase name="adaptiveQualityReducesMovingDropsThenStopsContinuousFrames" classname="com.gathin.tvhome.RainFeatureTest" time="0.088"/>
+  <testcase name="backgroundAndScreenOffSuspendAndPreviewDoesNotPersist" classname="com.gathin.tvhome.RainFeatureTest" time="0.085"/>
+  <testcase name="previewAt720" classname="com.gathin.tvhome.RainFeatureTest" time="0.599"/>
+  <testcase name="modalMenusSuspendCosmeticAnimation" classname="com.gathin.tvhome.RainFeatureTest" time="0.111"/>
+  <testcase name="clearAndCloudyDoNotRender" classname="com.gathin.tvhome.RainFeatureTest" time="0.169"/>
+  <testcase name="manualPreviewRenders720And1080WithoutChangingHome" classname="com.gathin.tvhome.RainFeatureTest" time="2.217"/>
+  <testcase name="rainAndThunderForecastActivateButFreshCacheAvoidsNetwork" classname="com.gathin.tvhome.RainFeatureTest" time="0.166"/>
+  <testcase name="rateLimitHonorsRetryAfter" classname="com.gathin.tvhome.RainFeatureTest" time="0.14"/>
+  <testcase name="enableAloneDoesNotSilentlyEnableForecast" classname="com.gathin.tvhome.RainFeatureTest" time="0.128"/>
+  <testcase name="settingsEntryIsAddedWithoutReorderingOldItems" classname="com.gathin.tvhome.RainFeatureTest" time="0.101"/>
+  <testcase name="offlineRetainsFreshCacheButExpiresSafely" classname="com.gathin.tvhome.RainFeatureTest" time="0.178"/>
+  <testcase name="catalogueComesFromOfficialSnapshotAndDefaultIsVerifiedPapar" classname="com.gathin.tvhome.RainFeatureTest" time="0.095"/>
+  <testcase name="previewIsSeparateAndTurningItOffRestoresClearState" classname="com.gathin.tvhome.RainFeatureTest" time="0.182"/>
+  <testcase name="forecastRainResumesAfterBackground" classname="com.gathin.tvhome.RainFeatureTest" time="0.117"/>
+  <testcase name="disabledPreferenceHasNoRainFramesButHomeForecastMaySchedule" classname="com.gathin.tvhome.RainFeatureTest" time="0.074"/>
+  <testcase name="staticModeStopsFramesAndActiveSettingsRespectCaps" classname="com.gathin.tvhome.RainFeatureTest" time="0.076"/>
+  <testcase name="turningEffectOffRestoresExactlyTheOriginalHomePixels" classname="com.gathin.tvhome.RainFeatureTest" time="0.102"/>
+  <testcase name="invalidNetworkResponseRetainsFreshLastStateAndBacksOff" classname="com.gathin.tvhome.RainFeatureTest" time="0.081"/>
+  <testcase name="settingsCanEnableAndStartManualPreview" classname="com.gathin.tvhome.RainFeatureTest" time="0.296"/>
+  <testcase name="remoteAndApplicationLaunchStillWorkThroughRain" classname="com.gathin.tvhome.RainFeatureTest" time="0.199"/>
+  <testcase name="minimumSdkPreviewWorksWithoutOverlayPermission" classname="com.gathin.tvhome.RainFeatureTest" time="0.202"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+Invalid ID 0x00000000.
+]]></system-err>
+</testsuite>

@@ -1,0 +1,1 @@
+    mResumedActivity: ActivityRecord{cb3daa2 u0 dev.farred.fayyadhos.tv.jarvis.fix/com.gathin.tvhome.DashboardActivity t7}
