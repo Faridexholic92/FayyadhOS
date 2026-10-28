@@ -38,27 +38,13 @@ jobs:
         run: sdkmanager 'platforms;android-34' 'build-tools;34.0.0'
       - name: Clean build, regression tests, lint and actual DEX audit
         run: bash build-verified-debug.sh
-      - name: Prepare debug artifact and installation warning
+      # Debug builds remain internal validation outputs. Never distribute an
+      # ephemeral runner-signed APK as an update to an existing installation.
+      # Re-enable APK publication only through a separately reviewed release
+      # flow with the established signing key and physical-device acceptance.
+      - name: Keep unsigned-for-production test builds internal
         if: success()
-        shell: bash
-        run: |
-          mkdir -p app/build/ci-artifact
-          cp app/build/outputs/apk/debug/app-debug.apk app/build/ci-artifact/FayyadhOS-TV-Fix-debug.apk
-          printf '%s\n' \
-            'DEBUG TEST BUILD ONLY. CI uses an ephemeral Android debug signing key.' \
-            'This APK may NOT update your installed APK. Do not uninstall a working launcher or clear data to bypass signature mismatch.' \
-            'For data-preserving updates, rebuild with the installed certificate. No production signing key is used in this workflow.' \
-            'Physical-TV remote, overlay, standby and audio acceptance tests are still required.' \
-            > app/build/ci-artifact/INSTALLATION-NOTICE.txt
-          (cd app/build/ci-artifact && sha256sum FayyadhOS-TV-Fix-debug.apk > SHA256SUMS.txt)
-      - name: Upload verified debug test APK
-        if: success()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: FayyadhOS-debug-${{ github.sha }}
-          path: app/build/ci-artifact/
-          retention-days: 7
-          if-no-files-found: error
+        run: echo 'Validation only. No APK is published; owner-controlled signing and device acceptance are required.'
       - name: Upload test and lint reports even on failure
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
