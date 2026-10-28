@@ -84,7 +84,7 @@ final class JarvisPanel {
  }
  private void watchNetwork(){try{cm=(ConnectivityManager)activity.getSystemService(Context.CONNECTIVITY_SERVICE);if(cm==null)return;callback=new ConnectivityManager.NetworkCallback(){public void onAvailable(Network n){handler.post(()->updateNetwork());}public void onLost(Network n){handler.post(()->updateNetwork());}public void onCapabilitiesChanged(Network n,NetworkCapabilities c){handler.post(()->updateNetwork());}};cm.registerDefaultNetworkCallback(callback);}catch(RuntimeException e){callback=null;}}
  private void busy(boolean value){speed.setVisibility(View.VISIBLE);speedButton.setEnabled(!value);aiButton.setEnabled(!value);if(value){speed.setFocusable(true);speed.requestFocus();}else{speed.setFocusable(false);speedButton.requestFocus();}}
- private void openSpeedtest(){speed.setVisibility(View.VISIBLE);
+ void openSpeedtest(){speed.setVisibility(View.VISIBLE);
   if(closed||future!=null&&!future.isDone())return;
   if(speedBox==null){
    speedBox=column();speedBox.setPadding(dp(12),dp(12),dp(12),dp(12));((FrameLayout)mainBox.getParent()).addView(speedBox);
@@ -97,16 +97,16 @@ final class JarvisPanel {
    testValue=text("—\nMbps",20,GlassUi.WHITE);testValue.setGravity(Gravity.CENTER);meterFrame.addView(testValue,new FrameLayout.LayoutParams(-1,-1));
    TextView label=text("Kelajuan muat turun",11,GlassUi.WHITE);label.setGravity(Gravity.CENTER);speedBox.addView(label);spacer(speedBox,12);
    testUsage=text("0 / 100 MiB",12,GlassUi.WHITE);speedBox.addView(testUsage);
-   speedBox.addView(text("Had 100 MiB · Segmen 10 MiB · Cloudflare",9,GlassUi.MUTED));spacer(speedBox,10);
+   speedBox.addView(text("Sampel ~10 saat · Maks 100 MiB · Cloudflare",9,GlassUi.MUTED));spacer(speedBox,10);
    testStart=button("Mula Speedtest",()->startTest());speedBox.addView(testStart,lp(-1,dp(34)));spacer(speedBox,8);
    testCancel=button("Batal ujian",()->cancelTest());speedBox.addView(testCancel,lp(-1,dp(30)));testCancel.setEnabled(false);spacer(speedBox,12);
-   speedBox.addView(text("Had 120 saat. Ujian boleh mengganggu streaming. Anggaran satu sambungan, termasuk masa sambungan.",9,GlassUi.MUTED));
+   speedBox.addView(text("Had keras 120 saat. Ujian boleh mengganggu streaming. Anggaran satu sambungan, termasuk masa sambungan.",9,GlassUi.MUTED));
   }
   mainBox.setVisibility(View.GONE);speedBox.setVisibility(View.VISIBLE);scroll.scrollTo(0,0);testStart.requestFocus();
  }
  private void leaveSpeedtest(){cancelTest();speedBox.setVisibility(View.GONE);mainBox.setVisibility(View.VISIBLE);scroll.scrollTo(0,0);speedButton.requestFocus();}
  private void cancelTest(){
-  if(!testing)return;testing=false;testGeneration++;if(probe!=null)probe.cancel();if(future!=null)future.cancel(true);
+  if(!testing)return;testing=false;testGeneration++;if(probe!=null)probe.cancel();if(future!=null)future.cancel(true);future=null;
   testState.setText("Ujian dibatalkan");testValue.setText("—\nMbps");speed.setText("Speedtest dibatalkan; tiada keputusan baharu.");finishTestUi();
  }
  private void finishTestUi(){testStart.setEnabled(true);testStart.setText("Mula Speedtest");testCancel.setEnabled(false);speedButton.setEnabled(true);aiButton.setEnabled(true);if(speedBox.getVisibility()==View.VISIBLE)testStart.requestFocus();}
@@ -119,11 +119,11 @@ final class JarvisPanel {
     if(closed||generation!=testGeneration||!testing)return;testBytes=bytes;testUsage.setText(String.format(Locale.ENGLISH,"%.1f / 100 MiB",bytes/1048576.0));testMeter.progress=(float)bytes/SpeedProbe.LIMIT;testMeter.invalidate();
     testValue.setText(String.format(Locale.ENGLISH,"%.1f\nMbps",SpeedProbe.mbps(bytes,seconds)));
    }));handler.post(()->{
-    if(closed||generation!=testGeneration)return;testing=false;updateNetwork();finishTestUi();
+    if(closed||generation!=testGeneration)return;testing=false;future=null;updateNetwork();finishTestUi();
     if(!route.equals(snapshot.networkKey)){testState.setText("Rangkaian berubah. Sila uji semula.");testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_route_changed);return;}
     measuredDownload=result;measuredAt=System.currentTimeMillis();measuredNetwork=route;
-    testBytes=SpeedProbe.LIMIT;testUsage.setText("100 / 100 MiB");testMeter.progress=1;testMeter.invalidate();testState.setText("Selesai · Anggaran download");testValue.setText(String.format(Locale.ENGLISH,"%.1f\nMbps",result));speed.setText(activity.getString(R.string.jarvis_direct_download_estimate,String.format(Locale.ENGLISH,"%.1f",result)));
-   });}catch(Exception e){handler.post(()->{if(closed||generation!=testGeneration)return;testing=false;measuredDownload=null;testState.setText("Ujian gagal · "+SpeedProbe.error(e));testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_download_failed);finishTestUi();});}
+    testBytes=current.sampleBytes();testUsage.setText(testBytes==SpeedProbe.LIMIT?"100 / 100 MiB":String.format(Locale.ENGLISH,"%.2f MiB · %.1f saat · maks 100 MiB",testBytes/1048576.0,current.sampleSeconds()));testMeter.progress=1;testMeter.invalidate();testState.setText("Selesai · Anggaran download");testValue.setText(String.format(Locale.ENGLISH,"%.1f\nMbps",result));speed.setText(activity.getString(R.string.jarvis_direct_download_estimate,String.format(Locale.ENGLISH,"%.1f",result)));
+   });}catch(Exception e){handler.post(()->{if(closed||generation!=testGeneration)return;testing=false;future=null;measuredDownload=null;testState.setText("Ujian gagal · "+SpeedProbe.error(e));testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_download_failed);finishTestUi();});}
   });
  }
  private void explainNetwork(){
@@ -139,7 +139,7 @@ final class JarvisPanel {
  }
  private void options(){close();activity.show(new AlertDialog.Builder(activity).setTitle("Jarvis · Options").setItems(new String[]{"Allow Wi-Fi name","Tentang Speedtest","Wi-Fi settings","Network / LAN settings","Light boost","Restore before Boost",activity.startupGreetingEnabled()?"Startup greeting: ON":"Startup greeting: OFF","Play greeting"},(d,i)->{
   if(i==0){if(activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED)activity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION},72);else activity.message("Wi-Fi name","Location permission is granted. Some firmware also requires Location services. Jarvis does not read GPS coordinates.");}
-  else if(i==1)activity.message("Speedtest","Download sahaja, maksimum 100 MiB dari Cloudflare dalam segmen 10 MiB. Tiada upload. Bukan Ookla. Keputusan ialah anggaran satu sambungan, bukan Wi-Fi link speed.");else if(i==2)activity.system(Settings.ACTION_WIFI_SETTINGS);else if(i==3)activity.system(Settings.ACTION_WIRELESS_SETTINGS);
+  else if(i==1)activity.message("Speedtest","Download sahaja, sampel kira-kira 10 saat atau maksimum 100 MiB dari Cloudflare. Had keras 120 saat; jumlah byte sebenar dipaparkan. Tiada upload. Bukan Ookla. Keputusan ialah anggaran satu sambungan, bukan Wi-Fi link speed.");else if(i==2)activity.system(Settings.ACTION_WIFI_SETTINGS);else if(i==3)activity.system(Settings.ACTION_WIRELESS_SETTINGS);
   else if(i==4)activity.show(new AlertDialog.Builder(activity).setTitle("Enable light boost?").setMessage("Pause this launcher's automatic prayer and Places refresh only. Cached data and manual refresh remain. No DNS, router, VPN or bandwidth changes; weather still follows its own refresh policy.").setPositiveButton("Enable",(x,w)->{NetworkFocus.enable(activity);activity.modeChanged();}).setNegativeButton("Cancel",null));
   else if(i==5)activity.show(new AlertDialog.Builder(activity).setTitle("Restore before Boost?").setMessage("Restore saved launcher refresh preferences, not system network settings.").setPositiveButton("Restore",(x,w)->{boolean restored=NetworkFocus.restore(activity);activity.modeChanged();if(!restored)activity.message("Restore","No complete snapshot is available. No settings were changed.");}).setNegativeButton("Cancel",null));
   else if(i==6){activity.toggleStartupGreeting();activity.showJarvis();}else if(i==7)activity.replayWelcome();
