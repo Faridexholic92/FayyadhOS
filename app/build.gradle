@@ -10,8 +10,8 @@ android {
         applicationId 'dev.farred.fayyadhos.tv.jarvis.fix'
         minSdk 26
         targetSdk 34
-        versionCode 15
-        versionName '2.10.0-home'
+        versionCode 16
+        versionName '2.10.1-device-fixes'
     }
 
     signingConfigs {
