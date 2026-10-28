@@ -12,15 +12,15 @@ import java.util.Locale;
 /** Separate opt-in provider; MET remains the sole weather-wallpaper/rain driver. */
 final class HourlyWeatherRepository implements HourlyWeatherController.Source {
     private final AtomicFile cache;
-    HourlyWeatherRepository(Context context){cache=new AtomicFile(new File(context.getFilesDir(),"open-meteo-hourly-v1.json"));}
+    HourlyWeatherRepository(Context context){cache=new AtomicFile(new File(context.getFilesDir(),"open-meteo-current-v2.json"));}
     static boolean validCoordinates(double lat,double lon){return Double.isFinite(lat)&&Double.isFinite(lon)&&lat>=-90&&lat<=90&&lon>=-180&&lon<=180;}
     static String location(double lat,double lon){if(!validCoordinates(lat,lon))throw new IllegalArgumentException("Invalid coordinates");return String.format(Locale.ROOT,"%.5f,%.5f",lat,lon);}
     static String endpoint(double lat,double lon){
         if(!validCoordinates(lat,lon))throw new IllegalArgumentException("Invalid coordinates");
-        return String.format(Locale.ROOT,"https://api.open-meteo.com/v1/forecast?latitude=%.5f&longitude=%.5f&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&temperature_unit=celsius&timeformat=unixtime&timezone=Asia%%2FKuala_Lumpur&forecast_days=2",lat,lon);
+        return String.format(Locale.ROOT,"https://api.open-meteo.com/v1/forecast?latitude=%.5f&longitude=%.5f&current=temperature_2m,weather_code&temperature_unit=celsius&timeformat=unixtime&timezone=Asia%%2FKuala_Lumpur&forecast_days=1",lat,lon);
     }
     @Override public HourlyWeather cached(double lat,double lon){
-        try{JSONObject saved=new JSONObject(read(cache.openRead(),0));if(!location(lat,lon).equals(saved.getString("location")))return null;return HourlyWeather.parse(saved.getString("raw"),saved.getLong("fetched_at"));}catch(Exception invalid){return null;}
+        try{JSONObject saved=new JSONObject(read(cache.openRead(),0));if(!location(lat,lon).equals(saved.getString("location")))return null;return HourlyWeather.parseCurrent(saved.getString("raw"),saved.getLong("fetched_at"));}catch(Exception invalid){return null;}
     }
     @Override public HourlyWeather fetch(double lat,double lon,long now)throws Exception{
         HttpsURLConnection connection=(HttpsURLConnection)new URL(endpoint(lat,lon)).openConnection();
@@ -31,7 +31,7 @@ final class HourlyWeatherRepository implements HourlyWeatherController.Source {
             String type=connection.getContentType();if(type==null||!type.toLowerCase(Locale.ROOT).contains("application/json"))throw new IOException("Unexpected response type");
             raw=read(connection.getInputStream(),deadline);
         }finally{connection.disconnect();}
-        HourlyWeather result=HourlyWeather.parse(raw,now);
+        HourlyWeather result=HourlyWeather.parseCurrent(raw,now);
         JSONObject saved=new JSONObject().put("location",location(lat,lon)).put("fetched_at",now).put("raw",raw);
         FileOutputStream out=null;
         try{out=cache.startWrite();out.write(saved.toString().getBytes(StandardCharsets.UTF_8));cache.finishWrite(out);}catch(IOException e){if(out!=null)cache.failWrite(out);/* validated network result remains usable */}

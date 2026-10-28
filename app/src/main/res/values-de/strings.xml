@@ -19,4 +19,30 @@
     <string name="input_key_service_description">Öffnet die Quellenauswahl, wenn die Input-Taste der Fernbedienung gedrückt wird.</string>
     <string name="tile_move">Verschieben</string>
     <string name="tile_app_info">App-Info</string>
+    <!-- Complete previously missing strings; existing translations are unchanged. -->
+    <string name="vpn">VPN</string>
+    <string name="vpn_off">VPN aus</string>
+    <string name="home_settings">Standard-Startbildschirm</string>
+    <string name="home_settings_help">Wähle in den Systemeinstellungen einen Startbildschirm und drücke dann Home.</string>
+    <string name="home_key_name">Home-Taste</string>
+    <string name="home_key_description">Die Home-Taste der Fernbedienung öffnet diesen Launcher.</string>
+    <string name="card_prompt_title">Neue Karte von %1$s</string>
+    <string name="card_prompt_body">%1$s kann eine Karte auf deinem Startbildschirm anzeigen. Wenn sie ausgeblendet bleibt, bleibt die normale App-Kachel unverändert.</string>
+    <string name="card_prompt_names">Die Karte heißt „%1$s“. Die App heißt „%2$s“.</string>
+    <string name="card_prompt_resigned">%1$s wurde mit einem anderen Signaturschlüssel aktualisiert. Deine frühere Antwort gilt nicht mehr. Entscheide erneut über die Karte.</string>
+    <string name="card_prompt_relabelled">%1$s hat den Namen der Karte seit deiner Entscheidung geändert. Entscheide erneut.</string>
+    <string name="card_prompt_hint">Du kannst dies später ändern: Halte OK auf Einstellungen gedrückt.</string>
+    <string name="card_prompt_identity">%1$s, Schlüssel %2$s</string>
+    <string name="card_keep_hidden">Ausgeblendet lassen</string>
+    <string name="card_show">Karte anzeigen</string>
+    <string name="card_not_saved">Auswahl konnte nicht gespeichert werden</string>
+    <string name="module_cards">Modulkarten</string>
+    <string name="no_module_cards">Keine Modulkarten installiert</string>
+    <string name="card_app_name">App: %1$s</string>
+    <string name="card_state_shown">Angezeigt</string>
+    <string name="card_state_over_limit">Angezeigt, über dem Limit von 8</string>
+    <string name="card_state_hidden">Ausgeblendet</string>
+    <string name="card_state_new">Neu</string>
+    <string name="card_state_new_key">Neuer Schlüssel</string>
+    <string name="card_state_new_label">Neuer Name</string>
 </resources>

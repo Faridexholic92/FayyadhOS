@@ -17,4 +17,32 @@
     <string name="dream_name">Rellotge</string>
     <string name="tile_move">Mou</string>
     <string name="tile_app_info">Informació de l\'aplicació</string>
+    <!-- Complete previously missing strings; existing translations are unchanged. -->
+    <string name="vpn">VPN</string>
+    <string name="vpn_off">VPN desactivada</string>
+    <string name="home_settings">Pantalla d’inici predeterminada</string>
+    <string name="home_settings_help">Tria una pantalla d’inici a la configuració del sistema i prem Home.</string>
+    <string name="input_key_service_description">Obre el selector d’entrades quan prems el botó Input del comandament.</string>
+    <string name="home_key_name">Botó Home</string>
+    <string name="home_key_description">El botó Home del comandament obre aquest llançador.</string>
+    <string name="card_prompt_title">Targeta nova de %1$s</string>
+    <string name="card_prompt_body">%1$s pot mostrar una targeta a la pantalla d’inici. Mantenir-la oculta no canvia la fitxa habitual de l’aplicació.</string>
+    <string name="card_prompt_names">La targeta es diu «%1$s». L’aplicació es diu «%2$s».</string>
+    <string name="card_prompt_resigned">%1$s s’ha actualitzat amb una altra clau de signatura i la resposta anterior ja no s’aplica. Torna a decidir sobre la targeta.</string>
+    <string name="card_prompt_relabelled">%1$s ha canviat el nom de la targeta des de la teva decisió. Torna a decidir.</string>
+    <string name="card_prompt_hint">Ho pots canviar més tard: mantén premut OK a Configuració.</string>
+    <string name="card_prompt_identity">%1$s, clau %2$s</string>
+    <string name="card_keep_hidden">Mantén-la oculta</string>
+    <string name="card_show">Mostra la targeta</string>
+    <string name="card_not_saved">No s’ha pogut desar la selecció</string>
+    <string name="module_cards">Targetes de mòduls</string>
+    <string name="no_module_cards">No hi ha targetes de mòduls instal·lades</string>
+    <string name="card_app_name">Aplicació: %1$s</string>
+    <string name="card_state_shown">Visible</string>
+    <string name="card_state_over_limit">Visible, supera el límit de 8</string>
+    <string name="card_state_hidden">Oculta</string>
+    <string name="card_state_new">Nova</string>
+    <string name="card_state_new_key">Clau nova</string>
+    <string name="card_state_new_label">Nom nou</string>
+    <string name="date_format">d MMM yyyy</string>
 </resources>
