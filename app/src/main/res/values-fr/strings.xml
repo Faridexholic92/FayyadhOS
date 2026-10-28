@@ -18,4 +18,31 @@
     <string name="dream_name">Horloge</string>
     <string name="tile_move">Déplacer</string>
     <string name="tile_app_info">Infos sur l\'appli</string>
+    <!-- Complete previously missing strings; existing translations are unchanged. -->
+    <string name="vpn">VPN</string>
+    <string name="vpn_off">VPN désactivé</string>
+    <string name="home_settings">Écran d’accueil par défaut</string>
+    <string name="home_settings_help">Choisissez un écran d’accueil dans les paramètres système, puis appuyez sur Home.</string>
+    <string name="input_key_service_description">Ouvre le sélecteur de sources lorsque le bouton Input de la télécommande est enfoncé.</string>
+    <string name="home_key_name">Bouton Home</string>
+    <string name="home_key_description">Le bouton Home de la télécommande ouvre ce lanceur.</string>
+    <string name="card_prompt_title">Nouvelle carte de %1$s</string>
+    <string name="card_prompt_body">%1$s peut afficher une carte sur votre écran d’accueil. La laisser masquée ne modifie pas la tuile habituelle de l’application.</string>
+    <string name="card_prompt_names">La carte se nomme « %1$s ». L’application se nomme « %2$s ».</string>
+    <string name="card_prompt_resigned">%1$s a été mis à jour avec une autre clé de signature. Votre réponse précédente ne s’applique plus. Choisissez à nouveau pour sa carte.</string>
+    <string name="card_prompt_relabelled">%1$s a changé le nom de sa carte depuis votre choix. Choisissez à nouveau.</string>
+    <string name="card_prompt_hint">Vous pourrez modifier ce choix plus tard : maintenez OK sur Paramètres.</string>
+    <string name="card_prompt_identity">%1$s, clé %2$s</string>
+    <string name="card_keep_hidden">Garder masquée</string>
+    <string name="card_show">Afficher la carte</string>
+    <string name="card_not_saved">Impossible d’enregistrer le choix</string>
+    <string name="module_cards">Cartes de modules</string>
+    <string name="no_module_cards">Aucune carte de module installée</string>
+    <string name="card_app_name">Application : %1$s</string>
+    <string name="card_state_shown">Affichée</string>
+    <string name="card_state_over_limit">Affichée, au-delà de la limite de 8</string>
+    <string name="card_state_hidden">Masquée</string>
+    <string name="card_state_new">Nouvelle</string>
+    <string name="card_state_new_key">Nouvelle clé</string>
+    <string name="card_state_new_label">Nouveau nom</string>
 </resources>

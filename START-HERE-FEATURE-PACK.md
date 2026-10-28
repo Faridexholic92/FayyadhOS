@@ -1,3 +1,5 @@
+> **Maintenance update: 2.9.1-stability / code 14.** Read `docs/STABILITY-2.9.1.md` for current build/CI instructions. The feature behavior below is preserved; historical 2.9.0 validation is not new 2.9.1 evidence.
+
 # FayyadhOS TV Fix — 2.9.0 feature pack / code 13
 
 This document supersedes older feature descriptions in this archive for the four changes below.
