@@ -11,5 +11,5 @@ export PATH="$JAVA_HOME/bin:$PATH"
 printf 'sdk.dir=%s\n' "$ANDROID_HOME" > local.properties
 bash ./gradlew --no-daemon :app:testDebugUnitTest :app:assembleRelease --console=plain
 mkdir -p dist
-cp app/build/outputs/apk/release/app-release.apk dist/FayyadhOS-TV-Fix-v2.9.1.apk
-(cd dist && sha256sum FayyadhOS-TV-Fix-v2.9.1.apk > SHA256SUMS.txt)
+cp app/build/outputs/apk/release/app-release.apk dist/FayyadhOS-TV-Fix-v2.10.0.apk
+(cd dist && sha256sum FayyadhOS-TV-Fix-v2.10.0.apk > SHA256SUMS.txt)
