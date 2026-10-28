@@ -1,3 +1,5 @@
+> **Current maintenance: 2.9.1-stability / code 14.** Read [docs/STABILITY-2.9.1.md](docs/STABILITY-2.9.1.md). The dated validation folders and older feature descriptions below remain historical.
+
 > **Current: 2.9.0 feature pack / code 13.** Read [START-HERE-FEATURE-PACK.md](START-HERE-FEATURE-PACK.md) and `verification/feature-pack/REPORT.md` first. Older rotating-prayer/TTS/speed-test instructions below describe earlier stages and are not the current feature contract.
 
 ## Current continuation — single prayer tile and forecast effects
