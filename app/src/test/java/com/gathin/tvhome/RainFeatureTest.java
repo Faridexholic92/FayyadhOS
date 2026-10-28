@@ -76,7 +76,7 @@ public class RainFeatureTest {
   View root=helper.render(c.get(),1280,720);c.get().rain.preview(true);idle(800);helper.capture(root,"rain-preview-720");assertEquals(1280,c.get().rain.view.getWidth());assertEquals(720,c.get().rain.view.getHeight());
  }}
  @Test public void settingsEntryIsAddedWithoutReorderingOldItems(){try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
-  c.get().settings();AlertDialog d=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();assertEquals(14,d.getListView().getCount());assertEquals("Azan · Lima waktu",d.getListView().getItemAtPosition(8));assertEquals("Wallpaper",d.getListView().getItemAtPosition(0));assertEquals("Set default Home",d.getListView().getItemAtPosition(6));assertEquals("Rain-on-Glass · Weather",d.getListView().getItemAtPosition(7));
+  c.get().settings();AlertDialog d=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();assertEquals(16,d.getListView().getCount());assertEquals("Azan · Lima waktu",d.getListView().getItemAtPosition(8));assertEquals("Wallpaper",d.getListView().getItemAtPosition(0));assertEquals("Set default Home",d.getListView().getItemAtPosition(6));assertEquals("Rain-on-Glass · Weather",d.getListView().getItemAtPosition(7));
  }}
  @Test public void catalogueComesFromOfficialSnapshotAndDefaultIsVerifiedPapar()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
   try(var in=c.get().getAssets().open("met-malaysia-locations.json")){org.json.JSONArray rows=new org.json.JSONArray(MetWeatherRepository.read(in));assertEquals(440,rows.length());}assertEquals(RainOptions.HOME_ID,new RainOptions(RainOptions.prefs(c.get())).locationId);

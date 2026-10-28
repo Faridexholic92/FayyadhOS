@@ -43,4 +43,12 @@ public class JarvisSpeedtestTest {
  @Test @org.robolectric.annotation.Config(qualifiers="w640dp-h360dp-land-xhdpi") public void speedtest720FitsAndBackCancels()throws Exception{try(var a=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
   View root=helper.render(a.get(),1280,720);Controlled conn=new Controlled();JarvisPanel panel=new JarvisPanel(a.get(),new JarvisAiClient(a.get()),()->new SpeedProbe(()->conn));panel.show();Dialog d=ShadowDialog.getLatestDialog();click(d,"Speedtest");capture(root,d,"07-ready-720",1280,720);assertTrue(d.getWindow().getAttributes().height+d.getWindow().getAttributes().y<=720);click(d,"Mula Speedtest");d.dispatchKeyEvent(new KeyEvent(0,4));d.dispatchKeyEvent(new KeyEvent(1,4));assertEquals(false,JarvisRepairTest.field(panel,"testing"));assertTrue(d.isShowing());panel.close();
  }}
+ @Test public void adaptiveResultDisplaysActualBytesNotInvented100MiB()throws Exception{try(var a=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
+  helper.render(a.get(),1920,1080);java.util.concurrent.atomic.AtomicLong time=new java.util.concurrent.atomic.AtomicLong();AdaptiveSpeedRecoveryTest.Slow conn=new AdaptiveSpeedRecoveryTest.Slow(time);
+  JarvisPanel panel=new JarvisPanel(a.get(),new JarvisAiClient(a.get()),()->new SpeedProbe(()->conn,SpeedProbe.CHUNK,time::get));panel.show();Dialog d=ShadowDialog.getLatestDialog();click(d,"Speedtest");click(d,"Mula Speedtest");
+  JarvisRepairTest.await(()->{try{return !(boolean)JarvisRepairTest.field(panel,"testing");}catch(Exception e){return false;}});
+  assertNotNull(JarvisRepairTest.field(panel,"measuredDownload"));assertEquals(conn.read,JarvisRepairTest.field(panel,"testBytes"));
+  String usage=((TextView)JarvisRepairTest.field(panel,"testUsage")).getText().toString();assertFalse(usage.startsWith("100 /"));assertTrue(usage.contains("10.0 saat"));assertTrue(usage.contains("maks 100 MiB"));assertNull(JarvisRepairTest.field(panel,"future"));panel.close();
+ }}
+
 }
