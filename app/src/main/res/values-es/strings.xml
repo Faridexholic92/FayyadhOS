@@ -18,4 +18,31 @@
     <string name="dream_name">Reloj</string>
     <string name="tile_move">Mover</string>
     <string name="tile_app_info">Información de la app</string>
+    <!-- Complete previously missing strings; existing translations are unchanged. -->
+    <string name="vpn">VPN</string>
+    <string name="vpn_off">VPN desactivada</string>
+    <string name="home_settings">Pantalla de inicio predeterminada</string>
+    <string name="home_settings_help">Elige una pantalla de inicio en los ajustes del sistema y luego pulsa Home.</string>
+    <string name="input_key_service_description">Abre el selector de entradas al pulsar el botón Input del mando.</string>
+    <string name="home_key_name">Botón Home</string>
+    <string name="home_key_description">El botón Home del mando abre este lanzador.</string>
+    <string name="card_prompt_title">Nueva tarjeta de %1$s</string>
+    <string name="card_prompt_body">%1$s puede mostrar una tarjeta en tu pantalla de inicio. Mantenerla oculta no cambia el mosaico habitual de la aplicación.</string>
+    <string name="card_prompt_names">La tarjeta se llama «%1$s». La aplicación se llama «%2$s».</string>
+    <string name="card_prompt_resigned">%1$s se actualizó con otra clave de firma, por lo que tu respuesta anterior ya no se aplica. Decide de nuevo sobre su tarjeta.</string>
+    <string name="card_prompt_relabelled">%1$s cambió el nombre de su tarjeta desde tu decisión. Decide de nuevo.</string>
+    <string name="card_prompt_hint">Puedes cambiarlo después: mantén pulsado OK sobre Ajustes.</string>
+    <string name="card_prompt_identity">%1$s, clave %2$s</string>
+    <string name="card_keep_hidden">Mantener oculta</string>
+    <string name="card_show">Mostrar tarjeta</string>
+    <string name="card_not_saved">No se pudo guardar la elección</string>
+    <string name="module_cards">Tarjetas de módulos</string>
+    <string name="no_module_cards">No hay tarjetas de módulos instaladas</string>
+    <string name="card_app_name">Aplicación: %1$s</string>
+    <string name="card_state_shown">Visible</string>
+    <string name="card_state_over_limit">Visible, supera el límite de 8</string>
+    <string name="card_state_hidden">Oculta</string>
+    <string name="card_state_new">Nueva</string>
+    <string name="card_state_new_key">Nueva clave</string>
+    <string name="card_state_new_label">Nuevo nombre</string>
 </resources>

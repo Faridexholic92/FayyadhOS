@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Small offline guard: complete English, placeholders, no invisible BOMs, pinned Gradle."""
+"""Small offline guard: complete locale resources, placeholders, no invisible BOMs, pinned Gradle."""
 import argparse
 from pathlib import Path
 import re
@@ -29,6 +29,13 @@ def main():
     placeholders = re.compile(r"%(?:\d+\$)?[sd]")
     for key in base:
         assert sorted(placeholders.findall(base[key])) == sorted(placeholders.findall(english[key])), key
+    locales = list((ROOT / "app/src/main/res").glob("values-*/strings.xml"))
+    for path in locales:
+        localized = strings(path)
+        if path.parent.name != "values-en-rUS":
+            assert base.keys() == localized.keys(), f"Incomplete locale: {path.parent.name}"
+        for key, value in localized.items():
+            assert sorted(placeholders.findall(base[key])) == sorted(placeholders.findall(value)), f"{path.parent.name}:{key} placeholders"
     us = strings(ROOT / "app/src/main/res/values-en-rUS/strings.xml")
     assert us["date_format"] == "MMM d, yyyy", "Keep the existing en-US date override"
     for folder in ("app/src/main", "app/src/test"):
@@ -41,7 +48,7 @@ def main():
         entries = subprocess.check_output(["git", "ls-files", "--stage", "--", *SCRIPTS], cwd=ROOT, text=True)
         modes = {line.split("\t", 1)[1]: line.split()[0] for line in entries.splitlines()}
         assert all(modes.get(name) == "100755" for name in SCRIPTS), f"Executable Git modes: {modes}"
-    print(f"PASS: {len(base)} English strings, preserved placeholders/US date, no literal BOMs, pinned Gradle" +
+    print(f"PASS: {len(base)} base strings, complete locale resources, preserved placeholders/US date, no literal BOMs, pinned Gradle" +
           (", executable Git modes" if args.require_executable else ""))
 
 

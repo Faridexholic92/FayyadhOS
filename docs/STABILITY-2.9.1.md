@@ -6,7 +6,7 @@ Application ID remains `dev.farred.fayyadhos.tv.jarvis.fix`; versionCode is 14, 
 ## Changes
 
 - Build scripts and Gradle wrapper must have executable mode **100755 in Git**. The verified build script also invokes the wrapper through Bash, so extracted ZIPs/web uploads that strip the filesystem mode can still build. On a local Git checkout, restore with `git update-index --chmod=+x gradlew build-verified-debug.sh build-fayyadhos-tv.sh` and commit.
-- Complete generic `values-en/strings.xml` covers the existing base English strings, preserving placeholders and the regional `values-en-rUS` date override. No translation-warning suppression, broad `translatable=false` change, or lint baseline is used to hide the 44 MissingTranslation errors.
+- Complete generic `values-en/strings.xml` covers the existing base English strings. Missing Catalan, German, French, Spanish, Thai, Simplified Chinese and Serbian Latin entries are completed without changing existing translations. Placeholders and the regional `values-en-rUS` date override are preserved. New translations still benefit from native-speaker wording review. No translation-warning suppression, broad `translatable=false` change, or lint baseline is used to hide the 44 MissingTranslation errors.
 - `Config.read` identifies an initial U+FEFF BOM by character value instead of a literal invisible BOM byte sequence in Java source. BOM-prefixed JSON still parses; tests cover normal/BOM/empty config.
 - Dissolve keeps its 800 ms timing, MET-driven trigger and reduced-motion/foreground rules. Returning to the already incoming scene clears a superseded pending scene without a second decode/fade. A failed decoder retains the displayed key and can be retried. Reuse a RectF and motion preferences; do not allocate a RectF/RainOptions per frame. This is an allocation/logic improvement, NOT a measured FPS, CPU, memory or power claim.
 - The Gradle 8.9 distribution is pinned to its official SHA-256, and the GitHub workflow validates the wrapper JAR using the pinned official Gradle action.
@@ -16,7 +16,7 @@ Application ID remains `dev.farred.fayyadhos.tv.jarvis.fix`; versionCode is 14, 
 
 `.github/workflows/android-validation.yml` runs on push, pull request and manual dispatch. It uses pinned action commit SHAs, JDK 17, Android SDK 34/build-tools 34.0.0, a 30-minute job timeout, and concurrency cancellation per ref. The lasting validation workflow has **contents: read**, does not retain checkout credentials and does not request signing secrets or write repository contents.
 
-It checks English resource coverage/placeholders, source BOM bytes, the Gradle checksum and executable Git modes; then performs one serial clean build, all JVM/Robolectric tests, lint and the actual DEX class-definition audit. A lint error fails the job. Warnings remain visible and are not claimed as resolved.
+It uses an explicit Android SDK setup action on Ubuntu 24.04 rather than relying on the moving ubuntu-latest image. It checks all locale resource coverage/placeholders, source BOM bytes, the Gradle checksum and executable Git modes; then performs one serial clean build, all JVM/Robolectric tests, lint and the actual DEX class-definition audit. A lint error fails the job. Warnings remain visible and are not claimed as resolved.
 
 Successful runs upload a debug test APK, SHA256SUMS and an installation warning. Test/lint reports upload even when the build fails. Artifacts are retained for seven days. There is no automatic release publishing, merge, deployment or production signing.
 
