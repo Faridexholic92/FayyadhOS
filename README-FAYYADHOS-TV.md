@@ -1,3 +1,5 @@
+> **Latest continuation (2026-10-29):** read [CURRENT-STATUS.md](CURRENT-STATUS.md) and [AGENTS.md](AGENTS.md) first. The 3D robot replacement is a prototype workstream, not a shipped Android feature. Headers and delivery notes below describe older stages.
+
 > **Current maintenance: 2.9.1-stability / code 14.** Read [docs/STABILITY-2.9.1.md](docs/STABILITY-2.9.1.md). The dated validation folders and older feature descriptions below remain historical.
 
 > **Current: 2.9.0 feature pack / code 13.** Read [START-HERE-FEATURE-PACK.md](START-HERE-FEATURE-PACK.md) and `verification/feature-pack/REPORT.md` first. Older rotating-prayer/TTS/speed-test instructions below describe earlier stages and are not the current feature contract.
