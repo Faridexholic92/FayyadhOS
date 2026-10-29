@@ -1,0 +1,74 @@
+{
+  "status": "desktop prototype only; not integrated or user-approved",
+  "models": [
+    {
+      "name": "atlas-09",
+      "bones": 18,
+      "skinned_primitives": 4,
+      "clip_count": 10
+    },
+    {
+      "name": "aether-02",
+      "bones": 18,
+      "skinned_primitives": 5,
+      "clip_count": 11
+    }
+  ],
+  "geometry_audit": {
+    "samples": 72,
+    "interval_seconds": 0.25,
+    "checks": {
+      "rigsHave18Bones": true,
+      "allModelsSkinned": true,
+      "sampledModelsStayInViewport": true,
+      "groundPenetrationBelowPointOne": true,
+      "shinRotationChanges": true,
+      "noPageErrors": true
+    },
+    "lowest_sampled_vertex_y": -0.056477778022491876,
+    "scope": "sampled bounds and bone rotations only; not a contact, collision or deformation certification"
+  },
+  "visual_reviewed_states_seconds": [
+    0,
+    2.3,
+    3.5,
+    5.2,
+    8.4,
+    11.8,
+    13.7,
+    14.25,
+    15.6,
+    17
+  ],
+  "layout_reviewed_viewports": [
+    [
+      1280,
+      720
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "capture": {
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "seconds": 18,
+    "frames": 432,
+    "distinct_frame_hashes": 432,
+    "page_errors": [],
+    "mp4_sha256": "08c804cd45d003caa62029dd61be0194e1387e42f4c4e5377debcfb5994c1450",
+    "meaning": "offline export settings, not measured runtime performance"
+  },
+  "android_changes": false,
+  "apk_distributed": false,
+  "open_gates": [
+    "user acceptance of model proportions and motion",
+    "root travel / gait synchronization",
+    "action transitions and two-character choreography",
+    "Android engine and asset delivery decision",
+    "target-TV performance, lifecycle, input and accessibility checks",
+    "matching established signing credentials before any APK update"
+  ]
+}
