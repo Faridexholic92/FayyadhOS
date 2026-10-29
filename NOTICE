@@ -37,3 +37,9 @@ TidyTV Care phone-only update:
   approach, executed through TidyTV's existing TV shell only after confirmation
   and a verified configuration backup. No Glass TV self-scheduling ADB daemon
   is installed on the TV by these features. Data source: JAKIM e-Solat.
+
+Native glass visual adaptation (2.11): dark tint, lit rim and sheen inspired by
+  Glassy UI (https://github.com/alexburlis/glassyui).
+  Copyright (c) 2026 Glassy UI contributors, MIT License.
+  See GLASSYUI-LICENSE.txt and app/src/main/assets/licenses/GLASSYUI-MIT.txt.
+  Native Android implementation; no React/Expo runtime or Pro templates included.

@@ -15,7 +15,7 @@ final class HourlyWeatherController {
     interface Source {HourlyWeather cached(double lat,double lon);HourlyWeather fetch(double lat,double lon,long now)throws Exception;}
     static final String PREFS="hourly-weather";
     private final DashboardActivity activity;private final LinearLayout widget;
-    private final DeviceLocation.Source locator;private boolean locating;private int locationGeneration;private String locationProblem="";
+    private final DeviceLocation.Source locator;private boolean locating,explicitLocation;private int locationGeneration;private String locationProblem="";
     private final SharedPreferences prefs;private final Source source;private final Clock clock;
     private final Handler main=new Handler(Looper.getMainLooper());
     private final ExecutorService worker=Executors.newSingleThreadExecutor();
@@ -42,12 +42,12 @@ final class HourlyWeatherController {
     boolean configured(){return prefs.getBoolean("enabled",false)&&prefs.contains("latitude")&&prefs.contains("longitude");}
     private double coordinate(String key){try{return Double.parseDouble(prefs.getString(key,""));}catch(Exception e){return Double.NaN;}}
     void resume(){active=true;main.removeCallbacks(offerLocation);reconcile();
-        if("auto".equals(prefs.getString("location_mode","")))acquireLocation(false);
+        if("auto".equals(prefs.getString("location_mode","")))acquireLocation(prefs.getBoolean("location_request_pending",false));
         else if(!configured()&&!prefs.getBoolean("location_offer_shown",false))main.postDelayed(offerLocation,1800);
     }
     private final Runnable offerLocation=this::offerIfNeeded;
     private void offerIfNeeded(){if(active&&!closed&&!configured()&&!prefs.getBoolean("location_offer_shown",false)){prefs.edit().putBoolean("location_offer_shown",true).apply();offerAutomaticLocation();}}
-    void pause(){active=false;locationGeneration++;locating=false;locator.cancel();main.removeCallbacks(tick);main.removeCallbacks(offerLocation);}
+    void pause(){if(locating&&explicitLocation)prefs.edit().putBoolean("location_request_pending",true).apply();active=false;locationGeneration++;locating=false;explicitLocation=false;locator.cancel();main.removeCallbacks(tick);main.removeCallbacks(offerLocation);}
     void screen(boolean on){if(on)resume();else pause();}
     private void reconcile(){
         if(closed)return;main.removeCallbacks(tick);
@@ -98,36 +98,39 @@ final class HourlyWeatherController {
                 else disable();
             }).setNegativeButton("Close",null));
     }
-    private void disable(){generation++;locationGeneration++;locator.cancel();locating=false;locationProblem="";main.removeCallbacks(offerLocation);prefs.edit().putBoolean("enabled",false).putString("location_mode","off").putBoolean("location_offer_shown",true).apply();data=null;reconcile();}
+    private void disable(){generation++;locationGeneration++;locator.cancel();locating=false;locationProblem="";main.removeCallbacks(offerLocation);prefs.edit().putBoolean("enabled",false).putString("location_mode","off").putBoolean("location_request_pending",false).putBoolean("location_offer_shown",true).apply();data=null;reconcile();}
     void offerAutomaticLocation(){
         activity.show(new AlertDialog.Builder(activity).setTitle("Gunakan lokasi TV untuk cuaca?")
             .setMessage("Benarkan lokasi Android untuk mengesan kawasan TV. Approximate location mencukupi. Koordinat dihantar ke Open-Meteo untuk cuaca semasa; tiada IP lookup, lokasi latar belakang atau GPS tracking berterusan. Sesetengah TV tiada network/GPS provider walaupun permission dibenarkan.")
             .setPositiveButton("Benarkan & detect",(d,i)->{
-                prefs.edit().putString("location_mode","auto").putBoolean("enabled",true).putBoolean("location_offer_shown",true).apply();
+                prefs.edit().putString("location_mode","auto").putBoolean("enabled",true).putBoolean("location_request_pending",true).putBoolean("location_offer_shown",true).apply();
                 if(DeviceLocation.permitted(activity))acquireLocation(true);
                 else{activity.requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,android.Manifest.permission.ACCESS_COARSE_LOCATION},74);}
             }).setNeutralButton("Lokasi manual",(d,i)->manualSettings()).setNegativeButton("Nanti",null));
     }
     void permissionResult(){
         if(!"auto".equals(prefs.getString("location_mode",""))||!prefs.getBoolean("enabled",false))return;
-        if(DeviceLocation.permitted(activity)){if(active)acquireLocation(true);}
-        else{locationProblem="Permission lokasi ditolak. Benarkan melalui App permissions atau pilih lokasi manual.";render();activity.message("Lokasi cuaca",locationProblem);}
+        if(DeviceLocation.permitted(activity)){prefs.edit().putBoolean("location_request_pending",true).apply();acquireLocation(true);}
+        else{prefs.edit().putBoolean("location_request_pending",false).apply();locationProblem="Permission lokasi ditolak. Benarkan melalui App permissions atau pilih lokasi manual.";render();activity.message("Lokasi cuaca",locationProblem);}
     }
     void acquireLocation(boolean explicit){
-        if(closed||!active||locating||!"auto".equals(prefs.getString("location_mode",""))||!prefs.getBoolean("enabled",false))return;
+        if(closed||!"auto".equals(prefs.getString("location_mode",""))||!prefs.getBoolean("enabled",false))return;
+        if(explicit)prefs.edit().putBoolean("location_request_pending",true).apply();
+        if(!active)return;
+        if(locating){if(explicit){explicitLocation=true;prefs.edit().putBoolean("location_request_pending",false).apply();}return;}
         if(!DeviceLocation.permitted(activity)){locationProblem="Akses lokasi belum dibenarkan. Buka Settings → Cuaca.";render();return;}
         long age=clock.millis()-prefs.getLong("location_fix_at",0);
         if(!explicit&&configured()&&age>=0&&age<60*60*1000L)return;
         long gate=prefs.getLong("location_retry_at",0);if(!explicit&&clock.millis()<gate)return;
-        locating=true;locationProblem="";int token=++locationGeneration;render();
+        locating=true;explicitLocation=explicit;locationProblem="";prefs.edit().putBoolean("location_request_pending",false).apply();int token=++locationGeneration;render();
         locator.request(new DeviceLocation.Result(){
             public void found(android.location.Location location){
-                if(closed||!active||token!=locationGeneration)return;locating=false;
+                if(closed||!active||token!=locationGeneration)return;locating=false;explicitLocation=false;
                 if(!DeviceLocation.usable(location,clock.millis(),android.os.SystemClock.elapsedRealtimeNanos())){failed("Lokasi tidak sah atau terlalu lama. Cuba semula.");return;}
                 generation++;data=null;loaded=false;loadedLocation="";nextFetch=0;locationProblem="";
                 prefs.edit().putString("latitude",Double.toString(location.getLatitude())).putString("longitude",Double.toString(location.getLongitude())).putString("label","Lokasi TV").putLong("location_fix_at",clock.millis()).putLong("location_retry_at",0).remove("request_not_before").apply();reconcile();
             }
-            public void failed(String reason){if(closed||!active||token!=locationGeneration)return;locating=false;locationProblem=reason;prefs.edit().putLong("location_retry_at",clock.millis()+15*60*1000L).apply();render();if(explicit)activity.message("Lokasi cuaca",reason);}
+            public void failed(String reason){if(closed||!active||token!=locationGeneration)return;locating=false;explicitLocation=false;locationProblem=reason;prefs.edit().putLong("location_retry_at",clock.millis()+15*60*1000L).apply();render();if(explicit)activity.message("Lokasi cuaca",reason);}
         });
     }
     private void manualSettings(){
@@ -139,7 +142,7 @@ final class HourlyWeatherController {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
             double latitude,longitude;try{latitude=Double.parseDouble(lat.getText().toString().trim());longitude=Double.parseDouble(lon.getText().toString().trim());}catch(Exception invalid){lat.setError("Masukkan koordinat nombor");return;}
             if(!HourlyWeatherRepository.validCoordinates(latitude,longitude)){lat.setError("Koordinat di luar julat");return;}
-            generation++;locationGeneration++;locating=false;locator.cancel();locationProblem="";data=null;loaded=false;loadedLocation="";prefs.edit().putString("latitude",Double.toString(latitude)).putString("longitude",Double.toString(longitude)).putBoolean("enabled",true).putString("location_mode","manual").putString("label",label.getText().toString().trim()).apply();dialog.dismiss();reconcile();
+            generation++;locationGeneration++;locating=false;locator.cancel();locationProblem="";data=null;loaded=false;loadedLocation="";prefs.edit().putString("latitude",Double.toString(latitude)).putString("longitude",Double.toString(longitude)).putBoolean("enabled",true).putString("location_mode","manual").putBoolean("location_request_pending",false).putString("label",label.getText().toString().trim()).apply();dialog.dismiss();reconcile();
         });
     }
     private EditText field(LinearLayout parent,String hint,String key){TextView label=GlassUi.text(activity,hint,12,GlassUi.WHITE);parent.addView(label);EditText input=new EditText(activity);input.setSingleLine(true);input.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL|InputType.TYPE_NUMBER_FLAG_SIGNED);input.setText(prefs.getString(key,""));parent.addView(input);return input;}

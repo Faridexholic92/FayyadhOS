@@ -29,7 +29,7 @@ final class JarvisAiSettings {
     }
     void show(){
         dialog=new Dialog(activity);dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        LinearLayout box=new LinearLayout(activity);box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(20),dp(16),dp(20),dp(16));box.setBackground(GlassUi.surface(activity,0xff071a29,false));
+        LinearLayout box=new LinearLayout(activity);box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(20),dp(16),dp(20),dp(16));box.setBackgroundColor(android.graphics.Color.TRANSPARENT);
         TextView title=GlassUi.text(activity,"Jarvis AI Settings",22,GlassUi.CYAN);box.addView(title);
         TextView info=GlassUi.text(activity,"Your own GroqCloud key. Requests go directly to Groq over HTTPS. Connection tests use your account and may incur usage. Native actions do not require AI. No microphone.",13,GlassUi.MUTED);box.addView(info);
         status=GlassUi.text(activity,"",13,GlassUi.WHITE);status.setPadding(0,dp(10),0,dp(8));box.addView(status);
@@ -53,8 +53,8 @@ final class JarvisAiSettings {
         button(box,"Close",()->dialog.dismiss());
         ScrollView scroll=new ScrollView(activity);scroll.setFillViewport(true);scroll.addView(box);dialog.setContentView(scroll);
         dialog.setOnKeyListener((d,k,e)->{if(k!=KeyEvent.KEYCODE_BACK)return false;if(e.getAction()==KeyEvent.ACTION_UP){if(busy){result.setText(R.string.jarvis_direct_cancelled);}dialog.dismiss();}return true;});
-        dialog.setOnDismissListener(d->release());dialog.show();activity.overlayOpened(dialog);
-        Window window=dialog.getWindow();if(window!=null){window.addFlags(WindowManager.LayoutParams.FLAG_SECURE);window.setBackgroundDrawableResource(android.R.color.transparent);window.setDimAmount(.35f);
+        dialog.setOnDismissListener(d->release());dialog.show();GlassWindows.apply(dialog);activity.overlayOpened(dialog);
+        Window window=dialog.getWindow();if(window!=null){window.addFlags(WindowManager.LayoutParams.FLAG_SECURE);window.setDimAmount(.35f);
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE|WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
             window.setLayout(Math.min(activity.getResources().getDisplayMetrics().widthPixels-dp(32),dp(600)),Math.min(activity.getResources().getDisplayMetrics().heightPixels-dp(32),dp(510)));}
         entry.setOnEditorActionListener((v,action,event)->{InputMethodManager ime=(InputMethodManager)activity.getSystemService(android.content.Context.INPUT_METHOD_SERVICE);if(ime!=null)ime.hideSoftInputFromWindow(entry.getWindowToken(),0);save.requestFocus();return true;});
