@@ -52,7 +52,7 @@
     </queries>
 
     <application
-        android:label="FayyadhOS TV Fix"
+        android:label="FayyadhOS 3D Test"
         android:icon="@mipmap/ic_launcher"
         android:banner="@drawable/banner"
         android:theme="@style/Theme.TvHome"

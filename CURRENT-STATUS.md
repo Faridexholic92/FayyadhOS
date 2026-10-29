@@ -2,6 +2,10 @@
 
 Updated: 2026-10-29. **Read this before older reports.** This file is the continuation entry point; dated reports are evidence, not automatically the current product contract.
 
+## Standalone recovery build — 2026-10-29
+
+See `docs/MECHA3D-TEST-RECOVERY.md` for the recovered pre-rendered 3D test package. This local standalone build does not supersede the original signing identity, device acceptance, or other pending work below.
+
 ## User direction (latest)
 
 1. Keep the working explicit **GO** download test. User confirmed the delivered preview's Speedtest works on their TV; this is feedback, not broad device certification.
