@@ -1,3 +1,5 @@
+> **Current continuation: 3.0.0 PapaZola Premium Home / code 14.** Read [START-HERE-PAPAZOLA.md](START-HERE-PAPAZOLA.md) and `verification/papazola/RESULTS.json` first. Includes native sprite action, transparent prayer layout, lower app carousel and the dated Fayyadh fifth-birthday theme. Historical descriptions below remain for context.
+
 > **Current: 2.9.0 feature pack / code 13.** Read [START-HERE-FEATURE-PACK.md](START-HERE-FEATURE-PACK.md) and `verification/feature-pack/REPORT.md` first. Older rotating-prayer/TTS/speed-test instructions below describe earlier stages and are not the current feature contract.
 
 ## Current continuation — single prayer tile and forecast effects

@@ -35,7 +35,7 @@ final class LoopCarousel extends RecyclerView {
             scroller.setTargetPosition(position);layout.startSmoothScroll(scroller);
         }else{
             android.util.DisplayMetrics metrics=getResources().getDisplayMetrics();
-            int slot=GlassUi.dp(getContext(),110*Math.min(metrics.widthPixels/(metrics.density*960f),metrics.heightPixels/(metrics.density*540f)));
+            int slot=GlassUi.dp(getContext(),116*Math.min(metrics.widthPixels/(metrics.density*960f),metrics.heightPixels/(metrics.density*540f)));
             // Actual decorated width is read after layout; this estimate only handles first layout.
             View sample=getChildCount()>0?getChildAt(0):null;
             if(sample!=null)slot=layout.getDecoratedMeasuredWidth(sample)+((LayoutParams)sample.getLayoutParams()).leftMargin+((LayoutParams)sample.getLayoutParams()).rightMargin;

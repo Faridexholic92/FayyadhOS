@@ -69,7 +69,7 @@ public class DashboardRedesignTest {
  @Test public void dashboardDoesNotSelectSabahOrInventPrayerData()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
   PrayerPanel panel=c.get().findViewById(R.id.prayerPanel);Field field=PrayerPanel.class.getDeclaredField("values");field.setAccessible(true);
   for(TextView value:(TextView[])field.get(panel))assertEquals("--:--",value.getText().toString());
-  assertEquals("SELECT ZONE",text(panel,"heading").getText().toString());assertTrue(text(panel,"subtitle").getText().toString().contains("Press OK"));
+  assertEquals("NEXT PRAYER · Select zone",text(panel,"heading").getText().toString());assertTrue(text(panel,"subtitle").getText().toString().contains("Press OK"));
   assertEquals("",c.get().getSharedPreferences("solat",0).getString("zone",""));
   fixture.capture(fixture.render(c.get(),1920,1080),"dashboard-unconfigured-1080");
  }}

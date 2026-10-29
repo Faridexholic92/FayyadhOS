@@ -1,0 +1,10 @@
+Acceptance: assembleDebug + testDebugUnitTest + compileReleaseJavaWithJavac: BUILD SUCCESSFUL
+{"tests": 347, "failures": 0, "errors": 0, "skipped": 1}
+Lint: {"Warning": 86, "Error": 45}; errors only in unchanged Config.java and values/strings.xml.
+APK: app-debug.apk ; app class definitions: 379 ; manifest components: 13
+PASS: all declared application components have DEX class definitions
+
+Signer #1 certificate DN: C=US, O=Android, CN=Android Debug
+Signer #1 certificate SHA-256 digest: 119b13da700b2740cc97954b9c978b8d52d783c789719a9e0bb01398aaec5c27
+Signer #1 certificate SHA-1 digest: 190df61a45ea042df2141d9ee48cd16f829b92f5
+Signer #1 certificate MD5 digest: a3929bd659489293ec0248c361c6f568

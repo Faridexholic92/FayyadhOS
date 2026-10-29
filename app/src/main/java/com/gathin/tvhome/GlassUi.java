@@ -23,6 +23,12 @@ final class GlassUi {
   android.graphics.drawable.LayerDrawable layers=new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{halo,surface(c,0xd0245360,true)});
   layers.setLayerInset(1,dp(c,2),dp(c,2),dp(c,2),dp(c,2));return layers;
  }
+ static StateListDrawable premiumStates(Context c){
+  StateListDrawable states=new StateListDrawable();
+  GradientDrawable selected=surface(c,0x303f7495,false);selected.setStroke(dp(c,1),0xffb6dff8);selected.setCornerRadius(dp(c,7));
+  GradientDrawable idle=surface(c,0x251a3045,false);idle.setStroke(dp(c,1),0x557c9eb5);idle.setCornerRadius(dp(c,7));
+  states.addState(new int[]{android.R.attr.state_focused},selected);states.addState(new int[]{android.R.attr.state_pressed},selected);states.addState(new int[]{},idle);return states;
+ }
  static void focus(View v){v.setFocusable(true);v.setFocusableInTouchMode(true);v.setClickable(true);v.setBackground(states(v.getContext()));}
  static void focusShortcut(View v){
   v.setFocusable(true);v.setFocusableInTouchMode(true);v.setClickable(true);

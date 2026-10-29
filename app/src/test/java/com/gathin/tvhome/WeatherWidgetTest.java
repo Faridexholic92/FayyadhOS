@@ -38,9 +38,8 @@ public class WeatherWidgetTest {
             assertTrue(condition(widget).getText().toString().startsWith("Ramalan · Ribut petir"));
             Rect area=bounds(widget);assertTrue(area.right<=w);assertTrue(area.top>=0);assertTrue(area.bottom<h);
             for(View other:new View[]{root.findViewById(R.id.btnWifi),root.findViewById(R.id.btnSettings),root.findViewWithTag("greeting")})assertFalse("Overlap with "+other,Rect.intersects(area,bounds(other)));
-            // Center clock's parent is the second header child; check both clock and date.
-            ViewGroup body=(ViewGroup)((ViewGroup)root).getChildAt(1);ViewGroup header=(ViewGroup)body.getChildAt(0);
-            ViewGroup time=(ViewGroup)header.getChildAt(1);assertFalse(Rect.intersects(area,bounds(time)));
+            // Stable semantic lookup: clock moved out of header by the approved redesign.
+            ViewGroup time=root.findViewWithTag("dashboard-clock");assertNotNull(time);assertFalse(Rect.intersects(area,bounds(time)));
             LinearLayout lines=(LinearLayout)widget.getChildAt(1);assertTrue(lines.getHeight()<=widget.getHeight());
             for(int i=0;i<lines.getChildCount();i++){TextView text=(TextView)lines.getChildAt(i);assertEquals(1,text.getLineCount());assertTrue(text.getBottom()<=widget.getHeight());}
             helper.capture(root,name);

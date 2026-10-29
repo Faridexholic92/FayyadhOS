@@ -10,8 +10,8 @@ android {
         applicationId 'dev.farred.fayyadhos.tv.jarvis.fix'
         minSdk 26
         targetSdk 34
-        versionCode 13
-        versionName '2.9.0-feature-pack'
+        versionCode 14
+        versionName '3.0.0-papazola'
     }
 
     signingConfigs {
@@ -61,3 +61,20 @@ android {
     testOptions { unitTests.includeAndroidResources = true }
 }
 dependencies { testImplementation 'org.robolectric:robolectric:4.17' }
+
+// Canonical artwork is text-encoded for the repository transport, decoded once at build time.
+// Only .webp binaries are packaged in the APK; no runtime decoder or extra dependency.
+def premiumAssetDir = layout.buildDirectory.dir('generated/premiumAssets')
+def generatePremiumAssets = tasks.register('generatePremiumAssets') {
+    inputs.dir(rootProject.file('art/premium'))
+    outputs.dir(premiumAssetDir)
+    doLast {
+        def target = new File(premiumAssetDir.get().asFile, 'premium')
+        target.mkdirs()
+        rootProject.file('art/premium').eachFileMatch(~/.*\.webp\.b64/) { source ->
+            new File(target, source.name.replace('.b64', '')).bytes = source.text.trim().decodeBase64()
+        }
+    }
+}
+android.sourceSets.main.assets.srcDir(premiumAssetDir)
+tasks.named('preBuild').configure { dependsOn(generatePremiumAssets) }

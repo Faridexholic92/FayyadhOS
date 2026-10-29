@@ -1,0 +1,275 @@
+{
+  "version": "3.0.0-papazola",
+  "versionCode": 14,
+  "baseCommit": "7d1655196268446e8717805905b58292a1138b5a",
+  "branch": "feature/papazola-premium-home",
+  "build": {
+    "debugApk": "PASS",
+    "releaseSourceCompile": "PASS",
+    "productionSignedRelease": "NOT BUILT - original release key not supplied",
+    "apkBytes": 9006133,
+    "apkSha256": "8aed59d8e986c812eba9fc4bbd8b06f1e32557a9c9d42bb3883358f456418678",
+    "debugCertificateSha256": "119b13da700b2740cc97954b9c978b8d52d783c789719a9e0bb01398aaec5c27",
+    "manifestDexVerification": "APK: app-debug.apk ; app class definitions: 379 ; manifest components: 13\nPASS: all declared application components have DEX class definitions"
+  },
+  "tests": {
+    "tests": 347,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "lint": {
+    "result": "FAIL (not lint-clean)",
+    "counts": {
+      "Warning": 86,
+      "Error": 45
+    },
+    "errorLocations": [
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "3"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "4"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "5"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "6"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "7"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "8"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "9"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "10"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "11"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "12"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "13"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "14"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "15"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "16"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "17"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "18"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "19"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "20"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "21"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "22"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "23"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "24"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "25"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "26"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "27"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "28"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "29"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "30"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "31"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "32"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "33"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "34"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "35"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "36"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "37"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "38"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "39"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "40"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "41"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "42"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "43"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "44"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "45"
+      },
+      {
+        "id": "MissingTranslation",
+        "file": "app/src/main/res/values/strings.xml",
+        "line": "46"
+      },
+      {
+        "id": "ByteOrderMark",
+        "file": "app/src/main/java/com/gathin/tvhome/Config.java",
+        "line": "192"
+      }
+    ],
+    "existingErrorFilesUnchanged": true,
+    "newErrorsInChangedSourceFiles": 0
+  },
+  "preview": {
+    "renderer": "Robolectric native Android views",
+    "resolutions": [
+      "1280x720",
+      "1920x1080",
+      "3840x2160"
+    ],
+    "birthday": "1920x1080",
+    "motion": "90 deterministic native-view frames at 10 fps; simulation, not measured live playback",
+    "fixtures": "test app icons, test schedule, test forecast; no production fake data"
+  },
+  "limits": [
+    "No physical TV/emulator, actual D-pad, audible speaker or standby testing",
+    "No original release signing key; never uninstall/clear data to bypass mismatch",
+    "Frame rate targets are caps, not device benchmarks",
+    "Forecast is not an on-site weather observation",
+    "Public/commercial character-asset rights require review"
+  ]
+}
