@@ -18,7 +18,7 @@ public class DashboardActivity extends Activity {
  private final Handler handler=new Handler(Looper.getMainLooper());
  private WeatherForecast.State wallpaperState=WeatherForecast.State.UNKNOWN;
  private String wallpaperKey="";
- private DailyQuotes quotes;private AppArtwork artwork;private WallpaperDissolveView wallpaper;private HourlyWeatherController hourly;private boolean pendingDim;private TextView clock,date,greeting;private RecyclerView grid;
+ private MiniMechaView mecha;private DailyQuotes quotes;private AppArtwork artwork;private WallpaperDissolveView wallpaper;private HourlyWeatherController hourly;private boolean pendingDim;private TextView clock,date,greeting;private RecyclerView grid;
  private PrayerPanel prayer;private DashboardApps catalog;private List<ResolveInfo> apps=new ArrayList<>();
  private String moving,focusKey,lastFocusedKey;private boolean swallowOK;private float scale=1;
  private TextView empty;
@@ -26,8 +26,8 @@ public class DashboardActivity extends Activity {
  private WelcomeSpeech welcome;private boolean resumed,screenReceiverRegistered;
  private final Runnable welcomeTask=()->{if(resumed&&welcome!=null)welcome.speak(false);};
  private final BroadcastReceiver screenReceiver=new BroadcastReceiver(){public void onReceive(Context c,Intent i){
-  if(Intent.ACTION_SCREEN_OFF.equals(i.getAction())){if(rain!=null)rain.screen(false);if(hourly!=null)hourly.screen(false);if(quotes!=null)quotes.pause();wallpaper.hostActive(false);handler.removeCallbacks(welcomeTask);welcome.screenOff();}
-  else if(Intent.ACTION_SCREEN_ON.equals(i.getAction())){if(rain!=null)rain.screen(true);if(resumed){wallpaper.hostActive(true);if(hourly!=null)hourly.screen(true);if(quotes!=null)quotes.resume();}if(resumed)scheduleWelcome();}
+  if(Intent.ACTION_SCREEN_OFF.equals(i.getAction())){if(mecha!=null)mecha.screen(false);if(rain!=null)rain.screen(false);if(hourly!=null)hourly.screen(false);if(quotes!=null)quotes.pause();wallpaper.hostActive(false);handler.removeCallbacks(welcomeTask);welcome.screenOff();}
+  else if(Intent.ACTION_SCREEN_ON.equals(i.getAction())){if(mecha!=null)mecha.screen(true);if(rain!=null)rain.screen(true);if(resumed){wallpaper.hostActive(true);if(hourly!=null)hourly.screen(true);if(quotes!=null)quotes.resume();}if(resumed)scheduleWelcome();}
  }};
  private void scheduleWelcome(){handler.removeCallbacks(welcomeTask);handler.postDelayed(welcomeTask,1200);}
  private JarvisPanel jarvis;private AlertDialog popup;private FrameLayout root;
@@ -94,6 +94,7 @@ public class DashboardActivity extends Activity {
    WeatherWidget weather=new WeatherWidget(this,scale);place(body,weather,690,96,230,38);weather.setVisibility(View.INVISIBLE); // MET still drives wallpaper, not the current-condition card.
   rain=new RainController(this,root);rain.attachWeather(weather);
   hourly=new HourlyWeatherController(this);place(body,hourly.view(),672,102,248,104);
+  mecha=new MiniMechaView(this);place(body,mecha,40,278,880,96);
   reload();updateClock();
   if(!apps.isEmpty()){focusKey=DashboardApps.key(apps.get(0));grid.post(()->focusApp(focusKey));}else settings.requestFocus();
  }
@@ -139,8 +140,8 @@ public class DashboardActivity extends Activity {
     getSharedPreferences("fayyadh-wallpaper",0).edit().putString("selected",FayyadhWallpapers.FILES[i]).putBoolean("automatic_weather",false).apply();loadWallpaper();d.dismiss();})
    .setNeutralButton(automaticWallpaper()?"Cuaca auto: OFF":"Cuaca auto: ON",(d,i)->{setAutomaticWallpaper(!automaticWallpaper());})
    .setNegativeButton("Close",null));}
- void settings(){handler.removeCallbacks(welcomeTask);welcome.cancel();show(new AlertDialog.Builder(this).setTitle("FayyadhOS · Settings").setItems(new String[]{"Wallpaper","Hide / unhide apps","Rearrange apps","Jarvis · Network & AI","Prayer zone & options","Android settings","Set default Home",getString(R.string.rain_settings_entry),"Azan · Lima waktu","Cuaca · Keadaan semasa",DimService.enabled(this)?"Dim 35%: ON":"Dim 35%: OFF","Artwork · Banner / icon pack","Daily quotes · "+(DailyQuotes.enabled(this)?"ON":"OFF"),"Glass appearance · "+GlassOptions.label(this),"Detect lokasi cuaca","Speedtest · Download"},(d,i)->{
-  if(i==15){showSpeedtest();}else if(i==14){hourly.offerAutomaticLocation();}else if(i==13){GlassOptions.settings(this,this::refreshGlass);}else if(i==12){quotes.details();}else if(i==11){artwork.settings(this,()->reload());}else if(i==10){toggleDim();}else if(i==9){d.dismiss();handler.post(()->hourly.settings());}else if(i==8){startActivity(new Intent(this,AzanSettingsActivity.class));}else if(i==0)wallpapers();else if(i==1)hidden();else if(i==2)message("Rearrange apps","Hold OK on an app > Move. Use the arrow keys to rearrange. Press OK or Back to finish. Your order is saved automatically.");else if(i==3)showJarvis();else if(i==4)prayer.performClick();else if(i==7){d.dismiss();handler.post(()->rain.showSettings());}else system(i==6?Settings.ACTION_HOME_SETTINGS:Settings.ACTION_SETTINGS);
+ void settings(){handler.removeCallbacks(welcomeTask);welcome.cancel();show(new AlertDialog.Builder(this).setTitle("FayyadhOS · Settings").setItems(new String[]{"Wallpaper","Hide / unhide apps","Rearrange apps","Jarvis · Network & AI","Prayer zone & options","Android settings","Set default Home",getString(R.string.rain_settings_entry),"Azan · Lima waktu","Cuaca · Keadaan semasa",DimService.enabled(this)?"Dim 35%: ON":"Dim 35%: OFF","Artwork · Banner / icon pack","Daily quotes · "+(DailyQuotes.enabled(this)?"ON":"OFF"),"Glass appearance · "+GlassOptions.label(this),"Detect lokasi cuaca","Speedtest · Download","Mini robot · "+(mecha.featureEnabled()?"ON":"OFF")},(d,i)->{
+  if(i==16){mecha.featureEnabled(!mecha.featureEnabled());}else if(i==15){showSpeedtest();}else if(i==14){hourly.offerAutomaticLocation();}else if(i==13){GlassOptions.settings(this,this::refreshGlass);}else if(i==12){quotes.details();}else if(i==11){artwork.settings(this,()->reload());}else if(i==10){toggleDim();}else if(i==9){d.dismiss();handler.post(()->hourly.settings());}else if(i==8){startActivity(new Intent(this,AzanSettingsActivity.class));}else if(i==0)wallpapers();else if(i==1)hidden();else if(i==2)message("Rearrange apps","Hold OK on an app > Move. Use the arrow keys to rearrange. Press OK or Back to finish. Your order is saved automatically.");else if(i==3)showJarvis();else if(i==4)prayer.performClick();else if(i==7){d.dismiss();handler.post(()->rain.showSettings());}else system(i==6?Settings.ACTION_HOME_SETTINGS:Settings.ACTION_SETTINGS);
  }).setNegativeButton("Close",null));}
  void showSpeedtest(){showJarvis();jarvis.openSpeedtest();}
  void refreshGlass(){View dock=root.findViewWithTag("glass-dock");if(dock!=null)dock.setBackground(new GlassMaterial(this,GlassMaterial.DOCK,false,false));GlassUi.focus(findViewById(R.id.btnWifi));GlassUi.focus(findViewById(R.id.btnSettings));reload();}
@@ -183,12 +184,12 @@ public class DashboardActivity extends Activity {
   if(overlays.containsKey(dialog))return;
   if(overlays.isEmpty())overlayReturnFocus=root.findFocus();
   overlays.put(dialog,root.findFocus());
-  if(rain!=null)rain.obscured(true);if(prayer!=null)prayer.obscured(true);
+  if(mecha!=null)mecha.obscured(true);if(rain!=null)rain.obscured(true);if(prayer!=null)prayer.obscured(true);
  }
  void overlayClosed(Dialog dialog){
   if(!overlays.containsKey(dialog))return;
   overlays.remove(dialog);
-  if(rain!=null)rain.obscured(!overlays.isEmpty());if(prayer!=null)prayer.obscured(!overlays.isEmpty());
+  if(mecha!=null)mecha.obscured(!overlays.isEmpty());if(rain!=null)rain.obscured(!overlays.isEmpty());if(prayer!=null)prayer.obscured(!overlays.isEmpty());
   if(!overlays.isEmpty())return;
   View target=overlayReturnFocus;overlayReturnFocus=null;
   if(moving!=null)focusApp(moving);
@@ -246,9 +247,9 @@ public class DashboardActivity extends Activity {
   public int getItemCount(){return LoopCarousel.count(apps.size(),moving!=null);}
  }
  private static final class Tile extends RecyclerView.ViewHolder{final ImageView icon;final TextView name;Tile(View v,ImageView i,TextView n){super(v);icon=i;name=n;}}
- @Override protected void onResume(){super.onResume();resumed=true;wallpaper.hostActive(true);if(hourly!=null)hourly.resume();if(quotes!=null)quotes.resume();artwork.refresh();restoreDim();scheduleWelcome();focusKey=lastFocusedKey!=null?lastFocusedKey:apps.isEmpty()?null:DashboardApps.key(apps.get(0));reload();prayer.start();handler.removeCallbacks(tick);handler.post(tick);rain.resume();}
- @Override protected void onPause(){if(rain!=null)rain.pause();if(hourly!=null)hourly.pause();if(quotes!=null)quotes.pause();wallpaper.hostActive(false);resumed=false;handler.removeCallbacks(welcomeTask);welcome.cancel();handler.removeCallbacks(tick);prayer.stop();if(jarvis!=null)jarvis.close();for(Dialog shown:new ArrayList<>(overlays.keySet()))shown.dismiss();super.onPause();}
- @Override protected void onDestroy(){if(rain!=null)rain.destroy();if(hourly!=null)hourly.destroy();if(quotes!=null)quotes.destroy();if(screenReceiverRegistered){unregisterReceiver(screenReceiver);screenReceiverRegistered=false;}welcome.cancel();handler.removeCallbacksAndMessages(null);prayer.destroy();wallpaper.destroy();super.onDestroy();}
+ @Override protected void onResume(){super.onResume();resumed=true;if(mecha!=null)mecha.hostActive(true);wallpaper.hostActive(true);if(hourly!=null)hourly.resume();if(quotes!=null)quotes.resume();artwork.refresh();restoreDim();scheduleWelcome();focusKey=lastFocusedKey!=null?lastFocusedKey:apps.isEmpty()?null:DashboardApps.key(apps.get(0));reload();prayer.start();handler.removeCallbacks(tick);handler.post(tick);rain.resume();}
+ @Override protected void onPause(){if(mecha!=null)mecha.hostActive(false);if(rain!=null)rain.pause();if(hourly!=null)hourly.pause();if(quotes!=null)quotes.pause();wallpaper.hostActive(false);resumed=false;handler.removeCallbacks(welcomeTask);welcome.cancel();handler.removeCallbacks(tick);prayer.stop();if(jarvis!=null)jarvis.close();for(Dialog shown:new ArrayList<>(overlays.keySet()))shown.dismiss();super.onPause();}
+ @Override protected void onDestroy(){if(mecha!=null)mecha.destroy();if(rain!=null)rain.destroy();if(hourly!=null)hourly.destroy();if(quotes!=null)quotes.destroy();if(screenReceiverRegistered){unregisterReceiver(screenReceiver);screenReceiverRegistered=false;}welcome.cancel();handler.removeCallbacksAndMessages(null);prayer.destroy();wallpaper.destroy();super.onDestroy();}
  @Override public void onBackPressed(){if(moving!=null){focusKey=moving;moving=null;reload();}else findViewById(R.id.btnSettings).requestFocus();}
  @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] results){super.onRequestPermissionsResult(request,permissions,results);if(request==74&&hourly!=null)hourly.permissionResult();if(request==72)showJarvis();if(request==73){pendingDim=false;if(results.length>0&&results[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)DimService.enable(this);else message("Dim","Notification permission is required here so the OFF notification remains available. Dim stays OFF.");}}
 }
