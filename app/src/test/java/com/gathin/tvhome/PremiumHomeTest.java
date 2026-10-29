@@ -76,11 +76,11 @@ public class PremiumHomeTest {
   assertTrue(Math.abs(PremiumSceneView.approachAt(0)-PremiumSceneView.approachAt(7990))<0.001f);
  }
  @Test public void spriteFramesAdvanceDuringRestAndFramePacingIsVsyncFriendly() {
-  assertEquals(0,PremiumSceneView.spriteCellAt(0,80));
-  assertEquals(1,PremiumSceneView.spriteCellAt(80,80));
-  assertEquals(0,PremiumSceneView.spriteCellAt(480,80));
-  assertTrue(PremiumSceneView.spriteCellAt(6400,80)!=PremiumSceneView.spriteCellAt(6480,80));
-  assertTrue(PremiumSceneView.spriteCellAt(7000,80)!=PremiumSceneView.spriteCellAt(7080,80));
+  assertEquals(0,PremiumSceneView.spriteCellAt(0,67));
+  assertEquals(1,PremiumSceneView.spriteCellAt(67,67));
+  assertEquals(0,PremiumSceneView.spriteCellAt(402,67));
+  assertTrue(PremiumSceneView.spriteCellAt(6400,67)!=PremiumSceneView.spriteCellAt(6467,67));
+  assertTrue(PremiumSceneView.spriteCellAt(7000,67)!=PremiumSceneView.spriteCellAt(7067,67));
   assertEquals(33_333_333L,PremiumSceneView.frameIntervalNanos(2));
   assertEquals(66_666_667L,PremiumSceneView.frameIntervalNanos(1));
   assertEquals(33L,PremiumSceneView.frameDelayMillis(2));

@@ -15,8 +15,8 @@ final class PremiumSceneView extends View {
     private static final long RETREAT_END_MS = 6_200L;
     private static final long FULL_FRAME_INTERVAL_NANOS = 33_333_333L; // target up to 30 fps
     private static final long LITE_FRAME_INTERVAL_NANOS = 66_666_667L; // target up to 15 fps
-    private static final int FULL_SPRITE_FRAME_MS = 80;
-    private static final int LITE_SPRITE_FRAME_MS = 100;
+    private static final int FULL_SPRITE_FRAME_MS = 67;
+    private static final int LITE_SPRITE_FRAME_MS = 67;
     private static final long BIRTHDAY_CONFETTI_MS = 10_000L;
 
     private final Choreographer choreographer = Choreographer.getInstance();
