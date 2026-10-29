@@ -63,4 +63,27 @@ public class PremiumHomeTest {
  @Test @org.robolectric.annotation.Config(qualifiers="w640dp-h360dp-land-xhdpi") public void native720WithMotionFrames()throws Exception{preview(1280,720,"premium-home-720",false,true);}
  @Test @org.robolectric.annotation.Config(qualifiers="w1920dp-h1080dp-land-xhdpi") public void native4k()throws Exception{preview(3840,2160,"premium-home-4k",false,false);}
  @Test public void birthday1080()throws Exception{preview(1920,1080,"premium-birthday-1080",true,false);}
+
+ @Test public void characterPathHasSmoothBoundariesAndShorterLoop() {
+  assertEquals(0f,PremiumSceneView.approachAt(0),0.0001f);
+  assertEquals(1f,PremiumSceneView.approachAt(2400),0.0001f);
+  assertEquals(1f,PremiumSceneView.approachAt(3800),0.0001f);
+  assertEquals(0f,PremiumSceneView.approachAt(6200),0.0001f);
+  assertEquals(0f,PremiumSceneView.approachAt(8000),0.0001f);
+  assertTrue(Math.abs(PremiumSceneView.approachAt(2400)-PremiumSceneView.approachAt(2390))<0.001f);
+  assertTrue(Math.abs(PremiumSceneView.approachAt(3800)-PremiumSceneView.approachAt(3810))<0.001f);
+  assertTrue(Math.abs(PremiumSceneView.approachAt(6200)-PremiumSceneView.approachAt(6190))<0.001f);
+  assertTrue(Math.abs(PremiumSceneView.approachAt(0)-PremiumSceneView.approachAt(7990))<0.001f);
+ }
+ @Test public void spriteFramesAdvanceDuringRestAndFramePacingIsVsyncFriendly() {
+  assertEquals(0,PremiumSceneView.spriteCellAt(0,80));
+  assertEquals(1,PremiumSceneView.spriteCellAt(80,80));
+  assertEquals(0,PremiumSceneView.spriteCellAt(480,80));
+  assertTrue(PremiumSceneView.spriteCellAt(6400,80)!=PremiumSceneView.spriteCellAt(6480,80));
+  assertTrue(PremiumSceneView.spriteCellAt(7000,80)!=PremiumSceneView.spriteCellAt(7080,80));
+  assertEquals(33_333_333L,PremiumSceneView.frameIntervalNanos(2));
+  assertEquals(66_666_667L,PremiumSceneView.frameIntervalNanos(1));
+  assertEquals(Long.MAX_VALUE,PremiumSceneView.frameIntervalNanos(0));
+ }
+
 }
