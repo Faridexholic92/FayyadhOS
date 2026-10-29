@@ -80,7 +80,7 @@ final class PremiumSceneView extends View {
 
     boolean canAnimate() {
         boolean birthdayConfettiActive = !birthday
-                || (partyStarted > 0L && SystemClock.uptimeMillis() - partyStarted < BIRTHDAY_CONFETTI_MS);
+                || (SystemClock.uptimeMillis() - partyStarted < BIRTHDAY_CONFETTI_MS);
         return !closed && enabled && active && interactive && !obscured && !audioBusy
                 && quality > 0 && birthdayConfettiActive && isAttachedToWindow()
                 && RainOptions.prefs(getContext()).getBoolean("moving", true)
