@@ -42,3 +42,19 @@ No model has been approved by the user yet. Suitability must be checked from act
 - Lifecycle/back/dialog/screen-off/reduced-motion/OFF switch regressions on the final renderer.
 - Asset and dependency review plus source notices retained in any distribution.
 - Wide-banner carousel restoration and weather diagnosis are independent pending workstreams.
+
+
+## Desktop prototype result — 2026-10-29
+
+An isolated, reproducible motion study is now available under [`experiments/mecha3d/`](../experiments/mecha3d/README.md). This is **desktop visual proof only**, not Android integration, final combat choreography, user approval or a TV benchmark.
+
+- Exact upstream GLBs inspected: ATLAS has 18 bones, four skinned primitives and 10 clips; AETHER has 18 bones, five skinned primitives and 11 clips. Every clip has 54 transform tracks. Original asset bytes, licenses and manifests are pinned; the fetcher verifies SHA-256 before accepting bytes. No binary model is added to Android.
+- Three.js renders the actual skinned meshes with PBR materials, lights, shadows and an environment. Run, KneelFire, Sentinel and AETHER DodgeRoll are driven by animation mixers. Root travel remains illustrative; chapter fades are editorial cuts, not a claim of smooth combat transitions.
+- Silent MP4 generated: 18 seconds, 1280×720, H.264, 24 fps, 432 distinct captured frame hashes. Full decode check passed. Those are export settings, **not real-time browser/TV FPS**. Output is local/session-delivered; it is not committed as a large binary. Reproduce with `npm run capture`.
+- Audit: 72 samples at 0.25-second intervals; both rigs have 18 bones, skinned primitives and changing shin rotations. Sampled model bounds stay within the desktop camera; lowest sampled vertex is approximately −0.0565 scene units, below the audit's 0.1-unit tolerance. This is not collision handling or a comprehensive ground-contact guarantee. No page errors in capture/audit.
+- Inspected silhouette, two running poses, entry to aim, kneeling/recovery, roll entry/midpoint/recovery and final pose. Desktop 1280×720 and narrow 390×844 layouts inspected; phone framing was corrected before handoff. `verification-summary.json` records exactly which states were visually reviewed.
+- `node --check` on renderer/capture/audit scripts and Python compilation passed. No app Java, weather, GO engine, carousel, manifest, Gradle signing or APK distribution was changed for this experiment. The 412-test local Android baseline reported earlier is not a validation of this desktop renderer.
+
+### Next unresolved step
+
+Show the clip and obtain the user's judgment on model design/proportions and movement. If accepted, refine gait/root synchronization and continuous two-character choreography before choosing Android delivery. If rejected, replace the candidate models or motion style instead of relabelling this prototype as premium or commercial-ready. Native Android still contains the older 2D decoration. Keep banner restoration and weather diagnosis separate.

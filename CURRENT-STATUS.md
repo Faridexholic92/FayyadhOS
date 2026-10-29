@@ -23,12 +23,12 @@ Updated: 2026-10-29. **Read this before older reports.** This file is the contin
 
 See [docs/MECHA-3D-HANDOFF.md](docs/MECHA-3D-HANDOFF.md). Isolated work belongs under `experiments/mecha3d/`. Android `MiniMechaView` still uses 2D sprite playback until an explicitly reviewed replacement is implemented.
 
-Current approach: inspect actual skinned GLB characters and baked locomotion/fire clips, using creator-published CC0 assets pinned to an immutable upstream commit. Render a deterministic desktop proof of concept. No unreviewed model is being bundled into the APK.
+Desktop motion study is now implemented under [`experiments/mecha3d/`](experiments/mecha3d/README.md): actual skinned GLB rigs, deterministic Run/KneelFire/DodgeRoll playback, pinned asset hashes/licenses, a repeatable 18-second MP4 capture and sampled geometry audit. See the handoff result section and `verification-summary.json`. **User visual acceptance is still pending.** No model or renderer has been bundled into the APK; Android still uses the older 2D decoration.
 
 ## Next actions, in order
 
-1. Verify asset licensing/provenance, inspect mesh/rig/clips and render actual 3D movement. Reject bad deformation, skating, detached armor and floaty running.
-2. Show a short prototype clip; explicitly separate visual proof from Android runtime performance and user acceptance.
+1. Review the desktop prototype clip with the user; model design/proportions and motion are not yet approved. Asset/rig inspection and the first render are recorded, not a shipping certification.
+2. Refine root/gait synchronization, action transitions and two-character choreography after feedback. Keep desktop visual proof separate from Android runtime performance.
 3. Only after visual acceptance, choose Android delivery: native real-time 3D versus an honestly labelled pre-rendered 3D sequence. Profile on the user's TV; preserve lifecycle, D-pad, touch transparency, reduced motion and OFF switch. Do not fake 3D by sliding a flat image.
 4. Restore the wide-banner carousel against the supplied visual reference without undoing GO. Keep this as a separate change with 720p/1080p validation.
 5. Diagnose weather fetch/cache/provider timestamps, failure visibility, district/coordinate consistency and wallpaper source before proposing a weather fix.
