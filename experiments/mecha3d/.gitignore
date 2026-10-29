@@ -1,0 +1,5 @@
+node_modules/
+assets/*.glb
+output/
+__pycache__/
+*.pyc
