@@ -9,7 +9,7 @@ import android.view.View;
 
 /** Native bounded sprite renderer: vsync-paced motion, no video, blur, physics or network. */
 final class PremiumSceneView extends View {
-    private static final long LOOP_MS = 8_000L;
+    private static final long LOOP_MS = 6_200L;
     private static final long APPROACH_END_MS = 2_400L;
     private static final long INTERACTION_END_MS = 3_800L;
     private static final long RETREAT_END_MS = 6_200L;
@@ -202,10 +202,13 @@ final class PremiumSceneView extends View {
         // Their path freezes at the current pose during pause, dialog, screen-off or Azan.
         int frameDuration = quality == 1 ? LITE_SPRITE_FRAME_MS : FULL_SPRITE_FRAME_MS;
         int cell = spriteCellAt(elapsed, frameDuration);
+        float runBob = (float) Math.sin((elapsed % 402L) / 402.0 * Math.PI * 2.0) * 1.2f;
         float papa = 345f + approach * 85f;
         float boy = 650f - approach * 110f;
-        sprite(c, 0, cell, papa, 396f - hop, 206f, retreating);
-        sprite(c, 1, cell, boy, 399f - hop * .65f, 156f, !retreating);
+        groundShadow(c, papa, 396f, 62f, hop);
+        groundShadow(c, boy, 399f, 48f, hop * .65f);
+        sprite(c, 0, cell, papa, 396f - hop + runBob, 206f, retreating);
+        sprite(c, 1, cell, boy, 399f - hop * .65f + runBob * .7f, 156f, !retreating);
 
         if (phase >= APPROACH_END_MS && phase < INTERACTION_END_MS) {
             paint.setColor(0xa7f5d07d);
@@ -216,6 +219,16 @@ final class PremiumSceneView extends View {
             paint.setStyle(Paint.Style.FILL);
         }
         c.restoreToCount(save);
+    }
+
+    private void groundShadow(Canvas c, float x, float ground, float width, float hop) {
+        float spread = Math.max(0.58f, 1f - hop / 22f);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(0x50020a12);
+        c.drawOval(x - width * spread, ground - 2f, x + width * spread, ground + 5f, paint);
+        paint.setColor(0x26020a12);
+        c.drawOval(x - width * .62f * spread, ground - 1f, x + width * .62f * spread, ground + 3f, paint);
+        paint.setColor(Color.WHITE);
     }
 
     private void sprite(Canvas c, int row, int cell, float x, float ground, float height, boolean mirror) {

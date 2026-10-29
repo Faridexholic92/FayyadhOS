@@ -16,5 +16,9 @@ final class PremiumTheme {
         return BIRTHDAY.equals(theme)||WORLD.equals(theme)&&automatic&&BIRTHDAY_DATE.equals(day);
     }
     static int motion(Context c){return Math.max(0,Math.min(2,prefs(c).getInt("motion",2)));} // Off / Lite / Full
-    static String asset(boolean birthday){return "premium/"+(birthday?"birthday.webp":"world.webp");}
+    static String asset(boolean birthday){
+        // The Birthday wallpaper contains characters baked into the pixels; use the clean world
+        // backdrop so the live sprites are drawn only once. Birthday copy remains native UI.
+        return "premium/world.webp";
+    }
 }

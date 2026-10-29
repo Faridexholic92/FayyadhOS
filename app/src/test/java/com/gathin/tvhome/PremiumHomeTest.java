@@ -12,6 +12,10 @@ public class PremiumHomeTest {
  @Before public void defaults(){Context c=RuntimeEnvironment.getApplication();PremiumTheme.prefs(c).edit().clear().putBoolean("birthday_auto",false).commit();RainOptions.prefs(c).edit().putBoolean("moving",true).commit();Settings.Global.putFloat(c.getContentResolver(),Settings.Global.ANIMATOR_DURATION_SCALE,1);}
  PremiumSceneView scene(DashboardActivity a){return a.findViewById(R.id.root).findViewWithTag("premium-scene");}
  void field(Object o,String name,Object value)throws Exception{Field f=o.getClass().getDeclaredField(name);f.setAccessible(true);f.set(o,value);}
+ @Test public void birthdayUsesCleanBackdropForSingleAnimatedCharacterLayer(){
+  assertEquals("premium/world.webp",PremiumTheme.asset(true));
+  assertEquals("premium/world.webp",PremiumTheme.asset(false));
+ }
  @Test public void datedBirthdayNeverRepeatsNextYear(){assertTrue(PremiumTheme.birthday(PremiumTheme.WORLD,true,LocalDate.of(2026,10,30)));assertFalse(PremiumTheme.birthday(PremiumTheme.WORLD,true,LocalDate.of(2027,10,30)));assertFalse(PremiumTheme.birthday(PremiumTheme.WORLD,false,LocalDate.of(2026,10,30)));assertFalse(PremiumTheme.birthday(PremiumTheme.CLASSIC,true,LocalDate.of(2026,10,30)));assertTrue(PremiumTheme.birthday(PremiumTheme.BIRTHDAY,false,LocalDate.of(2026,10,29)));}
  @Test public void packagedArtAndAtlasHaveBoundedDecodedSize()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
   for(String asset:new String[]{"premium/world.webp","premium/birthday.webp","premium/heroes-run.webp"})try(InputStream in=c.get().getAssets().open(asset)){Bitmap b=BitmapFactory.decodeStream(in);assertNotNull(asset,b);assertTrue(b.getWidth()<=1920);assertTrue(b.getHeight()<=1080);if(asset.contains("heroes")){assertEquals(1152,b.getWidth());assertEquals(640,b.getHeight());assertTrue(b.hasAlpha());}b.recycle();}
@@ -89,11 +93,11 @@ public class PremiumHomeTest {
   assertEquals(1f,PremiumSceneView.approachAt(2400),0.0001f);
   assertEquals(1f,PremiumSceneView.approachAt(3800),0.0001f);
   assertEquals(0f,PremiumSceneView.approachAt(6200),0.0001f);
-  assertEquals(0f,PremiumSceneView.approachAt(8000),0.0001f);
+  assertEquals(0f,PremiumSceneView.approachAt(6200),0.0001f);
   assertTrue(Math.abs(PremiumSceneView.approachAt(2400)-PremiumSceneView.approachAt(2390))<0.001f);
   assertTrue(Math.abs(PremiumSceneView.approachAt(3800)-PremiumSceneView.approachAt(3810))<0.001f);
   assertTrue(Math.abs(PremiumSceneView.approachAt(6200)-PremiumSceneView.approachAt(6190))<0.001f);
-  assertTrue(Math.abs(PremiumSceneView.approachAt(0)-PremiumSceneView.approachAt(7990))<0.001f);
+  assertTrue(Math.abs(PremiumSceneView.approachAt(0)-PremiumSceneView.approachAt(6190))<0.001f);
  }
  @Test public void spriteFramesAdvanceDuringRestAndFramePacingIsVsyncFriendly() {
   assertEquals(0,PremiumSceneView.spriteCellAt(0,67));
