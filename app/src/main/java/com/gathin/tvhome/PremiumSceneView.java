@@ -116,8 +116,8 @@ final class PremiumSceneView extends View {
     private void schedule() {
         if (!scheduled && canAnimate()) {
             scheduled = true;
-            // Choreographer aligns updates to display vsync; rendering is capped below.
-            choreographer.postFrameCallback(frame);
+            // Delay the callback to the selected cadence; Choreographer still aligns it to vsync.
+            choreographer.postFrameCallbackDelayed(frame, frameDelayMillis(quality));
         }
     }
 
@@ -129,6 +129,11 @@ final class PremiumSceneView extends View {
     static long frameIntervalNanos(int quality) {
         if (quality <= 0) return Long.MAX_VALUE;
         return quality == 1 ? LITE_FRAME_INTERVAL_NANOS : FULL_FRAME_INTERVAL_NANOS;
+    }
+
+    static long frameDelayMillis(int quality) {
+        if (quality <= 0) return 0L;
+        return quality == 1 ? 67L : 33L;
     }
 
     /** Smoothstep gives zero velocity at both ends, avoiding abrupt stops between phases. */

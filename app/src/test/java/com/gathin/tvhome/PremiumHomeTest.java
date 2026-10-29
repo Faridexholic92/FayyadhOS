@@ -83,6 +83,9 @@ public class PremiumHomeTest {
   assertTrue(PremiumSceneView.spriteCellAt(7000,80)!=PremiumSceneView.spriteCellAt(7080,80));
   assertEquals(33_333_333L,PremiumSceneView.frameIntervalNanos(2));
   assertEquals(66_666_667L,PremiumSceneView.frameIntervalNanos(1));
+  assertEquals(33L,PremiumSceneView.frameDelayMillis(2));
+  assertEquals(67L,PremiumSceneView.frameDelayMillis(1));
+  assertEquals(0L,PremiumSceneView.frameDelayMillis(0));
   assertEquals(Long.MAX_VALUE,PremiumSceneView.frameIntervalNanos(0));
  }
 
