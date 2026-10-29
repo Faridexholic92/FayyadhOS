@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "kind": "pre-rendered rigged 3D; not real-time 3D",
+  "tileWidth": 112,
+  "tileHeight": 128,
+  "models": [
+    "atlas-09",
+    "aether-02"
+  ],
+  "upstreamCommit": "1b8fb9d54160215c071c5a29a49b1c36dc01f0df",
+  "atlases": [
+    {
+      "name": "run",
+      "frames": 32,
+      "columns": 8,
+      "width": 896,
+      "height": 1024,
+      "parts": 10,
+      "bytes": 215356,
+      "sha256": "5cef7e261c980cb6bd78c9c649244e136998e7ba644b8cb52fa72f742a344db9"
+    },
+    {
+      "name": "fire",
+      "frames": 64,
+      "columns": 16,
+      "width": 1792,
+      "height": 1024,
+      "parts": 16,
+      "bytes": 350252,
+      "sha256": "4953e05606cee167c7b9a429a15cd413c54eee3c307dbfba19d825dfe713eca6"
+    },
+    {
+      "name": "recover",
+      "frames": 32,
+      "columns": 8,
+      "width": 896,
+      "height": 1024,
+      "parts": 8,
+      "bytes": 172862,
+      "sha256": "6c51c1337bf1f99275c5257427b55aa3df5b8ab6643e060ab35e24e5219cced0"
+    }
+  ]
+}

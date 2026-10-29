@@ -21,7 +21,7 @@ final class HourlyWeather {
         if(time<=0||time!=Math.rint(time)||temperature< -90||temperature>65||code!=Math.rint(code)||!validCode((int)code))throw new JSONException("Invalid weather point");
         return new Point((long)time,temperature,(int)code);
     }
-    static boolean validCode(int code){return code==0||code==1||code==2||code==3||code==45||code==48||code>=51&&code<=57&&code%2==1||code>=61&&code<=67&&code%2==1||code>=71&&code<=77&&code%2==1||code>=80&&code<=82||code==85||code==86||code==95||code==96||code==99;}
+    static boolean validCode(int code){return code==0||code==1||code==2||code==3||code==45||code==48||code==56||code==66||code>=51&&code<=57&&code%2==1||code>=61&&code<=67&&code%2==1||code>=71&&code<=77&&code%2==1||code>=80&&code<=82||code==85||code==86||code==95||code==96||code==99;}
     static HourlyWeather parse(String raw,long fetchedAt)throws JSONException{
         JSONObject json=new JSONObject(raw),current=json.getJSONObject("current");
         JSONObject cu=json.getJSONObject("current_units"),hu=json.getJSONObject("hourly_units");
@@ -40,6 +40,13 @@ final class HourlyWeather {
         HourlyWeather result=new HourlyWeather(fetchedAt,now,hours);
         if(result.after(Instant.ofEpochMilli(fetchedAt),3)==null||result.after(Instant.ofEpochMilli(fetchedAt),6)==null)throw new JSONException("Missing +3h/+6h coverage");
         return result;
+    }
+    static HourlyWeather parseCurrent(String raw,long fetchedAt)throws JSONException{
+        JSONObject json=new JSONObject(raw),units=json.getJSONObject("current_units"),value=json.getJSONObject("current");
+        if(!"unixtime".equals(units.getString("time"))||!"°C".equals(units.getString("temperature_2m")))throw new JSONException("Unexpected current units");
+        Point point=point(number(value,"time"),number(value,"temperature_2m"),number(value,"weather_code"));
+        if(Math.abs(point.time*1000L-fetchedAt)>2*60*60*1000L)throw new JSONException("Current timestamp outside freshness window");
+        return new HourlyWeather(fetchedAt,point,Collections.emptyList());
     }
     boolean fresh(Instant now){long age=now.toEpochMilli()-fetchedAt;return age>=0&&age<FRESH_MS;}
     Point current(Instant now){return fresh(now)&&Math.abs(now.getEpochSecond()-current.time)<2*3600?current:null;}

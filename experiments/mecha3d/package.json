@@ -1,0 +1,18 @@
+{
+  "name": "fayyadhos-mecha3d-prototype",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "playwright": "1.58.2"
+  },
+  "scripts": {
+    "capture": "node tools/capture.mjs",
+    "assets": "python3 tools/fetch-assets.py",
+    "inspect": "python3 tools/inspect-glb.py",
+    "audit": "node tools/audit.mjs"
+  }
+}

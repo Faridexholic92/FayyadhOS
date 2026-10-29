@@ -12,7 +12,7 @@ import android.widget.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-/** Reference-aligned right sidebar. Native actions remain independent of optional direct Groq AI. */
+/** Remote-first control center with grouped actions and progressive disclosure. Native actions remain independent of optional direct Groq AI. */
 final class JarvisPanel {
  private final DashboardActivity activity;private final Handler handler=new Handler(Looper.getMainLooper());
  private final ExecutorService worker=Executors.newSingleThreadExecutor();private Dialog dialog;
@@ -30,49 +30,52 @@ final class JarvisPanel {
  private LinearLayout column(){LinearLayout l=new LinearLayout(activity);l.setOrientation(LinearLayout.VERTICAL);return l;}
  private TextView text(String s,float size,int color){return GlassUi.text(activity,s,Math.max(8,size*scale()),color);}
  private LinearLayout.LayoutParams lp(int w,int h){return new LinearLayout.LayoutParams(w,h);}
- private TextView button(String title,Runnable action){TextView b=text(title,11,GlassUi.WHITE);b.setGravity(Gravity.CENTER);b.setMaxLines(2);b.setPadding(dp(5),dp(5),dp(5),dp(5));GlassUi.focus(b);android.graphics.drawable.StateListDrawable states=new android.graphics.drawable.StateListDrawable();
-  states.addState(new int[]{-android.R.attr.state_enabled},GlassUi.surface(activity,0xff0b2330,false));b.setTextColor(new android.content.res.ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{0xff8095a1,GlassUi.WHITE}));
-  states.addState(new int[]{android.R.attr.state_focused},GlassUi.glow(activity));states.addState(new int[]{android.R.attr.state_pressed},GlassUi.glow(activity));
-  android.graphics.drawable.GradientDrawable idle=GlassUi.surface(activity,0xff062131,false);idle.setStroke(Math.max(1,dp(1)),0xff087d9e);states.addState(new int[]{},idle);b.setBackground(states);b.setOnClickListener(v->action.run());return b;}
+ private TextView button(String title,Runnable action){TextView b=text(title,12,GlassUi.WHITE);b.setGravity(Gravity.CENTER);b.setMaxLines(2);b.setPadding(dp(10),dp(7),dp(10),dp(7));GlassUi.focus(b);b.setTextColor(new android.content.res.ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{0xff8095a1,GlassUi.WHITE}));
+  b.setOnClickListener(v->action.run());return b;}
  private void spacer(LinearLayout box,int n){View gap=new View(activity);box.addView(gap,lp(-1,dp(n)));}
- private void line(LinearLayout box){spacer(box,7);View v=new View(activity);v.setBackgroundColor(0xff16839a);box.addView(v,lp(-1,dp(1)));spacer(box,7);}
+ private void line(LinearLayout box){spacer(box,7);View v=new View(activity);v.setBackgroundColor(0x476d92ac);box.addView(v,lp(-1,dp(1)));spacer(box,7);}
  void show(){snapshot=NetworkSnapshot.read(activity);dialog=new Dialog(activity);dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-  LinearLayout box=column();mainBox=box;box.setPadding(dp(12),dp(12),dp(12),dp(12));
-  android.graphics.drawable.GradientDrawable surface=GlassUi.surface(activity,0xff041522,false);surface.setStroke(Math.max(1,dp(1)),GlassUi.CYAN);
-  scroll=new ScrollView(activity);scroll.setBackground(surface);scroll.setFillViewport(true);FrameLayout pages=new FrameLayout(activity);pages.addView(box);scroll.addView(pages);dialog.setContentView(scroll);
+  LinearLayout box=column();mainBox=box;box.setPadding(dp(16),dp(16),dp(16),dp(16));
+  scroll=new ScrollView(activity);scroll.setBackgroundColor(Color.TRANSPARENT);scroll.setFillViewport(true);FrameLayout pages=new FrameLayout(activity);pages.addView(box);scroll.addView(pages);dialog.setContentView(scroll);
   LinearLayout top=new LinearLayout(activity);top.setGravity(Gravity.CENTER_VERTICAL);box.addView(top);
-  top.addView(new Radar(activity),lp(dp(38),dp(38)));LinearLayout heading=column();TextView title=text("Jarvis",22,GlassUi.WHITE);title.setTypeface(null,Typeface.BOLD);heading.addView(title);heading.addView(text("Your Smart Assistant",10,GlassUi.MUTED));
-  LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(0,-2,1);hp.leftMargin=dp(7);top.addView(heading,hp);TextView close=button("Close",()->close());close.setContentDescription("Close Jarvis");top.addView(close,lp(dp(42),dp(32)));
-  spacer(box,12);
-  actionRow(box,new String[]{"Cuaca "+new RainOptions(RainOptions.prefs(activity)).locationName,"Speedtest"},new Runnable[]{()->activity.weatherDetails(),()->openSpeedtest()});
+  top.addView(new Radar(activity),lp(dp(32),dp(32)));LinearLayout heading=column();TextView title=text("Jarvis",22,GlassUi.WHITE);title.setTypeface(null,Typeface.BOLD);heading.addView(title);heading.addView(text("CONTROL CENTER",10,GlassUi.MUTED));
+  LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(0,-2,1);hp.leftMargin=dp(7);top.addView(heading,hp);TextView close=button("Close",()->close());close.setContentDescription("Close Jarvis");top.addView(close,lp(dp(62),dp(36)));
+  spacer(box,12);section(box,"QUICK ACTIONS");
+  actionRow(box,new String[]{"Cuaca semasa","Speedtest"},new Runnable[]{()->weatherCard(),()->openSpeedtest()});
   actionRow(box,new String[]{"Buka YouTube","Maklumat Sistem"},new Runnable[]{()->activity.youtube(),()->activity.message("Maklumat Sistem",SystemInfo.report(activity))});
   actionRow(box,new String[]{"Tetapan Wi-Fi","Aplikasi"},new Runnable[]{()->activity.system(Settings.ACTION_WIFI_SETTINGS),()->activity.installedApps()});
-  line(box);networkStatus=text("",11,GlassUi.WHITE);ssidStatus=text("",11,GlassUi.WHITE);linkStatus=text("",11,GlassUi.WHITE);vpnStatus=text("",11,GlassUi.WHITE);
-  box.addView(text("Status Rangkaian",12,GlassUi.WHITE));for(TextView v:new TextView[]{networkStatus,ssidStatus,linkStatus,vpnStatus}){v.setMaxLines(2);v.setEllipsize(android.text.TextUtils.TruncateAt.END);LinearLayout.LayoutParams p=lp(-1,-2);p.topMargin=dp(5);box.addView(v,p);}
-  line(box);aiStatus=text("",11,GlassUi.CYAN);box.addView(aiStatus);
+  spacer(box,8);section(box,"NETWORK · DEVICE");networkStatus=text("",11,GlassUi.WHITE);ssidStatus=text("",11,GlassUi.WHITE);linkStatus=text("",11,GlassUi.WHITE);vpnStatus=text("",11,GlassUi.WHITE);
+  for(TextView v:new TextView[]{networkStatus,ssidStatus,linkStatus,vpnStatus}){v.setMaxLines(2);v.setEllipsize(android.text.TextUtils.TruncateAt.END);LinearLayout.LayoutParams p=lp(-1,-2);p.topMargin=dp(5);box.addView(v,p);}
+  ssidStatus.setVisibility(View.GONE);vpnStatus.setVisibility(View.GONE);
+  TextView networkDetails=button("Network details",()->activity.message("Status Rangkaian",networkStatus.getText()+"\n"+ssidStatus.getText()+"\n"+linkStatus.getText()+"\n"+vpnStatus.getText()));LinearLayout.LayoutParams nd=lp(-1,dp(32));nd.topMargin=dp(6);box.addView(networkDetails,nd);
+  spacer(box,12);section(box,"ASSISTANT · OPTIONAL");aiStatus=text("",11,GlassUi.MUTED);box.addView(aiStatus);
   TextView settings=button("Jarvis AI Settings",()->{close();activity.aiSettings();});LinearLayout.LayoutParams sp=lp(-1,dp(34));sp.topMargin=dp(7);box.addView(settings,sp);
   aiButton=button("Explain with AI",()->explainNetwork());aiButton.setContentDescription("Explain native network facts using direct GroqCloud AI");LinearLayout.LayoutParams ap=lp(-1,dp(32));ap.topMargin=dp(5);box.addView(aiButton,ap);
-  speed=text("Internet: not tested",11,GlassUi.WHITE);speed.setPadding(0,dp(6),0,dp(4));box.addView(speed);
-  TextView detail=text("Link ≠ Internet speed. Speedtest: up to 100 MiB from Cloudflare; download only. No upload, ping or packet loss test.",9,GlassUi.MUTED);box.addView(detail);
+  speed=text("Internet: not tested",11,GlassUi.WHITE);speed.setVisibility(View.GONE);speed.setPadding(0,dp(6),0,dp(4));box.addView(speed);
+
   TextView options=button("Options",()->options());LinearLayout.LayoutParams op=lp(-1,dp(30));op.topMargin=dp(5);box.addView(options,op);
   dialog.setOnKeyListener((d,key,event)->{if(key!=KeyEvent.KEYCODE_BACK)return false;if(event.getAction()==KeyEvent.ACTION_UP){if(speedBox!=null&&speedBox.getVisibility()==View.VISIBLE)leaveSpeedtest();else close();}return true;});
-  dialog.setOnDismissListener(d->release());dialog.show();activity.overlayOpened(dialog);Window window=dialog.getWindow();if(window!=null){window.setBackgroundDrawableResource(android.R.color.transparent);window.setDimAmount(0f);window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-   android.util.DisplayMetrics m=activity.getResources().getDisplayMetrics();int margin=dp(16);window.setLayout(Math.min(m.widthPixels-margin*2,dp(222)),Math.min(m.heightPixels-margin*2,dp(506)));
+  dialog.setOnDismissListener(d->release());dialog.show();activity.overlayOpened(dialog);Window window=dialog.getWindow();if(window!=null){GlassWindows.apply(dialog);window.setDimAmount(0f);window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+   android.util.DisplayMetrics m=activity.getResources().getDisplayMetrics();int margin=dp(16);window.setLayout(Math.min(m.widthPixels-margin*2,dp(298)),Math.min(m.heightPixels-margin*2,dp(506)));
    WindowManager.LayoutParams p=window.getAttributes();p.gravity=Gravity.RIGHT|Gravity.TOP;p.x=dp(10);p.y=margin;window.setAttributes(p);}
   updateNetwork();refreshAiStatus();watchNetwork();speedButton.requestFocus();
 
  }
+ private void weatherCard(){activity.show(new AlertDialog.Builder(activity).setTitle("Cuaca semasa")
+  .setMessage("Paparan Home menggunakan keadaan semasa Open-Meteo. Wallpaper/hujan kekal mengikut MET. Lokasi kedua-duanya berasingan supaya ramalan daerah tidak disalah anggap sebagai bacaan di rumah.")
+  .setPositiveButton("Lokasi semasa",(d,i)->activity.currentWeatherSettings()).setNeutralButton("Diagnostik sumber",(d,i)->activity.weatherDetails()).setNegativeButton("Close",null));}
  private void actionRow(LinearLayout box,String[] labels,Runnable[] actions){
-  LinearLayout row=new LinearLayout(activity);LinearLayout.LayoutParams rp=lp(-1,dp(40));rp.bottomMargin=dp(6);box.addView(row,rp);
+  LinearLayout row=new LinearLayout(activity);LinearLayout.LayoutParams rp=lp(-1,dp(44));rp.bottomMargin=dp(8);box.addView(row,rp);
   for(int i=0;i<2;i++){TextView b=button(labels[i],actions[i]);
    int kind=labels[i].startsWith("Cuaca")?0:labels[i].equals("Speedtest")?1:labels[i].equals("Buka YouTube")?2:labels[i].equals("Maklumat Sistem")?3:labels[i].equals("Tetapan Wi-Fi")?4:5;
    android.graphics.drawable.Drawable icon=kind==0?activity.getDrawable(R.drawable.ic_weather_cloudy):kind==3?activity.getDrawable(R.drawable.ic_settings):kind==4?activity.getDrawable(R.drawable.ic_wifi):new ActionGlyph(kind);
    if(icon!=null){icon.setBounds(0,0,dp(16),dp(16));if(kind==4)icon.setTint(GlassUi.CYAN);b.setCompoundDrawables(icon,null,null,null);b.setCompoundDrawablePadding(dp(3));}
-   LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,-1,1);if(i==0)p.rightMargin=dp(6);row.addView(b,p);if(labels[i].equals("Speedtest"))speedButton=b;}
+   LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,-1,1);if(i==0)p.rightMargin=dp(8);row.addView(b,p);if(labels[i].equals("Speedtest"))speedButton=b;}
  }
- private void refreshAiStatus(){JarvisKeyStore store=new JarvisKeyStore(activity);aiStatus.setText(activity.getString(R.string.jarvis_direct_ai_status,store.configured()?"Key configured":"No key configured",store.model().isEmpty()?"Not selected":store.model(),store.testedAt()==0?"Connection not tested":"Previous test succeeded; not a live status"));}
+ private void section(LinearLayout box,String title){TextView label=text(title,10,GlassUi.MUTED);label.setLetterSpacing(.12f);LinearLayout.LayoutParams p=lp(-1,-2);p.bottomMargin=dp(6);box.addView(label,p);}
+ private void refreshAiStatus(){JarvisKeyStore store=new JarvisKeyStore(activity);aiStatus.setText(!store.configured()?"AI belum disediakan · tindakan TV tetap tersedia":("Groq · "+(store.model().isEmpty()?"Pilih model dalam Settings":store.model())+"\n"+(store.testedAt()==0?"Sambungan belum diuji":"Ujian terdahulu berjaya · bukan status live")));}
  private void updateNetwork(){if(closed)return;snapshot=NetworkSnapshot.read(activity);
-  if(testing&&!testRoute.equals(snapshot.networkKey)){cancelTest();testState.setText("Rangkaian berubah. Sila uji semula.");speed.setText(R.string.jarvis_direct_route_changed);}
+  if(testing&&!testRoute.equals(snapshot.networkKey)){cancelTest();resetTestMeter();testState.setText("Rangkaian berubah. Sila uji semula.");speed.setText(R.string.jarvis_direct_route_changed);}
   if(measuredDownload!=null&&!measuredNetwork.equals(snapshot.networkKey)){measuredDownload=null;speed.setText(R.string.jarvis_direct_network_changed);}
   networkStatus.setText(activity.getString(R.string.jarvis_direct_network_status,snapshot.transport,snapshot.validated?"Internet validated by Android":"Internet not validated"));
   ssidStatus.setText(activity.getString(R.string.jarvis_direct_wifi_status,snapshot.ssid,snapshot.rssi<0?activity.getString(R.string.jarvis_direct_signal_dbm,snapshot.rssi):""));
@@ -80,47 +83,48 @@ final class JarvisPanel {
   vpnStatus.setText(activity.getString(R.string.jarvis_direct_vpn_status,snapshot.vpn?"Detected":"Not detected"));
  }
  private void watchNetwork(){try{cm=(ConnectivityManager)activity.getSystemService(Context.CONNECTIVITY_SERVICE);if(cm==null)return;callback=new ConnectivityManager.NetworkCallback(){public void onAvailable(Network n){handler.post(()->updateNetwork());}public void onLost(Network n){handler.post(()->updateNetwork());}public void onCapabilitiesChanged(Network n,NetworkCapabilities c){handler.post(()->updateNetwork());}};cm.registerDefaultNetworkCallback(callback);}catch(RuntimeException e){callback=null;}}
- private void busy(boolean value){speedButton.setEnabled(!value);aiButton.setEnabled(!value);if(value){speed.setFocusable(true);speed.requestFocus();}else{speed.setFocusable(false);speedButton.requestFocus();}}
- private void openSpeedtest(){
+ private void busy(boolean value){speed.setVisibility(View.VISIBLE);speedButton.setEnabled(!value);aiButton.setEnabled(!value);if(value){speed.setFocusable(true);speed.requestFocus();}else{speed.setFocusable(false);speedButton.requestFocus();}}
+ void openSpeedtest(){speed.setVisibility(View.VISIBLE);
   if(closed||future!=null&&!future.isDone())return;
   if(speedBox==null){
    speedBox=column();speedBox.setPadding(dp(12),dp(12),dp(12),dp(12));((FrameLayout)mainBox.getParent()).addView(speedBox);
    LinearLayout top=new LinearLayout(activity);top.setGravity(Gravity.CENTER_VERTICAL);speedBox.addView(top);
-   top.addView(new Radar(activity),lp(dp(38),dp(38)));TextView heading=text("Jarvis",22,GlassUi.WHITE);heading.setTypeface(null,Typeface.BOLD);LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(0,-2,1);hp.leftMargin=dp(7);top.addView(heading,hp);top.addView(button("Close",()->close()),lp(dp(42),dp(32)));
+   top.addView(new Radar(activity),lp(dp(32),dp(32)));TextView heading=text("Jarvis",22,GlassUi.WHITE);heading.setTypeface(null,Typeface.BOLD);LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(0,-2,1);hp.leftMargin=dp(7);top.addView(heading,hp);top.addView(button("Close",()->close()),lp(dp(62),dp(36)));
    spacer(speedBox,12);speedBox.addView(button("‹ Diagnostik",()->leaveSpeedtest()),lp(-1,dp(30)));line(speedBox);
    TextView title=text("Speedtest",18,GlassUi.WHITE);title.setTypeface(null,Typeface.BOLD);speedBox.addView(title);
-   testState=text("Sedia untuk diuji",11,GlassUi.CYAN);spacer(speedBox,6);speedBox.addView(testState);
-   FrameLayout meterFrame=new FrameLayout(activity);testMeter=new SpeedMeter(activity);meterFrame.addView(testMeter,new FrameLayout.LayoutParams(-1,-1));LinearLayout.LayoutParams mp=lp(dp(118),dp(118));mp.gravity=Gravity.CENTER_HORIZONTAL;mp.topMargin=dp(10);speedBox.addView(meterFrame,mp);
-   testValue=text("—\nMbps",20,GlassUi.WHITE);testValue.setGravity(Gravity.CENTER);meterFrame.addView(testValue,new FrameLayout.LayoutParams(-1,-1));
-   TextView label=text("Kelajuan muat turun",11,GlassUi.WHITE);label.setGravity(Gravity.CENTER);speedBox.addView(label);spacer(speedBox,12);
-   testUsage=text("0 / 100 MiB",12,GlassUi.WHITE);speedBox.addView(testUsage);
-   speedBox.addView(text("Had 100 MiB · Download sahaja · Cloudflare",9,GlassUi.MUTED));spacer(speedBox,10);
-   testStart=button("Mula Speedtest",()->startTest());speedBox.addView(testStart,lp(-1,dp(34)));spacer(speedBox,8);
-   testCancel=button("Batal ujian",()->cancelTest());speedBox.addView(testCancel,lp(-1,dp(30)));testCancel.setEnabled(false);spacer(speedBox,12);
-   speedBox.addView(text("Had 120 saat. Ujian boleh mengganggu streaming. Anggaran satu sambungan, termasuk masa sambungan.",9,GlassUi.MUTED));
+   testState=text("Tekan GO untuk mula",11,GlassUi.CYAN);spacer(speedBox,6);speedBox.addView(testState);
+   FrameLayout meterFrame=new FrameLayout(activity);testMeter=new SpeedMeter(activity);meterFrame.addView(testMeter,new FrameLayout.LayoutParams(-1,-1));LinearLayout.LayoutParams mp=lp(dp(124),dp(124));mp.gravity=Gravity.CENTER_HORIZONTAL;mp.topMargin=dp(10);speedBox.addView(meterFrame,mp);
+   testValue=text("—\nMbps",28,GlassUi.WHITE);testValue.setTypeface(null,Typeface.BOLD);testValue.setGravity(Gravity.CENTER);meterFrame.addView(testValue,new FrameLayout.LayoutParams(-1,-1));
+   TextView label=text("DOWNLOAD · satu sambungan",11,GlassUi.WHITE);label.setGravity(Gravity.CENTER);speedBox.addView(label);spacer(speedBox,12);
+   testUsage=text("Belum diuji · tiada data dimuat turun",11,GlassUi.WHITE);speedBox.addView(testUsage);
+   speedBox.addView(text("Cloudflare · ~10 saat · maksimum 100 MiB",10,GlassUi.MUTED));spacer(speedBox,10);
+   testStart=button("GO",()->startTest());testStart.setTextSize(Math.max(12,18*scale()));testStart.setTypeface(null,Typeface.BOLD);testStart.setContentDescription("GO · Mula ujian download; boleh guna sehingga 100 MiB data");speedBox.addView(testStart,lp(-1,dp(42)));spacer(speedBox,8);
+   testCancel=button("Batal ujian",()->cancelTest());speedBox.addView(testCancel,lp(-1,dp(36)));testCancel.setEnabled(false);spacer(speedBox,12);
+   speedBox.addView(text("Download sahaja. Upload, ping dan jitter belum tersedia. Bukan Ookla / Fast.com.",10,GlassUi.MUTED));spacer(speedBox,6);speedBox.addView(text("Had 120 saat; boleh ganggu streaming.",9,GlassUi.MUTED));
   }
   mainBox.setVisibility(View.GONE);speedBox.setVisibility(View.VISIBLE);scroll.scrollTo(0,0);testStart.requestFocus();
  }
  private void leaveSpeedtest(){cancelTest();speedBox.setVisibility(View.GONE);mainBox.setVisibility(View.VISIBLE);scroll.scrollTo(0,0);speedButton.requestFocus();}
  private void cancelTest(){
-  if(!testing)return;testing=false;testGeneration++;if(probe!=null)probe.cancel();if(future!=null)future.cancel(true);
-  testState.setText("Ujian dibatalkan");testValue.setText("—\nMbps");speed.setText("Speedtest dibatalkan; tiada keputusan baharu.");finishTestUi();
+  if(!testing)return;testing=false;testGeneration++;if(probe!=null)probe.cancel();if(future!=null)future.cancel(true);future=null;
+  resetTestMeter();testState.setText("Ujian dibatalkan");testValue.setText("—\nMbps");speed.setText("Speedtest dibatalkan; tiada keputusan baharu.");finishTestUi();
  }
- private void finishTestUi(){testStart.setEnabled(true);testStart.setText("Mula Speedtest");testCancel.setEnabled(false);speedButton.setEnabled(true);aiButton.setEnabled(true);if(speedBox.getVisibility()==View.VISIBLE)testStart.requestFocus();}
+ private void resetTestMeter(){testMeter.progress=0;testMeter.invalidate();}
+ private void finishTestUi(){testStart.setEnabled(true);testStart.setText("GO");testStart.setContentDescription("GO · Mula atau ulang ujian download; boleh guna sehingga 100 MiB data");testCancel.setEnabled(false);speedButton.setEnabled(true);aiButton.setEnabled(true);if(speedBox.getVisibility()==View.VISIBLE)testStart.requestFocus();}
  private void startTest(){
   if(closed||testing||future!=null&&!future.isDone())return;updateNetwork();testRoute=snapshot.networkKey;
   final String route=testRoute;final int generation=++testGeneration;final SpeedProbe current=probeFactory.get();probe=current;testing=true;testBytes=0;measuredDownload=null;
-  testState.setText("Sedang menguji…");testValue.setText("—\nMbps");testUsage.setText("0 / 100 MiB");testMeter.progress=0;testMeter.invalidate();testStart.setText("Sedang menguji…");testStart.setEnabled(false);testCancel.setEnabled(true);testCancel.requestFocus();speedButton.setEnabled(false);aiButton.setEnabled(false);speed.setText("Measuring download…");
+  testState.setText("DOWNLOAD · Sedang menguji…");testValue.setText("—\nMbps");testUsage.setText("0 / 100 MiB");testMeter.progress=0;testMeter.invalidate();testStart.setText("Menguji…");testStart.setEnabled(false);testCancel.setEnabled(true);testCancel.requestFocus();speedButton.setEnabled(false);aiButton.setEnabled(false);speed.setText("Measuring download…");
   future=worker.submit(()->{
    try{double result=current.run((bytes,seconds)->handler.post(()->{
-    if(closed||generation!=testGeneration||!testing)return;testBytes=bytes;testUsage.setText(String.format(Locale.ENGLISH,"%.1f / 100 MiB",bytes/1048576.0));testMeter.progress=(float)bytes/SpeedProbe.LIMIT;testMeter.invalidate();
+    if(closed||generation!=testGeneration||!testing)return;testBytes=bytes;testUsage.setText(String.format(Locale.ENGLISH,"%.1f / 100 MiB",bytes/1048576.0));testMeter.progress=SpeedProbe.sampleProgress(bytes,seconds);testMeter.invalidate();
     testValue.setText(String.format(Locale.ENGLISH,"%.1f\nMbps",SpeedProbe.mbps(bytes,seconds)));
    }));handler.post(()->{
-    if(closed||generation!=testGeneration)return;testing=false;updateNetwork();finishTestUi();
-    if(!route.equals(snapshot.networkKey)){testState.setText("Rangkaian berubah. Sila uji semula.");testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_route_changed);return;}
+    if(closed||generation!=testGeneration)return;testing=false;future=null;updateNetwork();finishTestUi();
+    if(!route.equals(snapshot.networkKey)){resetTestMeter();testState.setText("Rangkaian berubah. Sila uji semula.");testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_route_changed);return;}
     measuredDownload=result;measuredAt=System.currentTimeMillis();measuredNetwork=route;
-    testBytes=SpeedProbe.LIMIT;testUsage.setText("100 / 100 MiB");testMeter.progress=1;testMeter.invalidate();testState.setText("Selesai · Anggaran download");testValue.setText(String.format(Locale.ENGLISH,"%.1f\nMbps",result));speed.setText(activity.getString(R.string.jarvis_direct_download_estimate,String.format(Locale.ENGLISH,"%.1f",result)));
-   });}catch(Exception e){handler.post(()->{if(closed||generation!=testGeneration)return;testing=false;measuredDownload=null;testState.setText("Ujian gagal / tamat masa. Cuba semula.");testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_download_failed);finishTestUi();});}
+    testBytes=current.sampleBytes();testUsage.setText(testBytes==SpeedProbe.LIMIT?"100 / 100 MiB":String.format(Locale.ENGLISH,"%.2f MiB · %.1f saat · maks 100 MiB",testBytes/1048576.0,current.sampleSeconds()));testMeter.progress=1;testMeter.invalidate();testState.setText("Selesai · Anggaran download");testValue.setText(String.format(Locale.ENGLISH,"%.1f\nMbps",result));speed.setText(activity.getString(R.string.jarvis_direct_download_estimate,String.format(Locale.ENGLISH,"%.1f",result)));
+   });}catch(Exception e){handler.post(()->{if(closed||generation!=testGeneration)return;testing=false;future=null;measuredDownload=null;resetTestMeter();testState.setText("Ujian gagal · "+SpeedProbe.error(e));testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_download_failed);finishTestUi();});}
   });
  }
  private void explainNetwork(){
@@ -136,7 +140,7 @@ final class JarvisPanel {
  }
  private void options(){close();activity.show(new AlertDialog.Builder(activity).setTitle("Jarvis · Options").setItems(new String[]{"Allow Wi-Fi name","Tentang Speedtest","Wi-Fi settings","Network / LAN settings","Light boost","Restore before Boost",activity.startupGreetingEnabled()?"Startup greeting: ON":"Startup greeting: OFF","Play greeting"},(d,i)->{
   if(i==0){if(activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED)activity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION},72);else activity.message("Wi-Fi name","Location permission is granted. Some firmware also requires Location services. Jarvis does not read GPS coordinates.");}
-  else if(i==1)activity.message("Speedtest","Download sahaja, maksimum 100 MiB dari Cloudflare. Tiada upload. Bukan Ookla. Keputusan ialah anggaran satu sambungan, bukan Wi-Fi link speed.");else if(i==2)activity.system(Settings.ACTION_WIFI_SETTINGS);else if(i==3)activity.system(Settings.ACTION_WIRELESS_SETTINGS);
+  else if(i==1)activity.message("Speedtest","Download sahaja, sampel kira-kira 10 saat atau maksimum 100 MiB dari Cloudflare. Had keras 120 saat; jumlah byte sebenar dipaparkan. Tiada upload. Bukan Ookla. Keputusan ialah anggaran satu sambungan, bukan Wi-Fi link speed.");else if(i==2)activity.system(Settings.ACTION_WIFI_SETTINGS);else if(i==3)activity.system(Settings.ACTION_WIRELESS_SETTINGS);
   else if(i==4)activity.show(new AlertDialog.Builder(activity).setTitle("Enable light boost?").setMessage("Pause this launcher's automatic prayer and Places refresh only. Cached data and manual refresh remain. No DNS, router, VPN or bandwidth changes; weather still follows its own refresh policy.").setPositiveButton("Enable",(x,w)->{NetworkFocus.enable(activity);activity.modeChanged();}).setNegativeButton("Cancel",null));
   else if(i==5)activity.show(new AlertDialog.Builder(activity).setTitle("Restore before Boost?").setMessage("Restore saved launcher refresh preferences, not system network settings.").setPositiveButton("Restore",(x,w)->{boolean restored=NetworkFocus.restore(activity);activity.modeChanged();if(!restored)activity.message("Restore","No complete snapshot is available. No settings were changed.");}).setNegativeButton("Cancel",null));
   else if(i==6){activity.toggleStartupGreeting();activity.showJarvis();}else if(i==7)activity.replayWelcome();
@@ -154,7 +158,7 @@ final class JarvisPanel {
  }
  private static final class SpeedMeter extends View {
   private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);float progress;
-  SpeedMeter(Context c){super(c);setContentDescription("Kemajuan download Speedtest");}
+  SpeedMeter(Context c){super(c);setContentDescription("Kemajuan sampel download; bukan peratus kelajuan talian");}
   protected void onDraw(Canvas c){float x=getWidth()/2f,y=getHeight()/2f,r=Math.min(x,y)*.85f;p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(4);p.setColor(0xff173b4b);c.drawCircle(x,y,r,p);p.setColor(GlassUi.CYAN);p.setStrokeCap(Paint.Cap.ROUND);c.drawArc(x-r,y-r,x+r,y+r,-90,Math.max(3,360*progress),false,p);}
  }
  private static final class Radar extends View {

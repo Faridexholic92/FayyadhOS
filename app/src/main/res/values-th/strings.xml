@@ -19,4 +19,31 @@
 
     <string name="tile_move">ย้าย</string>
     <string name="tile_app_info">ข้อมูลแอป</string>
+    <!-- Complete previously missing strings; existing translations are unchanged. -->
+    <string name="vpn">VPN</string>
+    <string name="vpn_off">ปิด VPN</string>
+    <string name="home_settings">หน้าจอหลักเริ่มต้น</string>
+    <string name="home_settings_help">เลือกหน้าจอหลักในการตั้งค่าระบบ แล้วกด Home</string>
+    <string name="input_key_service_description">เปิดตัวเลือกอินพุตเมื่อกดปุ่ม Input บนรีโมต</string>
+    <string name="home_key_name">ปุ่ม Home</string>
+    <string name="home_key_description">ทำให้ปุ่ม Home บนรีโมตเปิดตัวเรียกใช้งานนี้</string>
+    <string name="card_prompt_title">การ์ดใหม่จาก %1$s</string>
+    <string name="card_prompt_body">%1$s สามารถแสดงการ์ดบนหน้าจอหลักได้ การซ่อนการ์ดไว้จะไม่เปลี่ยนไทล์ปกติของแอป</string>
+    <string name="card_prompt_names">การ์ดชื่อ “%1$s” แอปชื่อ “%2$s”</string>
+    <string name="card_prompt_resigned">%1$s อัปเดตโดยใช้คีย์ลงนามอื่น คำตอบเดิมจึงใช้ไม่ได้แล้ว โปรดเลือกเกี่ยวกับการ์ดอีกครั้ง</string>
+    <string name="card_prompt_relabelled">%1$s เปลี่ยนชื่อการ์ดหลังจากที่คุณเลือก โปรดเลือกอีกครั้ง</string>
+    <string name="card_prompt_hint">เปลี่ยนได้ภายหลังโดยกด OK ค้างที่การตั้งค่า</string>
+    <string name="card_prompt_identity">%1$s, คีย์ %2$s</string>
+    <string name="card_keep_hidden">ซ่อนต่อไป</string>
+    <string name="card_show">แสดงการ์ด</string>
+    <string name="card_not_saved">บันทึกตัวเลือกไม่ได้</string>
+    <string name="module_cards">การ์ดโมดูล</string>
+    <string name="no_module_cards">ยังไม่ได้ติดตั้งการ์ดโมดูล</string>
+    <string name="card_app_name">แอป: %1$s</string>
+    <string name="card_state_shown">แสดงอยู่</string>
+    <string name="card_state_over_limit">แสดงอยู่ เกินขีดจำกัด 8 การ์ด</string>
+    <string name="card_state_hidden">ซ่อนอยู่</string>
+    <string name="card_state_new">ใหม่</string>
+    <string name="card_state_new_key">คีย์ใหม่</string>
+    <string name="card_state_new_label">ชื่อใหม่</string>
 </resources>

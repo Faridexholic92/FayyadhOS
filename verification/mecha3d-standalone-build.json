@@ -1,0 +1,29 @@
+{
+  "source_base_commit": "6dd1bf5dc35f9b257037be61de189e2b64a261dd",
+  "recovered_from_session": "4088f2919eb48032a29000a9b9ea65fa",
+  "applicationId": "dev.farred.fayyadhos.tv.jarvis.fix.mecha3dtest",
+  "versionCode": 20,
+  "versionName": "2.11.3-prerender3d-rc",
+  "sha256": "9f16717f2db3efb06a208c831a87b88576f0b5ed638e26a2851220ecc995eef0",
+  "signer_sha256": "dc01df806f0ed2360de3afdd3baad4b79091a4adfcbdef9583b8982b7867168c",
+  "delivery": "Separate debug/test app, not an update to original or GO Preview",
+  "renderer": "Native Canvas with verified pre-rendered 3D atlases; not real-time 3D",
+  "checks_completed": [
+    "APK build",
+    "APK signature verification",
+    "DEX manifest components",
+    "256 baked frames; no clipping in pack audit",
+    "Embedded asset hashes and lengths"
+  ],
+  "physical_tv_tested": false,
+  "full_test_and_lint_status": "passed",
+  "tests": {
+    "tests": 419,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "lint": {
+    "Warning": 88
+  }
+}

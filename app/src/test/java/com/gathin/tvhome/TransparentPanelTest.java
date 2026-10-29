@@ -26,9 +26,19 @@ public class TransparentPanelTest {
     @Test public void focusHasCyanGlowAndIdleHasDarkGlass() {
         android.content.Context ctx=org.robolectric.RuntimeEnvironment.getApplication();
         android.graphics.drawable.StateListDrawable states=GlassUi.states(ctx);
-        states.setState(new int[]{});assertEquals(0xad10212e,((GradientDrawable)states.getCurrent()).getColor().getDefaultColor());
-        states.setState(new int[]{android.R.attr.state_focused});assertTrue(states.getCurrent() instanceof android.graphics.drawable.LayerDrawable);
-        states.setState(new int[]{android.R.attr.state_pressed});assertEquals(0xd0245360,((GradientDrawable)states.getCurrent()).getColor().getDefaultColor());
+        states.setState(new int[]{android.R.attr.state_enabled});
+        assertTrue(states.getCurrent() instanceof GlassMaterial);
+        int idle=drawCenter(states.getCurrent());
+        states.setState(new int[]{android.R.attr.state_enabled,android.R.attr.state_focused});
+        assertTrue(states.getCurrent() instanceof GlassMaterial);
+        int focused=drawCenter(states.getCurrent());assertNotEquals(idle,focused);
+        states.setState(new int[]{android.R.attr.state_enabled,android.R.attr.state_pressed});
+        assertEquals(focused,drawCenter(states.getCurrent()));
+        states.setState(new int[]{});assertTrue(states.getCurrent() instanceof GradientDrawable);
+    }
+    private int drawCenter(android.graphics.drawable.Drawable d){
+        android.graphics.Bitmap bitmap=android.graphics.Bitmap.createBitmap(240,100,android.graphics.Bitmap.Config.ARGB_8888);
+        d.setBounds(0,0,240,100);d.draw(new android.graphics.Canvas(bitmap));int pixel=bitmap.getPixel(120,50);bitmap.recycle();return pixel;
     }
     @Test public void dashboardRetainsFullScreenWallpaperAndSeparateForeground() {
         try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()) {

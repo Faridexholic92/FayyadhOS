@@ -1,0 +1,350 @@
+{
+  "aether-02.glb": {
+    "file_bytes": 5992836,
+    "nodes": 21,
+    "meshes": [
+      {
+        "name": "AETHER_RigidArmor",
+        "primitives": [
+          {
+            "vertices": 29892,
+            "indices": 61725,
+            "joints": true
+          },
+          {
+            "vertices": 699,
+            "indices": 1341,
+            "joints": true
+          },
+          {
+            "vertices": 2884,
+            "indices": 9408,
+            "joints": true
+          },
+          {
+            "vertices": 90,
+            "indices": 228,
+            "joints": true
+          },
+          {
+            "vertices": 90,
+            "indices": 228,
+            "joints": true
+          }
+        ]
+      }
+    ],
+    "skins": [
+      {
+        "name": "AETHER_02_RIG",
+        "bones": 18,
+        "joint_names": [
+          "root",
+          "pelvis",
+          "chest",
+          "head",
+          "shoulder.L",
+          "upper_arm.L",
+          "forearm.L",
+          "hand.L",
+          "shoulder.R",
+          "upper_arm.R",
+          "forearm.R",
+          "hand.R",
+          "thigh.L",
+          "shin.L",
+          "foot.L",
+          "thigh.R",
+          "shin.R",
+          "foot.R"
+        ]
+      }
+    ],
+    "animations": [
+      {
+        "name": "Backflip",
+        "duration": 3.6,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "Collapse",
+        "duration": 3,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "DodgeRoll",
+        "duration": 2.8666666666666667,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "HitChest",
+        "duration": 1.4666666666666666,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "HitHead",
+        "duration": 1.5666666666666667,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "KneelFire",
+        "duration": 8,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "Knockback",
+        "duration": 2.1,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "PunchCombo",
+        "duration": 3.9,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "Run",
+        "duration": 0.9333333333333333,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "Sentinel",
+        "duration": 6,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "Walk",
+        "duration": 1.3333333333333333,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      }
+    ],
+    "materials": [
+      "AETHER white steel \u2014 reactor emission",
+      "AETHER opaque smoked glass \u2014 reactor emission",
+      "AETHER graphite actuators",
+      "AETHER brushed white steel",
+      "AETHER wrist reactor emission"
+    ],
+    "images": 4
+  },
+  "atlas-09.glb": {
+    "file_bytes": 6868744,
+    "nodes": 21,
+    "meshes": [
+      {
+        "name": "ATLAS_Retopology_RigidSections",
+        "primitives": [
+          {
+            "vertices": 39440,
+            "indices": 68529,
+            "joints": true
+          },
+          {
+            "vertices": 2180,
+            "indices": 9588,
+            "joints": true
+          },
+          {
+            "vertices": 462,
+            "indices": 1260,
+            "joints": true
+          },
+          {
+            "vertices": 66,
+            "indices": 180,
+            "joints": true
+          }
+        ]
+      }
+    ],
+    "skins": [
+      {
+        "name": "ATLAS_09_RIG",
+        "bones": 18,
+        "joint_names": [
+          "root",
+          "pelvis",
+          "chest",
+          "head",
+          "shoulder.L",
+          "upper_arm.L",
+          "forearm.L",
+          "hand.L",
+          "shoulder.R",
+          "upper_arm.R",
+          "forearm.R",
+          "hand.R",
+          "thigh.L",
+          "shin.L",
+          "foot.L",
+          "thigh.R",
+          "shin.R",
+          "foot.R"
+        ]
+      }
+    ],
+    "animations": [
+      {
+        "name": "Backflip",
+        "duration": 3.6,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "Collapse",
+        "duration": 3.6,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "HitChest",
+        "duration": 1.5333333333333334,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "HitHead",
+        "duration": 1.6666666666666667,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "KneelFire",
+        "duration": 8,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "Knockback",
+        "duration": 2.4,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "PunchCombo",
+        "duration": 4.7,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "Run",
+        "duration": 1.1333333333333333,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "Sentinel",
+        "duration": 6,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      },
+      {
+        "name": "Walk",
+        "duration": 1.6,
+        "channels": 54,
+        "targets": [
+          "rotation",
+          "scale",
+          "translation"
+        ]
+      }
+    ],
+    "materials": [
+      "Armor_Reactor_Emission",
+      "Joint housings \u2014 blackened steel",
+      "Actuator collars \u2014 worn bronze",
+      "Cannon reactor emission"
+    ],
+    "images": 4
+  }
+}

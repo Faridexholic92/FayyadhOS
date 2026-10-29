@@ -1,0 +1,47 @@
+{
+  "upstream_commit": "1b8fb9d54160215c071c5a29a49b1c36dc01f0df",
+  "files": [
+    {
+      "path": "licenses/ASSET-LICENSE.md",
+      "source": "https://raw.githubusercontent.com/RamonLinares/atlas-09/1b8fb9d54160215c071c5a29a49b1c36dc01f0df/ASSET-LICENSE.md",
+      "bytes": 2062,
+      "sha256": "01a882e832c7b43a78cd468efaf903b4969b85db754d3f9978d0b243bd649126"
+    },
+    {
+      "path": "licenses/UPSTREAM-LICENSE",
+      "source": "https://raw.githubusercontent.com/RamonLinares/atlas-09/1b8fb9d54160215c071c5a29a49b1c36dc01f0df/LICENSE",
+      "bytes": 1070,
+      "sha256": "bbda47eb9d356da7468a9a35003f3dbe8e76cdacd988fa73159443225272878b"
+    },
+    {
+      "path": "licenses/PRODUCTION-READINESS.md",
+      "source": "https://raw.githubusercontent.com/RamonLinares/atlas-09/1b8fb9d54160215c071c5a29a49b1c36dc01f0df/PRODUCTION-READINESS.md",
+      "bytes": 8819,
+      "sha256": "709dde849797b185e0291ea28943e2f39c79d2e97714ac9f62aaa10631a05346"
+    },
+    {
+      "path": "licenses/ANIMATION-PROVENANCE.md",
+      "source": "https://raw.githubusercontent.com/RamonLinares/atlas-09/1b8fb9d54160215c071c5a29a49b1c36dc01f0df/assets/animations/quaternius/README.md",
+      "bytes": 3880,
+      "sha256": "5cc074b5ca7b0cbeb9d3a3df96b9bf3d17de75384417fb3c75f44a58ec5a4b0b"
+    },
+    {
+      "path": "assets/atlas-09.glb",
+      "source": "https://raw.githubusercontent.com/RamonLinares/atlas-09/1b8fb9d54160215c071c5a29a49b1c36dc01f0df/public/models/atlas-09.glb",
+      "bytes": 6868744,
+      "sha256": "e9e5ec9ffe17fa447992ce0a50f87a5023e6bb8e12bff554c23c130149cedb47"
+    },
+    {
+      "path": "assets/aether-02.glb",
+      "source": "https://raw.githubusercontent.com/RamonLinares/atlas-09/1b8fb9d54160215c071c5a29a49b1c36dc01f0df/public/models/aether-02.glb",
+      "bytes": 5992836,
+      "sha256": "ed91ecddff69d3de088e475dcf529a5ab410d04b5c61ddb394ed29f482e8ce41"
+    },
+    {
+      "path": "licenses/CC0-1.0.txt",
+      "source": "https://raw.githubusercontent.com/RamonLinares/atlas-09/1b8fb9d54160215c071c5a29a49b1c36dc01f0df/LICENSES/CC0-1.0.txt",
+      "bytes": 7048,
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+    }
+  ]
+}

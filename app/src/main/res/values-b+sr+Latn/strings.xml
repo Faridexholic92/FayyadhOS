@@ -25,4 +25,24 @@
     <string name="home_key_description">Dugme Home na daljinskom otvara ovaj početni ekran.</string>
     <string name="tile_move">Premesti</string>
     <string name="tile_app_info">Informacije o aplikaciji</string>
+    <!-- Complete previously missing strings; existing translations are unchanged. -->
+    <string name="card_prompt_title">Nova kartica iz aplikacije %1$s</string>
+    <string name="card_prompt_body">%1$s može da prikaže karticu na početnom ekranu. Ako ostane skrivena, uobičajena pločica aplikacije ostaje nepromenjena.</string>
+    <string name="card_prompt_names">Kartica se zove „%1$s“. Aplikacija se zove „%2$s“.</string>
+    <string name="card_prompt_resigned">%1$s je ažurirana sa drugim ključem za potpisivanje, pa prethodni odgovor više ne važi. Odlučite ponovo o kartici.</string>
+    <string name="card_prompt_relabelled">%1$s je promenila naziv kartice od vaše odluke. Odlučite ponovo.</string>
+    <string name="card_prompt_hint">Ovo možete promeniti kasnije: držite OK na Podešavanjima.</string>
+    <string name="card_prompt_identity">%1$s, ključ %2$s</string>
+    <string name="card_keep_hidden">Ostavi skriveno</string>
+    <string name="card_show">Prikaži karticu</string>
+    <string name="card_not_saved">Izbor nije sačuvan</string>
+    <string name="module_cards">Kartice modula</string>
+    <string name="no_module_cards">Nema instaliranih kartica modula</string>
+    <string name="card_app_name">Aplikacija: %1$s</string>
+    <string name="card_state_shown">Prikazano</string>
+    <string name="card_state_over_limit">Prikazano, preko ograničenja od 8</string>
+    <string name="card_state_hidden">Skriveno</string>
+    <string name="card_state_new">Novo</string>
+    <string name="card_state_new_key">Novi ključ</string>
+    <string name="card_state_new_label">Novi naziv</string>
 </resources>
