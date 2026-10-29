@@ -64,6 +64,26 @@ public class PremiumHomeTest {
  @Test @org.robolectric.annotation.Config(qualifiers="w1920dp-h1080dp-land-xhdpi") public void native4k()throws Exception{preview(3840,2160,"premium-home-4k",false,false);}
  @Test public void birthday1080()throws Exception{preview(1920,1080,"premium-birthday-1080",true,false);}
 
+ @Test public void birthdaySceneContinuesAndDrawsSpritesAfterConfettiWindow()throws Exception {
+  try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
+   PremiumSceneView s=scene(c.get());
+   s.configure(true,true,2);
+   field(s,"partyStarted",SystemClock.uptimeMillis()-11_000L);
+   assertTrue("Confetti expiry must not stop the Birthday character loop",s.canAnimate());
+   field(s,"elapsed",1_000L);
+   s.layout(0,0,960,540);
+   Bitmap frame=Bitmap.createBitmap(960,540,Bitmap.Config.ARGB_8888);
+   try{
+    s.draw(new Canvas(frame));
+    int papaPixels=0;
+    for(int y=170;y<415;y++)for(int x=285;x<460;x++)if(Color.alpha(frame.getPixel(x,y))>0)papaPixels++;
+    int boyPixels=0;
+    for(int y=220;y<420;y++)for(int x=520;x<700;x++)if(Color.alpha(frame.getPixel(x,y))>0)boyPixels++;
+    assertTrue("Birthday theme must keep drawing PapaZola after confetti expires",papaPixels>100);
+    assertTrue("Birthday theme must keep drawing BoBoiBoy after confetti expires",boyPixels>100);
+   }finally{frame.recycle();}
+  }
+ }
  @Test public void characterPathHasSmoothBoundariesAndShorterLoop() {
   assertEquals(0f,PremiumSceneView.approachAt(0),0.0001f);
   assertEquals(1f,PremiumSceneView.approachAt(2400),0.0001f);

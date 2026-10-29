@@ -79,10 +79,9 @@ final class PremiumSceneView extends View {
     void audioBusy(boolean value) { audioBusy = value; sync(); }
 
     boolean canAnimate() {
-        boolean birthdayConfettiActive = !birthday
-                || (SystemClock.uptimeMillis() - partyStarted < BIRTHDAY_CONFETTI_MS);
+        // Confetti has its own ten-second lifetime; it must not stop the character loop.
         return !closed && enabled && active && interactive && !obscured && !audioBusy
-                && quality > 0 && birthdayConfettiActive && isAttachedToWindow()
+                && quality > 0 && isAttachedToWindow()
                 && RainOptions.prefs(getContext()).getBoolean("moving", true)
                 && Settings.Global.getFloat(getContext().getContentResolver(),
                         Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0;
@@ -181,11 +180,8 @@ final class PremiumSceneView extends View {
 
         int save = c.save();
         c.scale(getWidth() / 960f, getHeight() / 540f);
-        if (birthday) {
-            drawConfetti(c);
-            c.restoreToCount(save);
-            return;
-        }
+        // Birthday confetti expires independently. Keep drawing the characters afterward.
+        if (birthday) drawConfetti(c);
         if (atlas == null) {
             c.restoreToCount(save);
             return;
