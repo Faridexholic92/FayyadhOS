@@ -51,6 +51,38 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
+      - name: Smoke-test launcher on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: |
+            set -eu
+            mkdir -p emulator-output
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -W -n dev.farred.fayyadhos.tv.jarvis.fix/com.gathin.tvhome.DashboardActivity
+            sleep 3
+            adb shell screencap -p /sdcard/fayyadhos-home.png
+            adb pull /sdcard/fayyadhos-home.png emulator-output/fayyadhos-home.png
+            adb shell screenrecord --time-limit 12 --bit-rate 4000000 /sdcard/fayyadhos-animation.mp4
+            adb pull /sdcard/fayyadhos-animation.mp4 emulator-output/fayyadhos-animation.mp4
+            adb logcat -d -t 8000 > emulator-output/logcat.txt
+            adb shell dumpsys activity activities > emulator-output/activities.txt
+            grep -F 'com.gathin.tvhome.DashboardActivity' emulator-output/activities.txt
+
+      - name: Upload emulator smoke-test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: FayyadhOS-emulator-smoke
+          path: emulator-output/
+          if-no-files-found: ignore
+          retention-days: 90
+
       - name: Run unit tests and compile release sources
         run: bash ./gradlew --no-daemon :app:testDebugUnitTest :app:compileReleaseJavaWithJavac
 
