@@ -22,16 +22,16 @@ public class MiniMechaTest {
   try(var a=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
    helper.render(a.get(),1920,1080);MiniMechaView v=robot(a.get());assertTrue(v.running());
    AlertDialog one=a.get().show(new AlertDialog.Builder(a.get()).setTitle("One"));AlertDialog two=a.get().show(new AlertDialog.Builder(a.get()).setTitle("Two"));assertFalse(v.frameScheduled());assertEquals(View.GONE,v.getVisibility());
-   one.dismiss();tick(60);assertFalse(v.frameScheduled());two.dismiss();tick(60);assertTrue(v.running());
+   one.dismiss();tick(60);assertFalse(v.frameScheduled());two.dismiss();tick(60);JarvisRepairTest.await(v::running);
    a.get().sendBroadcast(new Intent(Intent.ACTION_SCREEN_OFF));tick(60);long stopped=v.callbacks;tick(300);assertEquals(stopped,v.callbacks);assertFalse(v.frameScheduled());
-   a.get().sendBroadcast(new Intent(Intent.ACTION_SCREEN_ON));tick(60);assertTrue(v.running());
-   a.pause();stopped=v.callbacks;tick(300);assertEquals(stopped,v.callbacks);a.resume();assertTrue(v.running());v.destroy();stopped=v.callbacks;tick(300);assertEquals(stopped,v.callbacks);
+   a.get().sendBroadcast(new Intent(Intent.ACTION_SCREEN_ON));tick(60);JarvisRepairTest.await(v::running);
+   a.pause();stopped=v.callbacks;tick(300);assertEquals(stopped,v.callbacks);a.resume();JarvisRepairTest.await(v::running);v.destroy();stopped=v.callbacks;tick(300);assertEquals(stopped,v.callbacks);
   }
  }
  @Test public void offPersistsWithoutAffectingWeatherOrArtwork()throws Exception{
   Context c=RuntimeEnvironment.getApplication();c.getSharedPreferences("hourly-weather",0).edit().putString("label","Keep weather").commit();c.getSharedPreferences(AppArtwork.PREFS,0).edit().putString("pack","keep.pack").commit();
   try(var a=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
-   helper.render(a.get(),1920,1080);MiniMechaView v=robot(a.get());a.get().settings();AlertDialog d=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();assertEquals("Mini robot · ON",d.getListView().getItemAtPosition(16));d.getListView().performItemClick(null,16,16);d.dismiss();tick(60);assertFalse(v.featureEnabled());assertFalse(v.frameScheduled());assertEquals(View.GONE,v.getVisibility());
+   helper.render(a.get(),1920,1080);MiniMechaView v=robot(a.get());a.get().settings();AlertDialog d=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();assertEquals("Mini robot · Pra-render 3D · ON",d.getListView().getItemAtPosition(16));d.getListView().performItemClick(null,16,16);d.dismiss();tick(60);assertFalse(v.featureEnabled());assertFalse(v.frameScheduled());assertEquals(View.GONE,v.getVisibility());
   }
   try(var a=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){helper.render(a.get(),1920,1080);assertFalse(robot(a.get()).featureEnabled());assertFalse(robot(a.get()).running());}
   assertEquals("Keep weather",c.getSharedPreferences("hourly-weather",0).getString("label",""));assertEquals("keep.pack",c.getSharedPreferences(AppArtwork.PREFS,0).getString("pack",""));
@@ -57,7 +57,7 @@ public class MiniMechaTest {
  @Test public void captureAndroidAnimationFrames()throws Exception{
   helper.demoApps();helper.seedApiCache();try(var a=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
    View root=helper.render(a.get(),1920,1080);MiniMechaView v=robot(a.get());java.io.File folder=new java.io.File(System.getProperty("user.dir"),"build/mecha/video");folder.mkdirs();
-   v.featureEnabled(false);helper.capture(root,"mecha/video/base");v.featureEnabled(true);
+   v.featureEnabled(false);helper.capture(root,"mecha/video/base");v.featureEnabled(true);JarvisRepairTest.await(v::running);
    Bitmap b=Bitmap.createBitmap(v.getWidth(),v.getHeight(),Bitmap.Config.ARGB_8888);Canvas c=new Canvas(b);
    for(int i=0;i<400;i++){b.eraseColor(Color.TRANSPARENT);v.previewAt(i*50L);v.draw(c);try(var out=new java.io.FileOutputStream(new java.io.File(folder,String.format(java.util.Locale.ROOT,"%03d.png",i)))){b.compress(Bitmap.CompressFormat.PNG,100,out);}}
    b.recycle();assertTrue(v.running());
