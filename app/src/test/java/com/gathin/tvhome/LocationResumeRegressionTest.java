@@ -39,7 +39,7 @@ public class LocationResumeRegressionTest {
  @Test public void settingsExposeDirectDetectionAndSpeedtest()throws Exception{try(var a=Robolectric.buildActivity(DashboardActivity.class).setup()){
   a.get().settings();AlertDialog settings=ShadowAlertDialog.getLatestAlertDialog();assertEquals("Detect lokasi cuaca",settings.getListView().getItemAtPosition(14));assertEquals("Speedtest · Download",settings.getListView().getItemAtPosition(15));
   settings.getListView().performItemClick(null,14,14);assertTrue(Shadows.shadowOf(ShadowAlertDialog.getLatestAlertDialog()).getMessage().toString().contains("Open-Meteo"));
-  a.get().showSpeedtest();android.app.Dialog d=org.robolectric.shadows.ShadowDialog.getLatestDialog();assertNotNull(JarvisRepairTest.find(d.getWindow().getDecorView(),"Mula Speedtest"));d.dismiss();
+  a.get().showSpeedtest();android.app.Dialog d=org.robolectric.shadows.ShadowDialog.getLatestDialog();assertNotNull(JarvisRepairTest.find(d.getWindow().getDecorView(),"GO"));d.dismiss();
  }}
  @Test public void speedDeadlineErrorExplainsTimeoutInsteadOfGenericEndpoint(){assertTrue(SpeedProbe.error(new IOException("Had masa keseluruhan 120 saat dicapai")).contains("120"));}
 }

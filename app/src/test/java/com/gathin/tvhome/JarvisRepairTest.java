@@ -89,7 +89,7 @@ public class JarvisRepairTest {
  }}
  @Test public void closingDuringDownloadCancelsProbeAndWorkerWithoutAiOrStaleUi()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
   fixture.render(c.get(),1920,1080);FakeAi ai=new FakeAi();JarvisSpeedtestTest.Controlled conn=new JarvisSpeedtestTest.Controlled();JarvisPanel panel=new JarvisPanel(c.get(),ai,()->new SpeedProbe(()->conn));panel.show();find(ShadowDialog.getLatestDialog().getWindow().getDecorView(),"Speedtest").performClick();
-  find(ShadowDialog.getLatestDialog().getWindow().getDecorView(),"Mula Speedtest").performClick();
+  find(ShadowDialog.getLatestDialog().getWindow().getDecorView(),"GO").performClick();
   TextView result=(TextView)field(panel,"speed");assertEquals("Measuring download…",result.getText().toString());panel.close();assertEquals(true,field(field(panel,"probe"),"cancelled"));assertTrue(((Future<?>)field(panel,"future")).isCancelled());
   assertTrue(((ExecutorService)field(panel,"worker")).awaitTermination(12,TimeUnit.SECONDS));pump();assertEquals(0,ai.calls.get());assertEquals("Measuring download…",result.getText().toString());assertEquals(View.VISIBLE,home(c.get()).getVisibility());
  }}

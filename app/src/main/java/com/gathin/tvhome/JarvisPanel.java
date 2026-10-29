@@ -75,7 +75,7 @@ final class JarvisPanel {
  private void section(LinearLayout box,String title){TextView label=text(title,10,GlassUi.MUTED);label.setLetterSpacing(.12f);LinearLayout.LayoutParams p=lp(-1,-2);p.bottomMargin=dp(6);box.addView(label,p);}
  private void refreshAiStatus(){JarvisKeyStore store=new JarvisKeyStore(activity);aiStatus.setText(!store.configured()?"AI belum disediakan · tindakan TV tetap tersedia":("Groq · "+(store.model().isEmpty()?"Pilih model dalam Settings":store.model())+"\n"+(store.testedAt()==0?"Sambungan belum diuji":"Ujian terdahulu berjaya · bukan status live")));}
  private void updateNetwork(){if(closed)return;snapshot=NetworkSnapshot.read(activity);
-  if(testing&&!testRoute.equals(snapshot.networkKey)){cancelTest();testState.setText("Rangkaian berubah. Sila uji semula.");speed.setText(R.string.jarvis_direct_route_changed);}
+  if(testing&&!testRoute.equals(snapshot.networkKey)){cancelTest();resetTestMeter();testState.setText("Rangkaian berubah. Sila uji semula.");speed.setText(R.string.jarvis_direct_route_changed);}
   if(measuredDownload!=null&&!measuredNetwork.equals(snapshot.networkKey)){measuredDownload=null;speed.setText(R.string.jarvis_direct_network_changed);}
   networkStatus.setText(activity.getString(R.string.jarvis_direct_network_status,snapshot.transport,snapshot.validated?"Internet validated by Android":"Internet not validated"));
   ssidStatus.setText(activity.getString(R.string.jarvis_direct_wifi_status,snapshot.ssid,snapshot.rssi<0?activity.getString(R.string.jarvis_direct_signal_dbm,snapshot.rssi):""));
@@ -92,38 +92,39 @@ final class JarvisPanel {
    top.addView(new Radar(activity),lp(dp(32),dp(32)));TextView heading=text("Jarvis",22,GlassUi.WHITE);heading.setTypeface(null,Typeface.BOLD);LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(0,-2,1);hp.leftMargin=dp(7);top.addView(heading,hp);top.addView(button("Close",()->close()),lp(dp(62),dp(36)));
    spacer(speedBox,12);speedBox.addView(button("‹ Diagnostik",()->leaveSpeedtest()),lp(-1,dp(30)));line(speedBox);
    TextView title=text("Speedtest",18,GlassUi.WHITE);title.setTypeface(null,Typeface.BOLD);speedBox.addView(title);
-   testState=text("Sedia untuk diuji",11,GlassUi.CYAN);spacer(speedBox,6);speedBox.addView(testState);
-   FrameLayout meterFrame=new FrameLayout(activity);testMeter=new SpeedMeter(activity);meterFrame.addView(testMeter,new FrameLayout.LayoutParams(-1,-1));LinearLayout.LayoutParams mp=lp(dp(118),dp(118));mp.gravity=Gravity.CENTER_HORIZONTAL;mp.topMargin=dp(10);speedBox.addView(meterFrame,mp);
-   testValue=text("—\nMbps",20,GlassUi.WHITE);testValue.setGravity(Gravity.CENTER);meterFrame.addView(testValue,new FrameLayout.LayoutParams(-1,-1));
-   TextView label=text("Kelajuan muat turun",11,GlassUi.WHITE);label.setGravity(Gravity.CENTER);speedBox.addView(label);spacer(speedBox,12);
-   testUsage=text("0 / 100 MiB",12,GlassUi.WHITE);speedBox.addView(testUsage);
-   speedBox.addView(text("Sampel ~10 saat · Maks 100 MiB · Cloudflare",9,GlassUi.MUTED));spacer(speedBox,10);
-   testStart=button("Mula Speedtest",()->startTest());speedBox.addView(testStart,lp(-1,dp(34)));spacer(speedBox,8);
-   testCancel=button("Batal ujian",()->cancelTest());speedBox.addView(testCancel,lp(-1,dp(30)));testCancel.setEnabled(false);spacer(speedBox,12);
-   speedBox.addView(text("Had keras 120 saat. Ujian boleh mengganggu streaming. Anggaran satu sambungan, termasuk masa sambungan.",9,GlassUi.MUTED));
+   testState=text("Tekan GO untuk mula",11,GlassUi.CYAN);spacer(speedBox,6);speedBox.addView(testState);
+   FrameLayout meterFrame=new FrameLayout(activity);testMeter=new SpeedMeter(activity);meterFrame.addView(testMeter,new FrameLayout.LayoutParams(-1,-1));LinearLayout.LayoutParams mp=lp(dp(124),dp(124));mp.gravity=Gravity.CENTER_HORIZONTAL;mp.topMargin=dp(10);speedBox.addView(meterFrame,mp);
+   testValue=text("—\nMbps",28,GlassUi.WHITE);testValue.setTypeface(null,Typeface.BOLD);testValue.setGravity(Gravity.CENTER);meterFrame.addView(testValue,new FrameLayout.LayoutParams(-1,-1));
+   TextView label=text("DOWNLOAD · satu sambungan",11,GlassUi.WHITE);label.setGravity(Gravity.CENTER);speedBox.addView(label);spacer(speedBox,12);
+   testUsage=text("Belum diuji · tiada data dimuat turun",11,GlassUi.WHITE);speedBox.addView(testUsage);
+   speedBox.addView(text("Cloudflare · ~10 saat · maksimum 100 MiB",10,GlassUi.MUTED));spacer(speedBox,10);
+   testStart=button("GO",()->startTest());testStart.setTextSize(Math.max(12,18*scale()));testStart.setTypeface(null,Typeface.BOLD);testStart.setContentDescription("GO · Mula ujian download; boleh guna sehingga 100 MiB data");speedBox.addView(testStart,lp(-1,dp(42)));spacer(speedBox,8);
+   testCancel=button("Batal ujian",()->cancelTest());speedBox.addView(testCancel,lp(-1,dp(36)));testCancel.setEnabled(false);spacer(speedBox,12);
+   speedBox.addView(text("Download sahaja. Upload, ping dan jitter belum tersedia. Bukan Ookla / Fast.com.",10,GlassUi.MUTED));spacer(speedBox,6);speedBox.addView(text("Had 120 saat; boleh ganggu streaming.",9,GlassUi.MUTED));
   }
   mainBox.setVisibility(View.GONE);speedBox.setVisibility(View.VISIBLE);scroll.scrollTo(0,0);testStart.requestFocus();
  }
  private void leaveSpeedtest(){cancelTest();speedBox.setVisibility(View.GONE);mainBox.setVisibility(View.VISIBLE);scroll.scrollTo(0,0);speedButton.requestFocus();}
  private void cancelTest(){
   if(!testing)return;testing=false;testGeneration++;if(probe!=null)probe.cancel();if(future!=null)future.cancel(true);future=null;
-  testState.setText("Ujian dibatalkan");testValue.setText("—\nMbps");speed.setText("Speedtest dibatalkan; tiada keputusan baharu.");finishTestUi();
+  resetTestMeter();testState.setText("Ujian dibatalkan");testValue.setText("—\nMbps");speed.setText("Speedtest dibatalkan; tiada keputusan baharu.");finishTestUi();
  }
- private void finishTestUi(){testStart.setEnabled(true);testStart.setText("Mula Speedtest");testCancel.setEnabled(false);speedButton.setEnabled(true);aiButton.setEnabled(true);if(speedBox.getVisibility()==View.VISIBLE)testStart.requestFocus();}
+ private void resetTestMeter(){testMeter.progress=0;testMeter.invalidate();}
+ private void finishTestUi(){testStart.setEnabled(true);testStart.setText("GO");testStart.setContentDescription("GO · Mula atau ulang ujian download; boleh guna sehingga 100 MiB data");testCancel.setEnabled(false);speedButton.setEnabled(true);aiButton.setEnabled(true);if(speedBox.getVisibility()==View.VISIBLE)testStart.requestFocus();}
  private void startTest(){
   if(closed||testing||future!=null&&!future.isDone())return;updateNetwork();testRoute=snapshot.networkKey;
   final String route=testRoute;final int generation=++testGeneration;final SpeedProbe current=probeFactory.get();probe=current;testing=true;testBytes=0;measuredDownload=null;
-  testState.setText("Sedang menguji…");testValue.setText("—\nMbps");testUsage.setText("0 / 100 MiB");testMeter.progress=0;testMeter.invalidate();testStart.setText("Sedang menguji…");testStart.setEnabled(false);testCancel.setEnabled(true);testCancel.requestFocus();speedButton.setEnabled(false);aiButton.setEnabled(false);speed.setText("Measuring download…");
+  testState.setText("DOWNLOAD · Sedang menguji…");testValue.setText("—\nMbps");testUsage.setText("0 / 100 MiB");testMeter.progress=0;testMeter.invalidate();testStart.setText("Menguji…");testStart.setEnabled(false);testCancel.setEnabled(true);testCancel.requestFocus();speedButton.setEnabled(false);aiButton.setEnabled(false);speed.setText("Measuring download…");
   future=worker.submit(()->{
    try{double result=current.run((bytes,seconds)->handler.post(()->{
-    if(closed||generation!=testGeneration||!testing)return;testBytes=bytes;testUsage.setText(String.format(Locale.ENGLISH,"%.1f / 100 MiB",bytes/1048576.0));testMeter.progress=(float)bytes/SpeedProbe.LIMIT;testMeter.invalidate();
+    if(closed||generation!=testGeneration||!testing)return;testBytes=bytes;testUsage.setText(String.format(Locale.ENGLISH,"%.1f / 100 MiB",bytes/1048576.0));testMeter.progress=SpeedProbe.sampleProgress(bytes,seconds);testMeter.invalidate();
     testValue.setText(String.format(Locale.ENGLISH,"%.1f\nMbps",SpeedProbe.mbps(bytes,seconds)));
    }));handler.post(()->{
     if(closed||generation!=testGeneration)return;testing=false;future=null;updateNetwork();finishTestUi();
-    if(!route.equals(snapshot.networkKey)){testState.setText("Rangkaian berubah. Sila uji semula.");testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_route_changed);return;}
+    if(!route.equals(snapshot.networkKey)){resetTestMeter();testState.setText("Rangkaian berubah. Sila uji semula.");testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_route_changed);return;}
     measuredDownload=result;measuredAt=System.currentTimeMillis();measuredNetwork=route;
     testBytes=current.sampleBytes();testUsage.setText(testBytes==SpeedProbe.LIMIT?"100 / 100 MiB":String.format(Locale.ENGLISH,"%.2f MiB · %.1f saat · maks 100 MiB",testBytes/1048576.0,current.sampleSeconds()));testMeter.progress=1;testMeter.invalidate();testState.setText("Selesai · Anggaran download");testValue.setText(String.format(Locale.ENGLISH,"%.1f\nMbps",result));speed.setText(activity.getString(R.string.jarvis_direct_download_estimate,String.format(Locale.ENGLISH,"%.1f",result)));
-   });}catch(Exception e){handler.post(()->{if(closed||generation!=testGeneration)return;testing=false;future=null;measuredDownload=null;testState.setText("Ujian gagal · "+SpeedProbe.error(e));testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_download_failed);finishTestUi();});}
+   });}catch(Exception e){handler.post(()->{if(closed||generation!=testGeneration)return;testing=false;future=null;measuredDownload=null;resetTestMeter();testState.setText("Ujian gagal · "+SpeedProbe.error(e));testValue.setText("—\nMbps");speed.setText(R.string.jarvis_direct_download_failed);finishTestUi();});}
   });
  }
  private void explainNetwork(){
@@ -157,7 +158,7 @@ final class JarvisPanel {
  }
  private static final class SpeedMeter extends View {
   private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);float progress;
-  SpeedMeter(Context c){super(c);setContentDescription("Kemajuan download Speedtest");}
+  SpeedMeter(Context c){super(c);setContentDescription("Kemajuan sampel download; bukan peratus kelajuan talian");}
   protected void onDraw(Canvas c){float x=getWidth()/2f,y=getHeight()/2f,r=Math.min(x,y)*.85f;p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(4);p.setColor(0xff173b4b);c.drawCircle(x,y,r,p);p.setColor(GlassUi.CYAN);p.setStrokeCap(Paint.Cap.ROUND);c.drawArc(x-r,y-r,x+r,y+r,-90,Math.max(3,360*progress),false,p);}
  }
  private static final class Radar extends View {

@@ -24,6 +24,13 @@ final class SpeedProbe {
  SpeedProbe(ConnectionFactory factory,int chunk){this(factory,chunk,System::nanoTime);}
  SpeedProbe(ConnectionFactory factory,int chunk,java.util.function.LongSupplier nanoTime){if(chunk<=0||LIMIT%chunk!=0)throw new IllegalArgumentException("Invalid chunk");this.factory=factory;this.chunk=chunk;this.nanoTime=nanoTime;}
  static String endpoint(int bytes){if(bytes<=0||bytes>CHUNK)throw new IllegalArgumentException("Request too large");return "https://speed.cloudflare.com/__down?bytes="+bytes;}
+ // The sample completes at the time target + minimum bytes, or at the data cap.
+ // Do not present bytes/100 MiB as progress when a short sample can finish first.
+ static float sampleProgress(long bytes,double seconds){
+  if(bytes<=0||seconds<=0||!Double.isFinite(seconds))return 0;
+  double timed=Math.min(bytes/(double)MIN_SAMPLE_BYTES,seconds/10.0);
+  return (float)Math.min(1,Math.max(bytes/(double)LIMIT,timed));
+ }
  static double mbps(long bytes,double seconds){if(bytes<=0||seconds<=0||!Double.isFinite(seconds))throw new IllegalArgumentException("Invalid sample");return bytes*8.0/seconds/1000000.0;}
  double run()throws Exception{return run((bytes,seconds)->{});}
  double run(Progress progress)throws Exception{
