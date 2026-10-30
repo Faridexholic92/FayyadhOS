@@ -162,14 +162,14 @@ class HomeActivity : Activity() {
 
         val timeBox = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_END
+            gravity = (Gravity.END or Gravity.CENTER_VERTICAL)
             setPadding(0, 0, dp(18), 0)
         }
         clockText = text("--:--", 23f, Color.WHITE, true).apply {
-            gravity = Gravity.CENTER_END
+            gravity = (Gravity.END or Gravity.CENTER_VERTICAL)
         }
         dateText = text("Loading date…", 10f, MUTED, false).apply {
-            gravity = Gravity.CENTER_END
+            gravity = (Gravity.END or Gravity.CENTER_VERTICAL)
         }
         timeBox.addView(clockText)
         timeBox.addView(dateText)
@@ -207,7 +207,7 @@ class HomeActivity : Activity() {
             item.addView(text(prayer, 12f, if (index == 0) CYAN else TEXT, index == 0),
                 LinearLayout.LayoutParams(0, -1, 1f))
             item.addView(text("--:--", 12f, Color.WHITE, true).apply {
-                gravity = Gravity.CENTER_END
+                gravity = (Gravity.END or Gravity.CENTER_VERTICAL)
             })
             content.addView(item, LinearLayout.LayoutParams(-1, dp(27)))
             if (index != prayerNames.lastIndex) {
@@ -287,7 +287,7 @@ class HomeActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
             setPadding(dp(8), dp(8), dp(8), dp(8))
-            background = roundedBackground(colors, Color.argb(105, accent), 18)
+            background = roundedBackground(colors, Color.argb(105, Color.red(accent), Color.green(accent), Color.blue(accent)), 18)
         }
         val orb = TextView(this).apply {
             text = initial
@@ -365,7 +365,7 @@ class HomeActivity : Activity() {
         row.addView(text("APLIKASI ANDA", 11f, CYAN, true),
             LinearLayout.LayoutParams(0, -1, 1f))
         appCountText = text("Mencari aplikasi…", 10f, MUTED, false).apply {
-            gravity = Gravity.CENTER_END
+            gravity = (Gravity.END or Gravity.CENTER_VERTICAL)
         }
         row.addView(appCountText)
         return row
