@@ -17,6 +17,8 @@ final class PremiumSceneView extends View {
 
     private final Choreographer choreographer = Choreographer.getInstance();
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+    private final Paint groundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Shader groundShade = new RadialGradient(0,0,1f,new int[]{0x99030b10,0x4d030b10,0x00030b10},new float[]{0f,.4f,1f},Shader.TileMode.CLAMP);
     private final Rect src = new Rect();
     private final RectF dest = new RectF();
     private final WallpaperDissolveView wallpaper;
@@ -65,7 +67,7 @@ final class PremiumSceneView extends View {
         } catch (java.io.IOException ignored) {
             // The home screen remains usable if optional animation artwork is missing.
         }
-        try (java.io.InputStream in = c.getAssets().open("premium/heroes-pose.webp")) {
+        try (java.io.InputStream in = c.getAssets().open("premium/heroes-blended.webp")) {
             poseAtlas = BitmapFactory.decodeStream(in);
         } catch (java.io.IOException ignored) {
             // Falls back to the free-run sprites below.
@@ -207,13 +209,9 @@ final class PremiumSceneView extends View {
     }
 
     private void groundShadow(Canvas c, float x, float ground, float width, float hop) {
-        float spread = Math.max(0.58f, 1f - hop / 22f);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(0x50020a12);
-        c.drawOval(x - width * spread, ground - 2f, x + width * spread, ground + 5f, paint);
-        paint.setColor(0x26020a12);
-        c.drawOval(x - width * .62f * spread, ground - 1f, x + width * .62f * spread, ground + 3f, paint);
-        paint.setColor(Color.WHITE);
+        float spread=Math.max(.58f,1f-hop/22f);
+        int save=c.save();c.translate(x-8f,ground+1f);c.scale(width*spread,9f);
+        groundPaint.setShader(groundShade);c.drawCircle(0,0,1f,groundPaint);c.restoreToCount(save);
     }
 
     private void sprite(Canvas c, int row, int cell, float x, float ground,
@@ -227,8 +225,10 @@ final class PremiumSceneView extends View {
         c.rotate(leanDegrees, x, pivotY);
         if (mirror) c.scale(-1f, 1f, x, pivotY);
         paint.setAlpha(255);
+        paint.setColorFilter(wallpaper.getColorFilter());
         if (row == 1) c.drawBitmap(poseAtlas, BOY_POSE, dest, paint);
         else c.drawBitmap(atlas, src, dest, paint);
+        paint.setColorFilter(null);
         c.restoreToCount(save);
     }
 
@@ -252,7 +252,10 @@ final class PremiumSceneView extends View {
         int save = c.save();
         c.rotate(lean, place[0], ground);
         paint.setAlpha(255);
+        // Match weather brightness as well as the baked dusk ambient/ground grading.
+        paint.setColorFilter(wallpaper.getColorFilter());
         c.drawBitmap(poseAtlas, cell, dest, paint);
+        paint.setColorFilter(null);
         c.restoreToCount(save);
     }
 

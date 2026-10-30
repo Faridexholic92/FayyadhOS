@@ -1,6 +1,15 @@
-# FayyadhOS 3.1.1 · Dunia PapaZola — Static + Halilintar
+# FayyadhOS 3.2 · Glass dusk
 
 Implementation of the approved transparent TV-home, PapaZola/BoBoiBoy action world and Fayyadh fifth-birthday concept. This is the existing native launcher, not firmware or a new WebView app.
+
+## New in 3.2 · Reference logo, dusk blending and refractive glass
+
+- FayyadhOS header uses the user-supplied colourful 3D wordmark, with its baked-in grey checkerboard removed; it is not a substitute font or AI-redrawn logo.
+- PapaZola and the supplied Halilintar keep their existing identities/silhouettes. A separate display atlas matches blue-hour ambient light, warm sunset edge light and grounded feet. Soft radial contact shadows replace hard oval shadows. The ungraded original atlas is retained separately for provenance.
+- Home and the default hero composition remain **static**. No zoom, drift or bounce has been reintroduced.
+- Rain-on-Glass now uses a small, bounded Home snapshot as a refractive lens texture inside the droplets. Broken highlight arcs, dark meniscus edges, varied drop sizes, slowly wandering gravity-driven drops, occasional merging and curved wet trails replace the former plain bubble/stick effect. Fine distant rain streaks are lower contrast.
+- Snapshot is captured on activation, capped to 960×540 on a 16:9 TV (about 2 MiB), not captured or blurred on every frame. It is a stylised optical effect, not full ray-traced fluid simulation. Three cached rim sprites stay below 140 KiB; inactive capture/sprites are released. Existing reduced-motion, screen-off, dialog and adaptive-quality safeguards remain.
+- Settings → Rain-on-Glass · Weather → Enable ON / Moving droplets ON / Preview ON shows the effect immediately. Turn Preview OFF for normal MET-forecast behavior. It is not a measurement of actual rain.
 
 ## New in 3.1.1 · Static Home + supplied Halilintar
 
@@ -57,11 +66,11 @@ bash ./gradlew --no-daemon :app:assembleDebug :app:testDebugUnitTest
 
 `art/premium/*.webp.b64` are the canonical artwork sources. Gradle decodes them into `app/build/generated/premiumAssets/premium/` before asset merging. **Only WebP files enter the APK**, not Base64 text; no image download or Base64 work occurs at runtime. This text transport permits reproducible publishing through the connected GitHub tools. No private reference photograph, user's photo, credentials or signing material is included.
 
-See `verification/papazola/STATIC-3.1.1.json` for this revision’s build/test evidence; `DUNIA-3.1.json` records 3.1; `RESULTS.json` preserves the earlier 3.0 audit, including pre-existing lint failures. Updated legacy assertions reflect approved geometry/header/settings changes; legacy Classic weather coverage is retained, alongside dedicated Premium lifecycle and forecast-state tests. No physical TV was connected. Robolectric screenshots/video are labelled simulations with fixture apps/times/weather, not actual installed apps, live forecasts, benchmarks, audible speaker tests or TV acceptance evidence.
+See `verification/papazola/GLASS-3.2.json` for this revision’s build/test evidence; `STATIC-3.1.1.json` records the prior static patch; `DUNIA-3.1.json` records 3.1; `RESULTS.json` preserves the earlier 3.0 audit, including pre-existing lint failures. Updated legacy assertions reflect approved geometry/header/settings changes; legacy Classic weather coverage is retained, alongside dedicated Premium lifecycle and forecast-state tests. No physical TV was connected. Robolectric screenshots/video are labelled simulations with fixture apps/times/weather, not actual installed apps, live forecasts, benchmarks, audible speaker tests or TV acceptance evidence.
 
 ## Safe installation
 
-Package remains **dev.farred.fayyadhos.tv.jarvis.fix**, min SDK 26, target SDK 34. VersionCode **16**, versionName **3.1.1-static-halilintar**. The old non-Fix package is not migrated.
+Package remains **dev.farred.fayyadhos.tv.jarvis.fix**, min SDK 26, target SDK 34. VersionCode **17**, versionName **3.2.0-glass-dusk**. The old non-Fix package is not migrated.
 
 The delivered APK is **debug/test signed**. It is NOT signed with the installed production certificate. Never uninstall a working launcher, clear its data or disable the stock launcher to bypass a signature mismatch. A data-preserving update needs the original installed signing certificate through your secure build process. Release signing configuration is unchanged; no release key is created, uploaded or substituted.
 

@@ -92,6 +92,12 @@ public class RainFeatureTest {
  @Test public void turningEffectOffRestoresExactlyTheOriginalHomePixels()throws Exception{PremiumTheme.prefs(RuntimeEnvironment.getApplication()).edit().putInt("motion",0).commit();prefs(false);helper.demoApps();try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
   View root=helper.render(c.get(),1920,1080);Bitmap before=Bitmap.createBitmap(1920,1080,Bitmap.Config.ARGB_8888),after=Bitmap.createBitmap(1920,1080,Bitmap.Config.ARGB_8888);root.draw(new Canvas(before));c.get().rain.preview(true);idle(800);c.get().rain.preview(false);idle(900);root.draw(new Canvas(after));assertTrue("Home changed outside overlay",before.sameAs(after));before.recycle();after.recycle();
  }}
+ @Test public void refractiveBackdropIsBoundedAndReleased()throws Exception{prefs(false);try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
+  helper.render(c.get(),1920,1080);c.get().rain.preview(true);idle(850);RainGlassView v=c.get().rain.view;
+  assertTrue("Rain samples the scene for lens refraction",v.backdropBytes()>0);assertTrue(v.backdropBytes()<=960*540*4);
+  int bytes=v.backdropBytes();idle(500);assertEquals(bytes,v.backdropBytes());
+  c.get().rain.preview(false);idle(900);assertEquals(0,v.backdropBytes());assertEquals(0,v.spriteBytes());
+ }}
  @Test public void adaptiveQualityReducesMovingDropsThenStopsContinuousFrames()throws Exception{prefs(false);try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
   helper.render(c.get(),1920,1080);RainGlassView v=c.get().rain.view;c.get().rain.preview(true);idle(800);java.lang.reflect.Method cost=RainGlassView.class.getDeclaredMethod("noteCost",long.class);cost.setAccessible(true);for(int i=0;i<10;i++)cost.invoke(v,5_000_000L);assertEquals(1,v.activeMovingCount());assertEquals(100,v.frameInterval);for(int i=0;i<10;i++)cost.invoke(v,5_000_000L);idle(200);assertEquals(0,v.activeMovingCount());assertFalse(v.hasScheduledFrame());
  }}

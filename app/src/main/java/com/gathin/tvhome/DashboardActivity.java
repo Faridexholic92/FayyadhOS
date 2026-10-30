@@ -57,14 +57,12 @@ public class DashboardActivity extends Activity {
   root.addView(body,new FrameLayout.LayoutParams(-1,-1));
   scene=new PremiumSceneView(this,wallpaper);body.addView(scene,new FrameLayout.LayoutParams(-1,-1));
   // Dusk "Dunia PapaZola" composition on a 960x540 design grid (approved TV mockup).
-  FrameLayout header=new FrameLayout(this);place(body,header,41,20,880,46);
-  LinearLayout brand=vertical();LinearLayout mark=new LinearLayout(this);mark.setGravity(Gravity.CENTER_VERTICAL);
-  mark.addView(new Peaks(this),lp(d(21),d(14)));
-  TextView name=text("FayyadhOS",17,GlassUi.WHITE);
-  android.text.SpannableString wordmark=new android.text.SpannableString("FayyadhOS");
-  wordmark.setSpan(new android.text.style.ForegroundColorSpan(0xff7fd3ff),7,9,0);name.setText(wordmark);
-  name.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));LinearLayout.LayoutParams np=lp(-2,-2);np.leftMargin=d(6);mark.addView(name,np);brand.addView(mark);
-  TextView edition=text("A QUIETER KIND OF SMART.",5.5f,GlassUi.WHITE);edition.setSingleLine(true);edition.setLetterSpacing(.3f);edition.setPadding(0,d(4),0,0);brand.addView(edition);
+  FrameLayout header=new FrameLayout(this);place(body,header,37,12,884,62);
+  LinearLayout brand=vertical();
+  ImageView wordmark=new ImageView(this);wordmark.setTag("fayyadhos-logo");wordmark.setContentDescription("FayyadhOS");wordmark.setScaleType(ImageView.ScaleType.FIT_START);
+  try(java.io.InputStream in=getAssets().open("premium/fayyadhos-logo.webp")){wordmark.setImageDrawable(android.graphics.drawable.Drawable.createFromStream(in,null));}catch(java.io.IOException ignored){wordmark.setImageResource(R.mipmap.ic_launcher);}
+  brand.addView(wordmark,lp(d(198),d(48)));
+  TextView edition=text("A QUIETER KIND OF SMART.",5.5f,GlassUi.WHITE);edition.setTextSize(5.5f*scale);edition.setSingleLine(true);edition.setLetterSpacing(.24f);edition.setPadding(d(2),d(2),0,0);brand.addView(edition);
   header.addView(brand,new FrameLayout.LayoutParams(d(300),-2,Gravity.START|Gravity.TOP));
   LinearLayout time=vertical();time.setGravity(Gravity.START);time.setTag("dashboard-clock");
   clock=text("",60,GlassUi.WHITE);clock.setTypeface(Typeface.create("sans-serif-light",Typeface.NORMAL));clock.setLetterSpacing(-.02f);date=text("",7.5f,GlassUi.WHITE);

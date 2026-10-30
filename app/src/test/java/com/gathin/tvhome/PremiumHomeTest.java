@@ -72,13 +72,20 @@ public class PremiumHomeTest {
    if(hourlyView.getVisibility()==View.VISIBLE)for(int i=0;i<3;i++){ViewGroup column=(ViewGroup)hourlyRow.getChildAt(i);TextView title=(TextView)column.getChildAt(0);assertTrue("Compact weather heading fits",title.getPaint().measureText(title.getText().toString())<=column.getWidth());}
 
    assertEquals(Color.TRANSPARENT,((android.graphics.drawable.GradientDrawable)prayer.getBackground()).getColor().getDefaultColor());
+   if(name.contains("glass")){
+    RainOptions.prefs(a).edit().putInt("intensity",1).putInt("density",1).commit();a.rain.preview(true);
+    Shadows.shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(2100));
+    weather.update(KinarutWeatherTest.fixture(0),"Ds548","Kinarut",KinarutWeatherTest.NOW,true);
+    root=helper.render(a,w,h);
+   }
    helper.capture(root,name);
-   if(frames){for(int i=0;i<90;i++){field(scene(a),"elapsed",i*100L);helper.capture(root,String.format(java.util.Locale.ROOT,"premium-motion/frame-%03d",i));}}
+   if(frames&&scene(a).canAnimate()){for(int i=0;i<90;i++){field(scene(a),"elapsed",i*100L);helper.capture(root,String.format(java.util.Locale.ROOT,"premium-motion/frame-%03d",i));}}
   }
  }
  @Test public void native1080()throws Exception{preview(1920,1080,"premium-home-1080",false,false);}
  @Test @org.robolectric.annotation.Config(qualifiers="w640dp-h360dp-land-xhdpi") public void native720WithMotionFrames()throws Exception{preview(1280,720,"premium-home-720",false,true);}
  @Test @org.robolectric.annotation.Config(qualifiers="w1920dp-h1080dp-land-xhdpi") public void native4k()throws Exception{preview(3840,2160,"premium-home-4k",false,false);}
+ @Test public void refractiveGlass1080()throws Exception{preview(1920,1080,"premium-glass-1080",false,false);}
  @Test public void birthday1080()throws Exception{preview(1920,1080,"premium-birthday-1080",true,false);}
 
  @Test public void birthdaySceneContinuesAndDrawsSpritesAfterConfettiWindow()throws Exception {
@@ -126,6 +133,14 @@ public class PremiumHomeTest {
   assertEquals(MotivationQuotes.LINES[0],MotivationQuotes.at(MotivationQuotes.ROTATE_MS*MotivationQuotes.LINES.length));
   for(String line:MotivationQuotes.LINES)assertTrue(line.length()<=60);
  }
+ @Test public void heroBrightnessTracksWeatherBackdrop()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
+  DashboardActivity a=c.get();PremiumSceneView s=scene(a);s.layout(0,0,960,540);Bitmap normal=Bitmap.createBitmap(960,540,Bitmap.Config.ARGB_8888),storm=Bitmap.createBitmap(960,540,Bitmap.Config.ARGB_8888);
+  try{a.weatherWallpaper(WeatherForecast.State.RAIN_EXPECTED);s.draw(new Canvas(normal));a.weatherWallpaper(WeatherForecast.State.THUNDERSTORM_EXPECTED);s.draw(new Canvas(storm));int n=normal.getPixel(400,300),t=storm.getPixel(400,300);assertTrue(Color.alpha(n)>200);assertEquals(Color.alpha(n),Color.alpha(t));assertTrue(Color.red(t)<Color.red(n));}finally{normal.recycle();storm.recycle();}
+ }}
+ @Test public void referenceLogoAndBlendedAtlasArePackaged()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
+  ImageView logo=c.get().findViewById(R.id.root).findViewWithTag("fayyadhos-logo");assertNotNull(logo);assertNotNull(logo.getDrawable());
+  for(String file:new String[]{"premium/fayyadhos-logo.webp","premium/heroes-blended.webp"})try(InputStream in=c.get().getAssets().open(file)){Bitmap b=BitmapFactory.decodeStream(in);assertNotNull(b);assertTrue(b.hasAlpha());b.recycle();}
+ }}
  @Test public void staticHomeKeepsRainMovementIndependent()throws Exception{
   try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
    DashboardActivity a=c.get();PremiumSceneView s=scene(a);assertFalse(s.canAnimate());
