@@ -233,15 +233,15 @@ class HomeActivity : Activity() {
         val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            setPadding(dp(20), dp(12), dp(20), dp(12))
+            setPadding(dp(20), dp(8), dp(20), dp(8))
         }
         content.addView(eyebrow("THE DUAL-HERO UNIVERSE"))
         addGap(content, 5)
-        content.addView(text("Dua dunia. Satu skrin.", 22f, Color.WHITE, true).apply {
+        content.addView(text("Dua dunia. Satu skrin.", 18f, Color.WHITE, true).apply {
             gravity = Gravity.CENTER
             textAlignment = View.TEXT_ALIGNMENT_CENTER
         })
-        addGap(content, 14)
+        addGap(content, 8)
 
         val pair = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -251,7 +251,7 @@ class HomeActivity : Activity() {
             "P", "PAPAZOLA", "HERO SLOT 01",
             intArrayOf(Color.rgb(117, 43, 43), Color.rgb(48, 28, 36)),
             Color.rgb(255, 177, 119),
-        ), LinearLayout.LayoutParams(0, dp(142), 1f).apply {
+        ), LinearLayout.LayoutParams(0, dp(112), 1f).apply {
             marginEnd = dp(7)
         })
         pair.addView(heroIdentityCard(
@@ -261,9 +261,9 @@ class HomeActivity : Activity() {
         ), LinearLayout.LayoutParams(0, dp(142), 1f).apply {
             marginStart = dp(7)
         })
-        content.addView(pair, LinearLayout.LayoutParams(-1, dp(142)))
+        content.addView(pair, LinearLayout.LayoutParams(-1, dp(112)))
 
-        addGap(content, 12)
+        addGap(content, 6)
         content.addView(text(
             "Model 3D dan animasi watak sedang menunggu integrasi aset sebenar.",
             11f, MUTED, false,
@@ -300,9 +300,9 @@ class HomeActivity : Activity() {
                 intArrayOf(accent, colors[0]),
             ).apply { shape = GradientDrawable.OVAL }
         }
-        card.addView(orb, LinearLayout.LayoutParams(dp(58), dp(58)))
-        addGap(card, 7)
-        card.addView(text(name, 14f, Color.WHITE, true).apply { gravity = Gravity.CENTER })
+        card.addView(orb, LinearLayout.LayoutParams(dp(46), dp(46)))
+        addGap(card, 5)
+        card.addView(text(name, 12f, Color.WHITE, true).apply { gravity = Gravity.CENTER })
         card.addView(text(slot, 8f, accent, true).apply { gravity = Gravity.CENTER })
         return card
     }
