@@ -55,7 +55,7 @@ public class DashboardActivity extends Activity {
    android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0x45071320,0x08071320,0x28071320}));
   root.addView(body,new FrameLayout.LayoutParams(-1,-1));
   // Keep the foreground child order stable for weather, overlays and accessibility layout.
-  FrameLayout header=new FrameLayout(this);place(body,header,40,28,880,62);
+  FrameLayout header=new FrameLayout(this);place(body,header,40,28,880,184);
   LinearLayout brand=vertical();TextView name=text("FayyadhOS",30,GlassUi.WHITE);
   android.text.SpannableString wordmark=new android.text.SpannableString("FayyadhOS");
   wordmark.setSpan(new android.text.style.ForegroundColorSpan(GlassUi.CYAN),7,9,0);name.setText(wordmark);
@@ -66,7 +66,7 @@ public class DashboardActivity extends Activity {
   clock=text("",58,GlassUi.WHITE);clock.setTypeface(null,Typeface.BOLD);date=text("",16,GlassUi.WHITE);
   time.setGravity(Gravity.START);clock.setGravity(Gravity.START);date.setGravity(Gravity.START);date.setSingleLine(true);
   date.setEllipsize(android.text.TextUtils.TruncateAt.END);time.addView(clock);time.addView(date);
-  place(body,time,40,105,270,104);
+  FrameLayout.LayoutParams timePosition=new FrameLayout.LayoutParams(d(270),-2,Gravity.START|Gravity.TOP);timePosition.topMargin=d(78);header.addView(time,timePosition);
   LinearLayout actions=new LinearLayout(this);actions.setGravity(Gravity.CENTER_VERTICAL);
   TextView net=button("●  Jarvis",()->showJarvis());net.setContentDescription("Open Jarvis network diagnostics and AI assistance");net.setId(R.id.btnWifi);actions.addView(net,lp(d(82),d(44)));
   View divider=new View(this);divider.setBackgroundColor(0x66ffffff);actions.addView(divider,lp(d(1),d(24)));
