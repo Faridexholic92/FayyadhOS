@@ -35,7 +35,7 @@ final class LoopCarousel extends RecyclerView {
             scroller.setTargetPosition(position);layout.startSmoothScroll(scroller);
         }else{
             android.util.DisplayMetrics metrics=getResources().getDisplayMetrics();
-            int slot=GlassUi.dp(getContext(),116*Math.min(metrics.widthPixels/(metrics.density*960f),metrics.heightPixels/(metrics.density*540f)));
+            int slot=GlassUi.dp(getContext(),102*Math.min(metrics.widthPixels/(metrics.density*960f),metrics.heightPixels/(metrics.density*540f)));
             // Actual decorated width is read after layout; this estimate only handles first layout.
             View sample=getChildCount()>0?getChildAt(0):null;
             if(sample!=null)slot=layout.getDecoratedMeasuredWidth(sample)+((LayoutParams)sample.getLayoutParams()).leftMargin+((LayoutParams)sample.getLayoutParams()).rightMargin;
@@ -54,7 +54,8 @@ final class LoopCarousel extends RecyclerView {
         for(int i=0;i<getChildCount();i++){
             View child=getChildAt(i);float slot=Math.max(1,child.getWidth()+GlassUi.dp(getContext(),10));
             float distance=Math.abs((child.getLeft()+child.getRight())/2f-center)/slot;
-            float scale=distance<=1?1.2f-.15f*distance:distance<=2?1.05f-.1f*(distance-1):Math.max(.85f,.95f-.1f*(distance-2));
+            // Dusk dock: a gentle lift for the centred app, neighbours stay full size like the mockup.
+            float scale=distance<=1?1.08f-.08f*distance:1f;
             child.setScaleX(scale);child.setScaleY(scale);child.setTranslationY(-GlassUi.dp(getContext(),2)*Math.max(0,1-distance));
         }
         invalidate();
@@ -64,7 +65,7 @@ final class LoopCarousel extends RecyclerView {
         int save=canvas.saveLayer(0,0,getWidth(),getHeight(),null);
         super.dispatchDraw(canvas);
         if(getWidth()>0){
-            Paint mask=new Paint();mask.setShader(new LinearGradient(0,0,getWidth(),0,new int[]{0x00ffffff,0xffffffff,0xffffffff,0x00ffffff},new float[]{0,.09f,.91f,1},Shader.TileMode.CLAMP));
+            Paint mask=new Paint();mask.setShader(new LinearGradient(0,0,getWidth(),0,new int[]{0x00ffffff,0xffffffff,0xffffffff,0x00ffffff},new float[]{0,.05f,.95f,1},Shader.TileMode.CLAMP));
             mask.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));canvas.drawRect(0,0,getWidth(),getHeight(),mask);
         }
         canvas.restoreToCount(save);

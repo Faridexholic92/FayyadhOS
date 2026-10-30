@@ -15,6 +15,9 @@ final class PremiumTheme {
         // One dated fifth birthday, NOT an annual claim that Fayyadh is always five.
         return BIRTHDAY.equals(theme)||WORLD.equals(theme)&&automatic&&BIRTHDAY_DATE.equals(day);
     }
+    static final String POSE="pose", RUN="run";
+    /** Hero pose follows the approved dusk mockup; free-run keeps the earlier sprite choreography. */
+    static String characters(Context c){String v=prefs(c).getString("characters",POSE);return RUN.equals(v)?RUN:POSE;}
     static int motion(Context c){return Math.max(0,Math.min(2,prefs(c).getInt("motion",2)));} // Off / Lite / Full
     static String asset(boolean birthday){
         // The Birthday wallpaper contains characters baked into the pixels; use the clean world

@@ -15,6 +15,12 @@ public class WeatherForecastTest {
   return rows.toString();
  }
  static WeatherForecast data(String text,long age)throws Exception{return WeatherForecast.parse(raw(text,text,text),ID,NOW.toEpochMilli()-age);}
+ @Test public void upcomingPeriodsComeFromMetAndRollIntoTomorrow()throws Exception{
+  WeatherForecast f=WeatherForecast.parse(raw("Tiada hujan","Hujan","Ribut petir di beberapa tempat"),ID,NOW.toEpochMilli());
+  assertEquals("Malam: Ribut petir di beberapa tempat",f.upcoming(NOW,1));assertEquals("Esok pagi: Tiada hujan",f.upcoming(NOW,2));
+  assertEquals("Ribut petir",WeatherWidget.brief("Ribut petir di beberapa tempat"));
+  WeatherForecast stale=WeatherForecast.parse(raw("Hujan","Hujan","Hujan"),ID,NOW.toEpochMilli()-WeatherForecast.FRESH_MILLIS-1);assertEquals("",stale.upcoming(NOW,1));
+ }
  @Test public void noRainIsNotClassifiedAsRain(){assertEquals(WeatherForecast.State.CLEAR,WeatherForecast.classify(" Tiada  Hujan "));}
  @Test public void documentedRainAndCoastalVariants(){for(String s:new String[]{"Hujan","Hujan di beberapa tempat","Hujan di satu dua tempat di kawasan pantai","Hujan menyeluruh"})assertEquals(s,WeatherForecast.State.RAIN_EXPECTED,WeatherForecast.classify(s));}
  @Test public void stormVariantsVerifiedInActualApi(){for(String s:new String[]{"Ribut petir","Ribut petir di kebanyakan tempat","Ribut petir menyeluruh","Ribut petir di satu dua tempat di kawasan pedalaman"})assertEquals(WeatherForecast.State.THUNDERSTORM_EXPECTED,WeatherForecast.classify(s));}

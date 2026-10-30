@@ -44,9 +44,9 @@ public class WeatherIconTest {
             for(int i=0;i<CONDITIONS.length;i++){
                 widget.update(forecast(CONDITIONS[i]),"St502","Sabah",WeatherWidgetTest.NOW,false);helper.render(activity.get(),1920,1080);
                 assertEquals(ICONS[i],selected(widget));assertEquals(original,widgetHelper.bounds(widget));assertEquals(iconBounds,widgetHelper.bounds(icon));
-                assertEquals(68,icon.getWidth());assertEquals(68,icon.getHeight());
-                assertEquals("Sabah · 23–34°C",widgetHelper.heading(widget).getText().toString());
-                assertEquals("Ramalan · "+CONDITIONS[i],widgetHelper.condition(widget).getText().toString());
+                assertEquals(80,icon.getWidth());assertEquals(80,icon.getHeight());
+                assertEquals("Sabah",widgetHelper.heading(widget).getText().toString());
+                assertEquals("23–34°  "+WeatherWidget.brief(CONDITIONS[i]),widgetHelper.condition(widget).getText().toString());
                 widgetHelper.transparent(widget);helper.capture(widget,"weather-icon-"+NAMES[i]);
                 if(i==1)helper.capture(root,"weather-icon-corrected-1080");
             }

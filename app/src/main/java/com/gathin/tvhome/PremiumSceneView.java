@@ -20,7 +20,15 @@ final class PremiumSceneView extends View {
     private final Rect src = new Rect();
     private final RectF dest = new RectF();
     private final WallpaperDissolveView wallpaper;
-    private Bitmap atlas;
+    private Bitmap atlas, poseAtlas;
+    private boolean pose = true;
+    // heroes-pose.webp: PapaZola cell then BoBoiBoy cell, matching the approved dusk mockup.
+    static final Rect PAPA_POSE = new Rect(0, 0, 373, 483), BOY_POSE = new Rect(381, 0, 626, 367);
+    // 960 x 540 canvas placement: centre x, feet y, drawn height.
+    static final float[] PAPA_PLACE = {400f, 462f, 318f}, BOY_PLACE = {607f, 455f, 242f};
+    private static final float[][] RIBBONS = {
+            {30f, 300f, -28f, 1.25f}, {196f, 306f, 34f, .9f}, {226f, 340f, -18f, 1f},
+            {160f, 376f, 52f, .8f}, {14f, 352f, 20f, .85f}, {704f, 410f, -38f, .9f}, {300f, 318f, 12f, .7f}};
     private boolean active, interactive = true, obscured, audioBusy, enabled = true, birthday, closed, scheduled;
     private boolean timelineRunning;
     private int quality = 2;
@@ -57,7 +65,15 @@ final class PremiumSceneView extends View {
         } catch (java.io.IOException ignored) {
             // The home screen remains usable if optional animation artwork is missing.
         }
+        try (java.io.InputStream in = c.getAssets().open("premium/heroes-pose.webp")) {
+            poseAtlas = BitmapFactory.decodeStream(in);
+        } catch (java.io.IOException ignored) {
+            // Falls back to the free-run sprites below.
+        }
     }
+
+    void characters(boolean heroPose) { if (pose != heroPose) { pose = heroPose; invalidate(); } }
+    boolean heroPose() { return pose && poseAtlas != null; }
 
     void configure(boolean enabled, boolean birthday, int quality) {
         if (birthday && !this.birthday) partyStarted = SystemClock.uptimeMillis();
@@ -160,6 +176,12 @@ final class PremiumSceneView extends View {
         c.scale(getWidth() / 960f, getHeight() / 540f);
         // Birthday confetti expires independently. Keep drawing the characters afterward.
         if (birthday) drawConfetti(c);
+        if (birthday) drawRibbons(c);
+        if (heroPose()) {
+            drawHeroPose(c);
+            c.restoreToCount(save);
+            return;
+        }
         if (atlas == null) {
             c.restoreToCount(save);
             return;
@@ -213,6 +235,53 @@ final class PremiumSceneView extends View {
         c.restoreToCount(save);
     }
 
+    /** Run-in-place bounce: time derived, frozen when motion is unavailable. */
+    static float poseBob(long elapsedMs, int character) {
+        double period = character == 0 ? 760.0 : 640.0, amplitude = character == 0 ? 5.0 : 4.2;
+        double phase = (elapsedMs + (character == 0 ? 0 : 230)) / period * Math.PI * 2.0;
+        return (float) (-Math.abs(Math.sin(phase / 2.0)) * amplitude);
+    }
+
+    private void drawHeroPose(Canvas c) {
+        float papaBob = poseBob(elapsed, 0), boyBob = poseBob(elapsed, 1);
+        float papaLean = (float) Math.sin(elapsed / 760.0 * Math.PI) * 1.1f;
+        float boyLean = (float) Math.sin((elapsed + 230) / 640.0 * Math.PI) * 1.4f;
+        groundShadow(c, BOY_PLACE[0], BOY_PLACE[1], 64f, -boyBob * 2f);
+        heroCell(c, BOY_POSE, BOY_PLACE, boyBob, boyLean);
+        groundShadow(c, PAPA_PLACE[0], PAPA_PLACE[1], 86f, -papaBob * 2f);
+        heroCell(c, PAPA_POSE, PAPA_PLACE, papaBob, papaLean);
+    }
+
+    private void heroCell(Canvas c, Rect cell, float[] place, float bob, float lean) {
+        float height = place[2], width = height * cell.width() / (float) cell.height();
+        float ground = place[1] + bob;
+        dest.set(place[0] - width / 2f, ground - height, place[0] + width / 2f, ground);
+        int save = c.save();
+        c.rotate(lean, place[0], ground);
+        paint.setAlpha(255);
+        c.drawBitmap(poseAtlas, cell, dest, paint);
+        c.restoreToCount(save);
+    }
+
+    private void drawRibbons(Canvas c) {
+        boolean moving = canAnimate();
+        paint.setStyle(Paint.Style.FILL);
+        for (int i = 0; i < RIBBONS.length; i++) {
+            float[] r = RIBBONS[i];
+            float flutter = moving ? (float) Math.sin(elapsed / 520.0 + i * 1.7) * 9f : 0f;
+            int save = c.save();
+            c.translate(r[0], r[1] + (moving ? (float) Math.sin(elapsed / 900.0 + i) * 2f : 0f));
+            c.rotate(r[2] + flutter);
+            c.scale(r[3], r[3]);
+            paint.setColor(0xf2e9b44c);
+            c.drawRoundRect(-3f, -9f, 3f, 9f, 2f, 2f, paint);
+            paint.setColor(0xb3fff0b8);
+            c.drawRoundRect(-1f, -8f, 1f, 2f, 1f, 1f, paint);
+            c.restoreToCount(save);
+        }
+        paint.setColor(Color.WHITE);
+    }
+
     private void drawConfetti(Canvas c) {
         if (!canAnimate()) return;
         long age = SystemClock.uptimeMillis() - partyStarted;
@@ -245,6 +314,10 @@ final class PremiumSceneView extends View {
         if (atlas != null) {
             atlas.recycle();
             atlas = null;
+        }
+        if (poseAtlas != null) {
+            poseAtlas.recycle();
+            poseAtlas = null;
         }
     }
 }

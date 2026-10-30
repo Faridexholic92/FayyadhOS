@@ -40,7 +40,7 @@ public class FeaturePackTest {
     }}
     @Test public void carouselCenterHasZoomAndEdgeScale(){DashboardTest f=new DashboardTest();f.demoApps();try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
         View root=f.render(c.get(),1920,1080);LoopCarousel grid=root.findViewById(R.id.grid);grid.effects();View center=grid.findViewHolderForAdapterPosition(LoopCarousel.anchor(0,7)).itemView;
-        assertEquals(1.2f,center.getScaleX(),.04f);assertTrue(grid.getChildAt(0).getScaleX()<center.getScaleX());assertTrue(Math.abs((center.getLeft()+center.getRight())/2-grid.getWidth()/2)<24);
+        assertEquals(1.08f,center.getScaleX(),.04f);assertTrue(grid.getChildAt(0).getScaleX()<center.getScaleX());assertTrue(Math.abs((center.getLeft()+center.getRight())/2-grid.getWidth()/2)<24);
     }}
     @Test public void wallpaperDissolvesWithoutBlackFrame(){WallpaperDissolveView v=image();v.request("clear",()->solid(Color.RED));assertFalse(v.animating());v.request("rain",()->solid(Color.BLUE));assertTrue(v.animating());idle(400);
         Bitmap out=Bitmap.createBitmap(160,90,Bitmap.Config.ARGB_8888);v.draw(new Canvas(out));int pixel=out.getPixel(80,45);assertTrue(Color.red(pixel)>60);assertTrue(Color.blue(pixel)>60);idle(450);assertFalse(v.animating());v.destroy();}

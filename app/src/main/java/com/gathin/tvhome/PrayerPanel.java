@@ -144,20 +144,23 @@ final class PrayerPanel extends LinearLayout {
         if(subtitle.getParent()!=null)((ViewGroup)subtitle.getParent()).removeView(subtitle);
         removeAllViews();setPadding(0,scaled(1),0,0);setClipChildren(false);setClipToPadding(false);
         LinearLayout premiumHeader=new LinearLayout(activity);premiumHeader.setGravity(Gravity.CENTER_VERTICAL);
-        heading.setTextSize(13*scale);heading.setTypeface(Typeface.create("sans-serif",Typeface.NORMAL));heading.setTag("next-prayer");
-        premiumHeader.addView(heading,new LayoutParams(0,scaled(27),1));
-        azanStatus=text(8,GlassUi.MUTED);azanStatus.setTextSize(8*scale);azanStatus.setTag("azan-status");premiumHeader.addView(azanStatus,new LayoutParams(scaled(78),scaled(18)));
-        addView(premiumHeader,new LayoutParams(-1,scaled(29)));
+        TextView title=text(8,GlassUi.WHITE);title.setTextSize(8*scale);title.setText("WAKTU SOLAT");title.setLetterSpacing(.24f);title.setTag("prayer-title");
+        premiumHeader.addView(title,new LayoutParams(0,scaled(16),1));
+        azanStatus=text(7,GlassUi.MUTED);azanStatus.setTextSize(6.5f*scale);azanStatus.setLetterSpacing(.14f);azanStatus.setGravity(Gravity.END|Gravity.CENTER_VERTICAL);azanStatus.setTag("azan-status");premiumHeader.addView(azanStatus,new LayoutParams(scaled(90),scaled(16)));
+        addView(premiumHeader,new LayoutParams(-1,scaled(20)));
         LinearLayout row=new LinearLayout(activity);row.setClipChildren(false);row.setClipToPadding(false);row.setTag("fivePrayerRow");
         for(int index:PrayerTimes.PRAYERS){
             LinearLayout cell=new LinearLayout(activity);cell.setOrientation(VERTICAL);cell.setClipChildren(false);cell.setClipToPadding(false);
-            labels[index].setTextSize(9*scale);labels[index].setSingleLine(true);labels[index].setTag("prayerName-"+index);
-            values[index].setTextSize(12*scale);values[index].setSingleLine(true);values[index].setTag("prayerTime-"+index);
-            cell.addView(labels[index],new LayoutParams(-1,scaled(14)));
-            cell.addView(values[index],new LayoutParams(-1,scaled(19)));
+            labels[index].setTextSize(7.5f*scale);labels[index].setSingleLine(true);labels[index].setAllCaps(true);labels[index].setLetterSpacing(.16f);labels[index].setTag("prayerName-"+index);
+            values[index].setTextSize(14*scale);values[index].setSingleLine(true);values[index].setTypeface(Typeface.create("sans-serif",Typeface.NORMAL));values[index].setTag("prayerTime-"+index);
+            cell.addView(labels[index],new LayoutParams(-1,scaled(13)));
+            cell.addView(values[index],new LayoutParams(-1,scaled(21)));
             row.addView(cell,new LayoutParams(0,-2,1));
         }
-        addView(row,new LayoutParams(-1,-2));subtitle.setTextSize(6*scale);subtitle.setTypeface(Typeface.create("sans-serif",Typeface.NORMAL));subtitle.setTag("prayer-provenance");addView(subtitle,new LayoutParams(-1,scaled(16)));setBackground(panelBackground(hasFocus()));render();
+        addView(row,new LayoutParams(-1,-2));
+        heading.setTextSize(7.5f*scale);heading.setTypeface(Typeface.create("sans-serif",Typeface.NORMAL));heading.setTag("next-prayer");heading.setTextColor(0xffbfe9ff);
+        addView(heading,new LayoutParams(-1,scaled(13)));
+        subtitle.setTextSize(5.5f*scale);subtitle.setLetterSpacing(.12f);subtitle.setAllCaps(true);subtitle.setTypeface(Typeface.create("sans-serif",Typeface.NORMAL));subtitle.setTag("prayer-provenance");subtitle.setTextColor(0xb3e6eef5);addView(subtitle,new LayoutParams(-1,scaled(12)));setBackground(panelBackground(hasFocus()));render();
     }
     void obscured(boolean value){obscured=value;syncGlow();}
     // All five remain visible. Left/right must never rotate or replace the current slot.
@@ -193,6 +196,7 @@ final class PrayerPanel extends LinearLayout {
         if(dashboard&&hasFocus()){android.graphics.Paint p=new android.graphics.Paint(3);p.setColor(GlassUi.CYAN);p.setStrokeWidth(Math.max(1,scaled(1)));canvas.drawLine(0,getHeight()-scaled(1),getWidth(),getHeight()-scaled(1),p);}
     }
     private int scaled(float n){return dp(n*dashboardScale);}
+    static String countdown(long minutes){minutes=Math.max(0,minutes);return minutes<60?minutes+" min":(minutes/60)+"j "+(minutes%60)+"m";}
     private String regionName(){for(String[] z:zones)if(z[0].equals(zone))return z[1].toUpperCase(Locale.getDefault());return "SELECT ZONE";}
     void playbackChanged(){render();}
     void modeChanged() { render(); if(active) refresh(false); }
@@ -263,8 +267,8 @@ final class PrayerPanel extends LinearLayout {
             if(!dashboard){values[i].setTextColor(selected?GOLD:WHITE); labels[i].setTextColor(selected?GOLD:MUTED);}
         }
         if(dashboard){
-            String nextLabel=next==null?(zone.isEmpty()?"NEXT PRAYER · Select zone":"NEXT PRAYER · Unavailable"):
-                "NEXT · "+PrayerTimes.NAMES[next.index]+(next.tomorrow?" tomorrow":"")+"  "+PrayerTimes.hhmm(next.at.toLocalTime())+"  ·  "+next.minutesUntil(now)+" min";
+            String nextLabel=next==null?(zone.isEmpty()?"Pilih zon JAKIM · tekan OK (Select zone)":"Waktu seterusnya tidak tersedia"):
+                "Seterusnya · "+PrayerTimes.NAMES[next.index]+(next.tomorrow?" esok":"")+" "+PrayerTimes.hhmm(next.at.toLocalTime())+" · lagi "+countdown(next.minutesUntil(now));
             heading.setText(nextLabel);
             if(azanStatus!=null){boolean enabled=AzanStore.enabled(activity);
                 boolean ready=enabled&&AzanScheduler.exactAllowed(activity)&&AzanScheduler.notificationsAllowed(activity)&&AzanStore.present(AzanStore.audio(activity,next==null?2:next.index))&&AzanStore.prefs(activity).getLong("pending_at",0)>System.currentTimeMillis();
