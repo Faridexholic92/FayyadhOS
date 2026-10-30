@@ -37,6 +37,26 @@ A single app process is preferred for the first release. Do not create a multi-p
 
 Native Views are the initial choice to preserve deterministic TV focus and keep the UI lightweight. Compose or additional UI frameworks can be evaluated later; do not add them solely for novelty.
 
+## 2.1 Isolated build environment
+
+The new launcher is a separate Gradle project at `tvnext/`. It is intentionally not included in the legacy root Gradle build.
+
+- Legacy root project: AGP 8.5.2, Gradle 8.9, compileSdk 34; do not upgrade it for TV Next.
+- TV Next project: AGP 9.4.0, Gradle 9.6.0, compileSdk 37, targetSdk 34, minSdk 26.
+- AGP 9 built-in Kotlin is used; do not apply `org.jetbrains.kotlin.android` again in the TV Next project.
+- The TV Next wrapper lives at `tvnext/gradlew` and `tvnext/gradle/wrapper/`.
+- The Home package ID is `dev.farred.fayyadhos.tv.next`, allowing side-by-side installation.
+- Android 37 is currently acquired from the preview SDK package `platforms;android-37.0`; the CI records the exact SDK setup. This is a build-time compile SDK only. The app target remains API 34 and the HAKO Pro runtime is expected to be Android 11 until confirmed on-device.
+
+Commands from the repository root:
+
+```sh
+cd tvnext
+./gradlew :app:assembleDebug :app:testDebugUnitTest
+```
+
+This isolation keeps the old launcher build and its package untouched while the new renderer is developed.
+
 ## 3. Filament version policy
 
 Pin a single stable Filament release for all runtime and host-side asset tools. The official Filament repository currently documents Android Maven dependencies and warns that asset tools such as `matc` should use the same release as the runtime.
