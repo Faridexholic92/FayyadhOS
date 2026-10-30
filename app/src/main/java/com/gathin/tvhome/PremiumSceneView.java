@@ -9,10 +9,6 @@ import android.view.View;
 
 /** Native bounded sprite renderer: vsync-paced motion, no video, blur, physics or network. */
 final class PremiumSceneView extends View {
-    private static final long LOOP_MS = 6_200L;
-    private static final long APPROACH_END_MS = 2_400L;
-    private static final long INTERACTION_END_MS = 3_800L;
-    private static final long RETREAT_END_MS = 6_200L;
     private static final long FULL_FRAME_INTERVAL_NANOS = 33_333_333L; // target up to 30 fps
     private static final long LITE_FRAME_INTERVAL_NANOS = 66_666_667L; // target up to 15 fps
     private static final int FULL_SPRITE_FRAME_MS = 67;
@@ -135,24 +131,6 @@ final class PremiumSceneView extends View {
         return quality == 1 ? 67L : 33L;
     }
 
-    /** Smoothstep gives zero velocity at both ends, avoiding abrupt stops between phases. */
-    static float smoothStep(float t) {
-        float clamped = Math.max(0f, Math.min(1f, t));
-        return clamped * clamped * (3f - 2f * clamped);
-    }
-
-    /** Fraction from far-apart to close together over a loop with no long frozen sprite pose. */
-    static float approachAt(long elapsedMs) {
-        long phase = Math.floorMod(elapsedMs, LOOP_MS);
-        if (phase < APPROACH_END_MS) return smoothStep(phase / (float) APPROACH_END_MS);
-        if (phase < INTERACTION_END_MS) return 1f;
-        if (phase < RETREAT_END_MS) {
-            return 1f - smoothStep((phase - INTERACTION_END_MS)
-                    / (float) (RETREAT_END_MS - INTERACTION_END_MS));
-        }
-        return 0f;
-    }
-
     static int spriteCellAt(long elapsedMs, int frameDurationMs) {
         long safeInterval = Math.max(1, frameDurationMs);
         return (int) ((Math.max(0L, elapsedMs) / safeInterval) % 6L);
@@ -187,37 +165,22 @@ final class PremiumSceneView extends View {
             return;
         }
 
-        long phase = Math.floorMod(elapsed, LOOP_MS);
-        float approach = approachAt(elapsed);
-        boolean retreating = phase >= INTERACTION_END_MS && phase < RETREAT_END_MS;
-        float hop = 0f;
-        if (phase >= APPROACH_END_MS && phase < INTERACTION_END_MS) {
-            float interaction = (phase - APPROACH_END_MS)
-                    / (float) (INTERACTION_END_MS - APPROACH_END_MS);
-            // Two complete hops, starting and ending at ground level.
-            hop = (float) Math.abs(Math.sin(interaction * Math.PI * 4.0)) * 8f;
-        }
-
-        // The sprite flipbook keeps cycling even while the characters are apart.
-        // Their path freezes at the current pose during pause, dialog, screen-off or Azan.
+        // Each character follows a different closed Catmull-Rom path. Paths loop
+        // seamlessly, but they are not a single horizontal approach/retreat. Their
+        // run-cycle frames, depth scaling, turns and jumps are time-derived.
         int frameDuration = quality == 1 ? LITE_SPRITE_FRAME_MS : FULL_SPRITE_FRAME_MS;
         int cell = spriteCellAt(elapsed, frameDuration);
-        float runBob = (float) Math.sin((elapsed % 402L) / 402.0 * Math.PI * 2.0) * 1.2f;
-        float papa = 345f + approach * 85f;
-        float boy = 650f - approach * 110f;
-        groundShadow(c, papa, 396f, 62f, hop);
-        groundShadow(c, boy, 399f, 48f, hop * .65f);
-        sprite(c, 0, cell, papa, 396f - hop + runBob, 206f, retreating);
-        sprite(c, 1, cell, boy, 399f - hop * .65f + runBob * .7f, 156f, !retreating);
+        FreeRunChoreography.Pose papa = FreeRunChoreography.sample(elapsed, 0);
+        FreeRunChoreography.Pose boy = FreeRunChoreography.sample(elapsed, 1);
+        float papaBob = FreeRunChoreography.bobAt(elapsed, 0);
+        float boyBob = FreeRunChoreography.bobAt(elapsed, 1);
 
-        if (phase >= APPROACH_END_MS && phase < INTERACTION_END_MS) {
-            paint.setColor(0xa7f5d07d);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(1.3f);
-            c.drawArc(461, 299 - hop, 500, 338 - hop,
-                    (phase - APPROACH_END_MS) * .16f, 140f, false, paint);
-            paint.setStyle(Paint.Style.FILL);
-        }
+        groundShadow(c, papa.x, papa.groundY, 62f * papa.scale, papa.hop);
+        groundShadow(c, boy.x, boy.groundY, 48f * boy.scale, boy.hop);
+        sprite(c, 0, cell, papa.x, papa.groundY - papa.hop + papaBob,
+                206f * papa.scale, FreeRunChoreography.mirrorForDirection(0, papa.directionX));
+        sprite(c, 1, cell, boy.x, boy.groundY - boy.hop + boyBob,
+                156f * boy.scale, FreeRunChoreography.mirrorForDirection(1, boy.directionX));
         c.restoreToCount(save);
     }
 
