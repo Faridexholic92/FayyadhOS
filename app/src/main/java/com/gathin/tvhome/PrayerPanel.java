@@ -80,7 +80,7 @@ final class PrayerPanel extends LinearLayout {
         for(int i=0;i<6;i++) {
             LinearLayout cell=new LinearLayout(owner); cell.setOrientation(VERTICAL);
             labels[i]=text(10,MUTED); labels[i].setText(PrayerTimes.NAMES[i]);
-            values[i]=text(17,WHITE); values[i].setTypeface(GlassUi.typeface(this,Typeface.BOLD));
+            values[i]=text(17,WHITE); values[i].setTypeface(GlassUi.typeface(activity,Typeface.BOLD));
             cell.addView(labels[i]); cell.addView(values[i]);
             row.addView(cell,new LayoutParams(0,LayoutParams.WRAP_CONTENT,1));
         }
