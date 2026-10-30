@@ -2,6 +2,7 @@ package com.gathin.tvhome;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.*;
 import android.view.View;
 import android.widget.TextView;
@@ -49,5 +50,6 @@ final class GlassUi {
   for(int id:new int[]{AlertDialog.BUTTON_POSITIVE,AlertDialog.BUTTON_NEGATIVE,AlertDialog.BUTTON_NEUTRAL})
    if(d.getButton(id)!=null)d.getButton(id).setTextColor(CYAN);
  }
- static TextView text(Context c,String value,float size,int color){TextView t=new TextView(c);t.setText(value);t.setTextSize(size);t.setTextColor(color);t.setIncludeFontPadding(false);t.setShadowLayer(dp(c,2),0,dp(c,1),0xf0000000);t.setFontFeatureSettings("tnum");return t;}
+ static Typeface typeface(Context c,int style){Typeface base;if(android.os.Build.VERSION.SDK_INT>=26){base=c.getResources().getFont(R.font.outfit);}else{base=Typeface.create("sans-serif",Typeface.NORMAL);}return Typeface.create(base,style);}
+ static TextView text(Context c,String value,float size,int color){TextView t=new TextView(c);t.setText(value);t.setTextSize(size);t.setTextColor(color);t.setTypeface(typeface(c,Typeface.NORMAL));t.setIncludeFontPadding(false);t.setShadowLayer(dp(c,2),0,dp(c,1),0xf0000000);t.setFontFeatureSettings("tnum");return t;}
 }
