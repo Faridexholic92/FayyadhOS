@@ -81,7 +81,8 @@ final class PrayerPanel extends LinearLayout {
             LinearLayout cell=new LinearLayout(owner); cell.setOrientation(VERTICAL);
             labels[i]=text(10,MUTED); labels[i].setText(PrayerTimes.NAMES[i]); labels[i].setSingleLine(true);
             values[i]=text(17,WHITE); values[i].setTypeface(GlassUi.typeface(activity,Typeface.BOLD)); values[i].setSingleLine(true);
-            // Fixed compact row heights prevent font metrics from expanding the panel.\n             cell.addView(labels[i],new LayoutParams(-1,dp(14))); cell.addView(values[i],new LayoutParams(-1,dp(22)));
+            // Fixed compact row heights prevent font metrics from expanding the panel.
+             cell.addView(labels[i],new LayoutParams(-1,dp(14))); cell.addView(values[i],new LayoutParams(-1,dp(22)));
             row.addView(cell,new LayoutParams(0,LayoutParams.WRAP_CONTENT,1));
         }
         addView(row);
