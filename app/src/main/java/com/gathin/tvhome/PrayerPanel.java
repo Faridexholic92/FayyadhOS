@@ -80,7 +80,7 @@ final class PrayerPanel extends LinearLayout {
         for(int i=0;i<6;i++) {
             LinearLayout cell=new LinearLayout(owner); cell.setOrientation(VERTICAL);
             labels[i]=text(10,MUTED); labels[i].setText(PrayerTimes.NAMES[i]);
-            values[i]=text(17,WHITE); values[i].setTypeface(null,Typeface.BOLD);
+            values[i]=text(17,WHITE); values[i].setTypeface(GlassUi.typeface(this,Typeface.BOLD));
             cell.addView(labels[i]); cell.addView(values[i]);
             row.addView(cell,new LayoutParams(0,LayoutParams.WRAP_CONTENT,1));
         }
@@ -104,7 +104,7 @@ final class PrayerPanel extends LinearLayout {
         TextView t=new OutlinedTextView(activity); t.setTextSize(size); t.setTextColor(color); t.setIncludeFontPadding(false);
         t.setFontFeatureSettings("tnum");
         t.setShadowLayer(dp(2),0,dp(1),0xe6000000);
-        t.setTypeface(Typeface.create("sans-serif",Typeface.BOLD)); return t;
+        t.setTypeface(GlassUi.typeface(getContext(),Typeface.BOLD)); return t;
     }
     /** Thin glyph outline, not a rectangular background: readable on bright wallpapers too. */
     private final class OutlinedTextView extends TextView {
