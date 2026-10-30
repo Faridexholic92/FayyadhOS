@@ -82,6 +82,7 @@ public class PremiumHomeTest {
   try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
    PremiumSceneView s=scene(c.get());
    s.configure(true,true,2);
+   s.hostActive(true); // Match DashboardActivity.onResume() in this isolated renderer test.
    field(s,"partyStarted",SystemClock.uptimeMillis()-11_000L);
    assertTrue("Confetti expiry must not stop the Birthday character loop",s.canAnimate());
    field(s,"elapsed",1_000L);
