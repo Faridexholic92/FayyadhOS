@@ -14,6 +14,7 @@ import static org.junit.Assert.*;
 @org.robolectric.annotation.Config(sdk=34,qualifiers="w960dp-h540dp-land-xhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 public class WeatherLayoutTest {
+ @org.junit.Before public void classicWeatherFixtures(){PremiumTheme.prefs(RuntimeEnvironment.getApplication()).edit().putString("theme",PremiumTheme.CLASSIC).commit();}
  final DashboardTest helper=new DashboardTest();
  static final Instant NOW=Instant.parse("2026-10-27T02:00:00Z");
  WeatherForecast forecast(String text,long age,String id){return new WeatherForecast(id,NOW.toEpochMilli()-age,Collections.singletonMap(LocalDate.of(2026,10,27),new String[]{text,text,text}));}

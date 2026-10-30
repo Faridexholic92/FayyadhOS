@@ -8,10 +8,10 @@ public class FivePrayerGlowTest {
  Object field(Object o,String n)throws Exception{return fixture.field(o,n);}
  TextView[] labels(PrayerPanel p)throws Exception{return (TextView[])field(p,"labels");}TextView[] values(PrayerPanel p)throws Exception{return (TextView[])field(p,"values");}
  void tick(PrayerPanel p,PrayerWeatherUpgradeTest.Time clock,String local)throws Exception{clock.value=LocalDateTime.parse("2026-10-25T"+local).atZone(PrayerTimes.MALAYSIA).toInstant();fixture.render(p);}
- @Test public void fiveOrderedColumnsTransparentAndNoSyurukOrMetadataOnHome()throws Exception{try(var a=Robolectric.buildActivity(Activity.class).setup().visible()){
+ @Test public void fiveOrderedColumnsTransparentWithNextPrayerAndProvenance()throws Exception{try(var a=Robolectric.buildActivity(Activity.class).setup().visible()){
   PrayerPanel p=fixture.configured(a.get(),new PrayerWeatherUpgradeTest.Time());a.get().setContentView(p);p.start();JarvisRepairTest.pump();ViewGroup row=p.findViewWithTag("fivePrayerRow");assertEquals(5,row.getChildCount());
   String[] names={"Subuh","Zohor","Asar","Maghrib","Isyak"};for(int i=0;i<5;i++)assertEquals(names[i],((TextView)((ViewGroup)row.getChildAt(i)).getChildAt(0)).getText().toString());
-  assertNull(labels(p)[1].getParent());assertNull(((TextView)field(p,"heading")).getParent());assertNull(((TextView)field(p,"subtitle")).getParent());assertEquals(Color.TRANSPARENT,((GradientDrawable)p.getBackground()).getColor().getDefaultColor());
+  assertNull(labels(p)[1].getParent());assertNotNull(((TextView)field(p,"heading")).getParent());assertNotNull(((TextView)field(p,"subtitle")).getParent());assertTrue(((TextView)field(p,"heading")).getText().toString().contains("Seterusnya"));assertEquals(Color.TRANSPARENT,((GradientDrawable)p.getBackground()).getColor().getDefaultColor());
   assertEquals("04:52",values(p)[0].getText().toString());assertEquals("12:02",values(p)[2].getText().toString());assertEquals("19:10",values(p)[5].getText().toString());p.destroy();
  }}
  @Test public void onlyCurrentNameGlowsAndExactBoundariesMoveIt()throws Exception{try(var a=Robolectric.buildActivity(Activity.class).setup().visible()){

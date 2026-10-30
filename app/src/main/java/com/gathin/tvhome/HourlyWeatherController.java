@@ -74,7 +74,7 @@ final class HourlyWeatherController {
         for(int i=0;i<3;i++){
             HourlyWeather.Point point=!fresh?null:i==0?data.current(now):data.after(now,i*3);
             String title=i==0?"Sekarang":(i==1?"+3j ":"+6j ")+now.plusSeconds(i*3*3600).atZone(WeatherForecast.ZONE).format(java.time.format.DateTimeFormatter.ofPattern("HH:00"));
-            times[i].setText(title);values[i].setText(point==null?"—":String.format(Locale.getDefault(),"%.0f°C",point.temperature));icons[i].setImageResource(point==null?R.drawable.ic_weather_unknown:HourlyWeather.icon(point.code));
+            times[i].setText(i==0?"Kini":i==1?"+3j":"+6j");times[i].setContentDescription(title);values[i].setText(point==null?"—":String.format(Locale.getDefault(),"%.0f°C",point.temperature));icons[i].setImageResource(point==null?R.drawable.ic_weather_unknown:HourlyWeather.icon(point.code));
             accessible.append(title).append(": ").append(point==null?"Tidak tersedia":point.temperature+"°C, "+HourlyWeather.description(point.code)).append(". ");
         }
         String text=!configured()?"Cuaca jam: tetapkan lokasi dalam Settings":!fresh?"Open-Meteo · tidak tersedia":"Open-Meteo · model"+(fromCache?" · cache":"");

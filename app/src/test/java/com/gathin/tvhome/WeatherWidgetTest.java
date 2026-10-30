@@ -27,6 +27,7 @@ public class WeatherWidgetTest {
     }
     static WeatherForecast fixture(long age)throws Exception{return WeatherForecast.parse(raw(),"St502",NOW.toEpochMilli()-age);}
     TextView heading(WeatherWidget widget){return (TextView)((LinearLayout)widget.getChildAt(1)).getChildAt(0);}
+    TextView periods(WeatherWidget widget){return (TextView)((LinearLayout)widget.getChildAt(1)).getChildAt(2);}
     TextView condition(WeatherWidget widget){return (TextView)((LinearLayout)widget.getChildAt(1)).getChildAt(1);}
     WeatherWidget widget(View root){return root.findViewWithTag("weather-widget");}
     Rect bounds(View v){int[] xy=new int[2];v.getLocationOnScreen(xy);return new Rect(xy[0],xy[1],xy[0]+v.getWidth(),xy[1]+v.getHeight());}
@@ -34,15 +35,14 @@ public class WeatherWidgetTest {
     void layout(int w,int h,String name)throws Exception{
         helper.demoApps();try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
             View root=helper.render(c.get(),w,h);WeatherWidget widget=widget(root);widget.update(fixture(0),"St502","Sabah",NOW,false);helper.render(c.get(),w,h);
-            transparent(widget);assertEquals("Sabah · 23–34°C",heading(widget).getText().toString());
-            assertTrue(condition(widget).getText().toString().startsWith("Ramalan · Ribut petir"));
+            transparent(widget);assertEquals("Sabah",heading(widget).getText().toString());assertEquals("23–34°  Ribut petir",condition(widget).getText().toString());
+            assertTrue(periods(widget).getText().toString().startsWith("MET"));assertEquals(2,periods(widget).getMaxLines());
             Rect area=bounds(widget);assertTrue(area.right<=w);assertTrue(area.top>=0);assertTrue(area.bottom<h);
             for(View other:new View[]{root.findViewById(R.id.btnWifi),root.findViewById(R.id.btnSettings),root.findViewWithTag("greeting")})assertFalse("Overlap with "+other,Rect.intersects(area,bounds(other)));
-            // Center clock's parent is the second header child; check both clock and date.
-            ViewGroup body=(ViewGroup)((ViewGroup)root).getChildAt(1);ViewGroup header=(ViewGroup)body.getChildAt(0);
-            ViewGroup time=(ViewGroup)header.getChildAt(1);assertFalse(Rect.intersects(area,bounds(time)));
+            // Stable semantic lookup: clock moved out of header by the approved redesign.
+            ViewGroup time=root.findViewWithTag("dashboard-clock");assertNotNull(time);assertFalse(Rect.intersects(area,bounds(time)));
             LinearLayout lines=(LinearLayout)widget.getChildAt(1);assertTrue(lines.getHeight()<=widget.getHeight());
-            for(int i=0;i<lines.getChildCount();i++){TextView text=(TextView)lines.getChildAt(i);assertEquals(1,text.getLineCount());assertTrue(text.getBottom()<=widget.getHeight());}
+            for(int i=0;i<lines.getChildCount();i++){TextView text=(TextView)lines.getChildAt(i);assertEquals(i==2?2:1,text.getLineCount());assertTrue(text.getBottom()<=widget.getHeight());}
             helper.capture(root,name);
             // A blank corner of the widget retains exactly the wallpaper pixels beneath it.
             Bitmap visible=Bitmap.createBitmap(w,h,Bitmap.Config.ARGB_8888),hidden=Bitmap.createBitmap(w,h,Bitmap.Config.ARGB_8888);
@@ -95,7 +95,7 @@ public class WeatherWidgetTest {
         RainOptions.prefs(RuntimeEnvironment.getApplication()).edit().putBoolean("enabled",false).commit();
         try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
             Source source=new Source();RainController r=attach(c.get(),source,true);WeatherWidget w=widget(c.get().findViewById(R.id.root));
-            assertEquals("Ds548",source.lastId);assertEquals(1,source.calls.get());assertEquals("Kinarut · 24–33°C",heading(w).getText().toString());
+            assertEquals("Ds548",source.lastId);assertEquals(1,source.calls.get());assertEquals("Kinarut, Sabah",heading(w).getText().toString());assertTrue(condition(w).getText().toString().startsWith("24–33°"));
             assertFalse(r.view.effectVisible());assertFalse(new RainOptions(RainOptions.prefs(c.get())).enabled);assertEquals(RainOptions.HOME_ID,new RainOptions(RainOptions.prefs(c.get())).locationId);
             helper.render(c.get(),1920,1080);for(int i=0;i<15;i++)helper.render(c.get(),1920,1080);assertEquals(1,source.calls.get());
             assertTrue(r.hasWeatherWake());r.screen(false);assertFalse(r.hasWeatherWake());r.screen(true);assertTrue(r.hasWeatherWake());
@@ -107,8 +107,8 @@ public class WeatherWidgetTest {
             Source source=new Source();if(scenario>0&&scenario<4)source.cache=KinarutWeatherTest.fixture(scenario==3?25*3600000L:7*3600000L);
             source.failure=new java.io.IOException("Simulated network failure");RainController r=attach(c.get(),source,scenario==2||scenario==4);
             WeatherWidget w=widget(c.get().findViewById(R.id.root));
-            if(scenario==1||scenario==2){assertEquals("Kinarut · 24–33°C",heading(w).getText().toString());assertTrue(condition(w).getText().toString().endsWith(" · cache"));}
-            else{assertEquals("Kinarut",heading(w).getText().toString());assertEquals("Ramalan tidak tersedia",condition(w).getText().toString());}
+            if(scenario==1||scenario==2){assertEquals("Kinarut, Sabah",heading(w).getText().toString());assertTrue(condition(w).getText().toString().startsWith("24–33°"));assertTrue(periods(w).getText().toString().endsWith(" · cache"));}
+            else{assertEquals("Kinarut, Sabah",heading(w).getText().toString());assertEquals("Ramalan tidak tersedia",condition(w).getText().toString());}
             assertEquals(scenario==2||scenario==4?1:0,source.calls.get());assertTrue(r.hasWeatherWake());assertTrue(r.nextFetchAt()>NOW.toEpochMilli());
         }
     }
@@ -118,7 +118,7 @@ public class WeatherWidgetTest {
             source.cache=WeatherForecast.parse(KinarutWeatherTest.raw(),"Ds548",NOW.minusSeconds(1800).toEpochMilli());
             RainController r=attach(c.get(),source,true);WeatherWidget w=widget(c.get().findViewById(R.id.root));
             assertEquals(0,source.calls.get());
-            assertTrue(condition(w).getText().toString().endsWith(" · cache"));
+            assertTrue(periods(w).getText().toString().endsWith(" · cache"));
             assertTrue(r.status().contains("Last problem: None"));
             assertTrue(r.status().contains("Data origin: Cached / retained forecast"));
             assertTrue(w.getContentDescription().toString().contains(RainOptions.HOME_SCOPE));
@@ -132,7 +132,7 @@ public class WeatherWidgetTest {
             source.cache=WeatherForecast.parse(KinarutWeatherTest.raw(),"Ds548",NOW.minusSeconds(1800).toEpochMilli());
             RainController r=attach(c.get(),source,true);View root=helper.render(c.get(),1920,1080);
             WeatherWidget w=widget(root);Rect before=bounds(w);
-            assertTrue(condition(w).getText().toString().endsWith(" · cache"));
+            assertTrue(periods(w).getText().toString().endsWith(" · cache"));
             r.refresh();waitFor(r);helper.render(c.get(),1920,1080);
             assertEquals(1,source.calls.get());
             assertFalse(condition(w).getText().toString().endsWith(" · cache"));
@@ -149,7 +149,7 @@ public class WeatherWidgetTest {
             RainOptions.prefs(c.get()).edit().remove("request_not_before").commit();
             source.failure=new java.io.IOException("Simulated refresh failure");r.refresh();waitFor(r);
             assertEquals(2,source.calls.get());
-            assertTrue(condition(w).getText().toString().endsWith(" · cache"));
+            assertTrue(periods(w).getText().toString().endsWith(" · cache"));
             assertTrue(r.status().contains("Data origin: Cached / retained forecast"));
             assertTrue(r.status().contains("Simulated refresh failure"));
         }

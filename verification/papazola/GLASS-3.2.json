@@ -1,0 +1,80 @@
+{
+  "version": "3.2.0-glass-dusk",
+  "versionCode": 17,
+  "baseCommit": "c24616aeff01019a68e1ade16f8841f8b202470f",
+  "build": {
+    "testDebugUnitTest": "PASS",
+    "assembleDebug": "PASS",
+    "compileReleaseJavaWithJavac": "PASS"
+  },
+  "fullSuite": {
+    "suites": 31,
+    "tests": 365,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "finalAssetRetest": {
+    "suite": "PremiumHomeTest (after final reference-logo cleanup and fixture remeasure)",
+    "result": {
+      "tests": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "earlierFinalLogoRetest": "PremiumHomeTest + RainFeatureTest PASS"
+  },
+  "features": {
+    "logo": "User supplied reference wordmark; baked checkerboard keyed out; not AI-redrawn",
+    "characterBlending": "Separate display atlas: dusk ambient, screen-right sunset edge light, ground-contact grading, soft radial shadows; hero brightness shares the weather wallpaper colour filter",
+    "sourcePreservation": "Ungraded heroes-pose.webp retained; blended display RGB intentionally differs",
+    "wallpaperAndDefaultPose": "Static; no zoom, drift or bounce",
+    "rain": "One bounded activation snapshot sampled by BitmapShader lenses; fragmented Fresnel glints/meniscus rims, variable-size drops, wandering gravity flow, occasional merging, curved wet trails, low-contrast distant streaks",
+    "rainSnapshot": "960x540 on 16:9 TV, about 2 MiB; in memory only, no per-frame readback/blur; released when inactive",
+    "boundedSprites": "Three cached rim sprites below 140 KiB",
+    "guardrails": "Input transparent; reduced motion, screen-off, pause/dialog and adaptive-quality fallbacks retained"
+  },
+  "sources": {
+    "logoUploadSha256": "a640b7d797498da1ef09cb7ddbd602f6507f0c62c7ba04b6aed6a3fdf75efbb7",
+    "halilintarUploadSha256": "0772a148c1c9fece033f6893bf6af9b3c2f0e7b3f2e68212e6105cf6ca82e728"
+  },
+  "apk": {
+    "package": "dev.farred.fayyadhos.tv.jarvis.fix",
+    "sha256": "6433488a99ae9b37d8bc75e2dd95d2c03c8a3e2bb43c4b2333e3968b4ceff91a",
+    "bytes": 9521840,
+    "signing": "Android Debug; not installed production certificate",
+    "bundledAssets": {
+      "assets/premium/birthday.webp": 67012,
+      "assets/premium/heroes-pose.webp": 194974,
+      "assets/premium/heroes-run.webp": 467388,
+      "assets/premium/world.webp": 107056,
+      "assets/premium/heroes-blended.webp": 195866,
+      "assets/premium/fayyadhos-logo.webp": 248322
+    },
+    "base64Packaged": false
+  },
+  "visualQA": {
+    "renderer": "Robolectric native graphics simulation with fixture apps/JAKIM/MET; not a physical TV capture",
+    "inspected": [
+      "premium-home-720.png",
+      "premium-home-4k.png",
+      "premium-birthday-1080.png",
+      "premium-glass-1080.png"
+    ],
+    "result": "PASS: logo readable without checkerboard field, weather text remeasured/not clipped, static graded heroes clear of UI, refractive glass/trails visible",
+    "previewSha256": {
+      "premium-home-720.png": "b49334b9341992153e2954682b872dc4f968dbdb9f28d31a4f110d90e04d7618",
+      "premium-home-4k.png": "ee7ce370115616381ce2552eac677ef1bd2e272f0d0e3bc8a417b9e6b03228c3",
+      "premium-birthday-1080.png": "ca68adf39f92cefc3b6b82d27661910a6e8f2b425a1f34a909d75c0e6465b1ae",
+      "premium-glass-1080.png": "3053f606e04ea6fd9bbb08b03f7dafa7d1d8c31a9f90f6df4aa21546583afede"
+    }
+  },
+  "limitations": [
+    "Stylised optical glass, not full ray-traced fluid simulation or a photorealism guarantee",
+    "No physical-TV/GPU frame-pacing, real remote, audible Azan or standby acceptance",
+    "Rain driven by MET forecast or explicit Preview; not observed rainfall",
+    "Lint not rerun; earlier original-file lint failures remain documented",
+    "Keep stock Home enabled; never uninstall/clear data to bypass signature mismatch; original signing required for production update",
+    "PapaZola/background are AI fan-concept assets; Halilintar/logo are user-supplied; no franchise licence implied"
+  ]
+}

@@ -7,6 +7,12 @@ import java.io.*;
 public final class AzanService extends Service {
  static final String CHANNEL="azan-playback-v1",PLAY="com.gathin.tvhome.AZAN_PLAY",TEST="com.gathin.tvhome.AZAN_TEST",STOP="com.gathin.tvhome.AZAN_STOP";
  private static final int NOTIFICATION=7512;private static final long MAX_PLAY_MS=15*60_000L;
+ private static volatile boolean playing;
+ static boolean playing(){return playing;}
+ private static final java.util.Set<Runnable> playbackObservers=new java.util.concurrent.CopyOnWriteArraySet<>();
+ static void observePlayback(Runnable observer){playbackObservers.add(observer);}
+ static void unobservePlayback(Runnable observer){playbackObservers.remove(observer);}
+ private void playbackState(boolean value){if(playing!=value){playing=value;for(Runnable observer:playbackObservers){try{observer.run();}catch(RuntimeException ignored){/* Presentation must never interrupt audio. */}}}}
  private MediaPlayer player;private final Handler handler=new Handler(Looper.getMainLooper());private boolean testing;private String expectedZone;
  private final Runnable prepareTimeout=()->finish("Audio tidak dapat disediakan dalam 15 saat.");
  private final Runnable endTimeout=()->finish("Audio dihentikan selepas had 15 minit.");
@@ -32,7 +38,7 @@ public final class AzanService extends Service {
    p.setWakeMode(getApplicationContext(),PowerManager.PARTIAL_WAKE_LOCK);p.setLooping(false);p.setDataSource(audio.getAbsolutePath());
    p.setOnPreparedListener(mp->{if(mp!=player)return;handler.removeCallbacks(prepareTimeout);
     if(!testing&&(!AzanStore.enabled(this)||!AzanScheduler.zone(this).equals(expectedZone))){finish("Azan dibatalkan selepas perubahan tetapan.");return;}
-    try{mp.start();AzanStore.note(this,testing?"Ujian audio sedang dimainkan.":"Audio azan sedang dimainkan.");getSystemService(NotificationManager.class).notify(NOTIFICATION,notification(testing?"Ujian audio · Hentikan tersedia":"Audio azan · Hentikan tersedia"));handler.postDelayed(endTimeout,MAX_PLAY_MS);}catch(RuntimeException e){finish("Audio tidak boleh dimainkan pada peranti ini.");}
+    try{mp.start();playbackState(true);AzanStore.note(this,testing?"Ujian audio sedang dimainkan.":"Audio azan sedang dimainkan.");getSystemService(NotificationManager.class).notify(NOTIFICATION,notification(testing?"Ujian audio · Hentikan tersedia":"Audio azan · Hentikan tersedia"));handler.postDelayed(endTimeout,MAX_PLAY_MS);}catch(RuntimeException e){finish("Audio tidak boleh dimainkan pada peranti ini.");}
    });
    p.setOnCompletionListener(mp->{if(mp==player)finish(testing?"Ujian audio selesai.":"Audio azan selesai.");});
    p.setOnErrorListener((mp,what,extra)->{if(mp==player)finish("Audio rosak / format tidak disokong. Pilih fail lain.");return true;});
@@ -40,7 +46,7 @@ public final class AzanService extends Service {
   }catch(IOException|RuntimeException e){finish("Audio tidak dapat dibuka. Pilih semula fail dan uji bunyi.");}
   return START_NOT_STICKY;
  }
- private void releasePlayer(){handler.removeCallbacksAndMessages(null);MediaPlayer old=player;player=null;if(old!=null){try{old.reset();}catch(RuntimeException ignored){}old.release();}}
+ private void releasePlayer(){playbackState(false);handler.removeCallbacksAndMessages(null);MediaPlayer old=player;player=null;if(old!=null){try{old.reset();}catch(RuntimeException ignored){}old.release();}}
  private void finish(String message){AzanStore.note(this,message);releasePlayer();stopForeground(STOP_FOREGROUND_REMOVE);stopSelf();}
  @Override public void onDestroy(){releasePlayer();stopForeground(STOP_FOREGROUND_REMOVE);super.onDestroy();}
 }

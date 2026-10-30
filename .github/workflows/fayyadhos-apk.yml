@@ -1,0 +1,101 @@
+name: FayyadhOS Android APK
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fayyadhos-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Build debug APK and run tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          # The legacy SDK Manager package "tools" no longer exists in Google's repository.
+          packages: platform-tools
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses >/dev/null
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Build debug APK
+        run: bash ./gradlew --no-daemon :app:assembleDebug
+
+      - name: Upload debug APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: FayyadhOS-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 90
+
+
+      - name: Run unit tests and compile release sources
+        run: bash ./gradlew --no-daemon :app:testDebugUnitTest :app:compileReleaseJavaWithJavac
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: FayyadhOS-test-reports
+          path: |
+            app/build/reports/tests/testDebugUnitTest/
+            app/build/test-results/testDebugUnitTest/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Smoke-test launcher on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: |
+            set -eu
+            mkdir -p emulator-output
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            # Keep Android UI transitions disabled, but allow FayyadhOS's own Choreographer motion.
+            adb shell settings put global animator_duration_scale 1.0
+            adb shell am start -W -n dev.farred.fayyadhos.tv.jarvis.fix/com.gathin.tvhome.DashboardActivity
+            sleep 3
+            adb shell screencap -p /sdcard/fayyadhos-home.png
+            adb pull /sdcard/fayyadhos-home.png emulator-output/fayyadhos-home.png
+            adb shell screenrecord --time-limit 12 --bit-rate 4000000 /sdcard/fayyadhos-animation.mp4
+            adb pull /sdcard/fayyadhos-animation.mp4 emulator-output/fayyadhos-animation.mp4
+            adb logcat -d -t 8000 > emulator-output/logcat.txt
+            adb shell dumpsys activity activities > emulator-output/activities.txt
+            grep -F 'com.gathin.tvhome.DashboardActivity' emulator-output/activities.txt
+
+      - name: Upload emulator smoke-test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: FayyadhOS-emulator-smoke
+          path: emulator-output/
+          if-no-files-found: ignore
+          retention-days: 90

@@ -86,7 +86,7 @@ public class KinarutWeatherTest {
         for(boolean online:new boolean[]{true,false})try(var activity=Robolectric.buildActivity(DashboardActivity.class).setup()){
             Source source=new Source();RainController c=attach(activity.get(),source,NOW,online);
             WeatherWidget widget=activity.get().findViewById(R.id.root).findViewWithTag("weather-widget");WeatherWidgetTest helper=new WeatherWidgetTest();
-            if(online){assertEquals("Kinarut · 24–33°C",helper.heading(widget).getText().toString());assertTrue(helper.condition(widget).getText().toString().contains("Ribut petir"));assertEquals(1,source.calls.get());}
+            if(online){assertEquals("Kinarut, Sabah",helper.heading(widget).getText().toString());assertTrue(helper.condition(widget).getText().toString().startsWith("24–33°"));assertTrue(helper.condition(widget).getText().toString().contains("Ribut petir"));assertEquals(1,source.calls.get());}
             else{assertEquals("Ramalan tidak tersedia",helper.condition(widget).getText().toString());assertTrue(c.status().contains("Offline; no request sent"));assertEquals(0,source.calls.get());}
             assertTrue(c.status().contains(RainOptions.HOME_SCOPE));
         }
@@ -100,7 +100,7 @@ public class KinarutWeatherTest {
         Instant early=Instant.parse("2026-10-24T18:00:00Z");try(var activity=Robolectric.buildActivity(DashboardActivity.class).setup()){
             RainOptions.prefs(activity.get()).edit().putBoolean("enabled",true).putBoolean("forecast",true).commit();
             Source source=new Source();RainController c=attach(activity.get(),source,early,true);WeatherWidget widget=activity.get().findViewById(R.id.root).findViewWithTag("weather-widget");
-            assertTrue(new WeatherWidgetTest().condition(widget).getText().toString().startsWith("Ramalan harian · "));assertEquals(WeatherForecast.State.UNKNOWN,c.currentState());assertFalse(c.view.effectVisible());
+            assertTrue(new WeatherWidgetTest().periods(widget).getText().toString().startsWith("MET harian"));assertEquals(WeatherForecast.State.UNKNOWN,c.currentState());assertFalse(c.view.effectVisible());
             new DashboardTest().capture(new DashboardTest().render(activity.get(),1920,1080),"kinarut-daily-fallback-1080");
         }
     }

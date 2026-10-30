@@ -99,6 +99,16 @@ final class WeatherForecast {
                 (usesDailySummary(now)?"; showing today's DAILY summary, not current-period weather":"; no daily summary available");
         return "Available: "+period;
     }
+    static final String[] PERIOD_NAMES={"Pagi","Petang","Malam"};
+    /** MET forecast for the period {@code steps} after the current MYT period; empty when absent/stale. */
+    String upcoming(Instant instant,int steps){
+        if(!fresh(instant))return "";
+        ZonedDateTime now=instant.atZone(ZONE);LocalDate date=forecastDate(now);int p=period(now);
+        for(int i=0;i<steps;i++){p++;if(p>2){p=0;date=date.plusDays(1);}}
+        String[] day=days.get(date);if(day==null||day[p].isEmpty())return "";
+        String label=date.isAfter(now.toLocalDate())?"Esok "+PERIOD_NAMES[p].toLowerCase(Locale.ROOT):PERIOD_NAMES[p];
+        return label+": "+day[p];
+    }
     State state(Instant now){return fresh(now)?classify(description(now)):State.UNKNOWN;}
     static Instant nextBoundary(Instant instant){
         ZonedDateTime now=instant.atZone(ZONE);int h=now.getHour();

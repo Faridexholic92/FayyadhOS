@@ -18,16 +18,18 @@ public class DashboardActivity extends Activity {
  private final Handler handler=new Handler(Looper.getMainLooper());
  private WeatherForecast.State wallpaperState=WeatherForecast.State.UNKNOWN;
  private String wallpaperKey="";
+ private PremiumSceneView scene;private TextView sceneTitle,sceneCaption,sceneAge;private LinearLayout hero,birthdayBlock;
  private WallpaperDissolveView wallpaper;private HourlyWeatherController hourly;private boolean pendingDim;private TextView clock,date,greeting;private RecyclerView grid;
  private PrayerPanel prayer;private DashboardApps catalog;private List<ResolveInfo> apps=new ArrayList<>();
  private String moving,focusKey,lastFocusedKey;private boolean swallowOK;private float scale=1;
  private TextView empty;
  RainController rain;
  private WelcomeSpeech welcome;private boolean resumed,screenReceiverRegistered;
+ private final Runnable azanPlayback=()->{if(scene!=null)scene.audioBusy(AzanService.playing());if(prayer!=null)prayer.playbackChanged();};
  private final Runnable welcomeTask=()->{if(resumed&&welcome!=null)welcome.speak(false);};
  private final BroadcastReceiver screenReceiver=new BroadcastReceiver(){public void onReceive(Context c,Intent i){
-  if(Intent.ACTION_SCREEN_OFF.equals(i.getAction())){if(rain!=null)rain.screen(false);if(hourly!=null)hourly.screen(false);wallpaper.hostActive(false);handler.removeCallbacks(welcomeTask);welcome.screenOff();}
-  else if(Intent.ACTION_SCREEN_ON.equals(i.getAction())){if(rain!=null)rain.screen(true);if(resumed){wallpaper.hostActive(true);if(hourly!=null)hourly.screen(true);}if(resumed)scheduleWelcome();}
+  if(Intent.ACTION_SCREEN_OFF.equals(i.getAction())){if(rain!=null)rain.screen(false);if(hourly!=null)hourly.screen(false);wallpaper.hostActive(false);if(scene!=null)scene.screen(false);handler.removeCallbacks(welcomeTask);welcome.screenOff();}
+  else if(Intent.ACTION_SCREEN_ON.equals(i.getAction())){if(scene!=null)scene.screen(true);if(rain!=null)rain.screen(true);if(resumed){wallpaper.hostActive(true);if(hourly!=null)hourly.screen(true);}if(resumed)scheduleWelcome();}
  }};
  private void scheduleWelcome(){handler.removeCallbacks(welcomeTask);handler.postDelayed(welcomeTask,1200);}
  private JarvisPanel jarvis;private AlertDialog popup;private FrameLayout root;
@@ -40,7 +42,7 @@ public class DashboardActivity extends Activity {
  private LinearLayout vertical(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.VERTICAL);return l;}
  private LinearLayout.LayoutParams lp(int w,int h){return new LinearLayout.LayoutParams(w,h);}
  @Override public void onCreate(Bundle b){super.onCreate(b);
-  welcome=new WelcomeSpeech(this);IntentFilter screenEvents=new IntentFilter();screenEvents.addAction(Intent.ACTION_SCREEN_OFF);screenEvents.addAction(Intent.ACTION_SCREEN_ON);
+  welcome=new WelcomeSpeech(this);IntentFilter screenEvents=new IntentFilter();screenEvents.addAction(Intent.ACTION_SCREEN_OFF);screenEvents.addAction(Intent.ACTION_SCREEN_ON);AzanService.observePlayback(azanPlayback);
   if(Build.VERSION.SDK_INT>=33)registerReceiver(screenReceiver,screenEvents,Context.RECEIVER_NOT_EXPORTED);else registerReceiver(screenReceiver,screenEvents);
   screenReceiverRegistered=true;
   float w=getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density;
@@ -51,34 +53,51 @@ public class DashboardActivity extends Activity {
   wallpaper=new WallpaperDissolveView(this);wallpaper.setScaleType(ImageView.ScaleType.CENTER_CROP);root.addView(wallpaper,new FrameLayout.LayoutParams(-1,-1));loadWallpaper();
   // A uniform 960x540 design space keeps the reference composition at 720p/1080p/4K.
   FrameLayout body=new FrameLayout(this);body.setBackground(new android.graphics.drawable.GradientDrawable(
-   android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0x45071320,0x08071320,0x28071320}));
+   android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0x99050d1a,0x1a050d1a,0x00050d1a,0x0d050d1a,0x8c050d1a}));
   root.addView(body,new FrameLayout.LayoutParams(-1,-1));
-  FrameLayout header=new FrameLayout(this);place(body,header,40,28,880,62);
-  LinearLayout brand=vertical();TextView name=text("FayyadhOS",30,GlassUi.WHITE);
-  android.text.SpannableString wordmark=new android.text.SpannableString("FayyadhOS");
-  wordmark.setSpan(new android.text.style.ForegroundColorSpan(GlassUi.CYAN),7,9,0);name.setText(wordmark);
-  name.setTypeface(null,Typeface.BOLD);brand.addView(name);
-  TextView edition=text("TV EDITION",10,GlassUi.WHITE);edition.setLetterSpacing(.38f);edition.setPadding(d(16),d(3),0,0);brand.addView(edition);
-  header.addView(brand,new FrameLayout.LayoutParams(d(230),-2,Gravity.START|Gravity.TOP));
-  LinearLayout time=vertical();time.setGravity(Gravity.CENTER_HORIZONTAL);
-  clock=text("",34,GlassUi.WHITE);clock.setTypeface(null,Typeface.BOLD);date=text("",13,GlassUi.WHITE);
-  clock.setGravity(Gravity.CENTER);date.setGravity(Gravity.CENTER);date.setSingleLine(true);
-  date.setEllipsize(android.text.TextUtils.TruncateAt.END);time.addView(clock);time.addView(date);
-  header.addView(time,new FrameLayout.LayoutParams(d(310),-2,Gravity.CENTER_HORIZONTAL|Gravity.TOP));
+  scene=new PremiumSceneView(this,wallpaper);body.addView(scene,new FrameLayout.LayoutParams(-1,-1));
+  // Dusk "Dunia PapaZola" composition on a 960x540 design grid (approved TV mockup).
+  FrameLayout header=new FrameLayout(this);place(body,header,37,12,884,62);
+  LinearLayout brand=vertical();
+  FayyadhWordmarkView wordmark=new FayyadhWordmarkView(this);
+  brand.addView(wordmark,lp(d(198),d(48)));
+  TextView edition=text("A QUIETER KIND OF SMART.",5.5f,GlassUi.WHITE);edition.setTextSize(5.5f*scale);edition.setSingleLine(true);edition.setLetterSpacing(.24f);edition.setPadding(d(2),d(2),0,0);brand.addView(edition);
+  header.addView(brand,new FrameLayout.LayoutParams(d(300),-2,Gravity.START|Gravity.TOP));
+  LinearLayout time=vertical();time.setGravity(Gravity.START);time.setTag("dashboard-clock");
+  clock=text("",60,GlassUi.WHITE);clock.setTypeface(Typeface.create("sans-serif-light",Typeface.NORMAL));clock.setLetterSpacing(-.02f);date=text("",7.5f,GlassUi.WHITE);
+  clock.setAutoSizeTextTypeUniformWithConfiguration(Math.max(12,Math.round(20*scale)),Math.max(13,Math.round(60*scale)),1,android.util.TypedValue.COMPLEX_UNIT_SP);clock.setGravity(Gravity.START);date.setGravity(Gravity.START);date.setSingleLine(true);
+  clock.setIncludeFontPadding(false);date.setAllCaps(true);date.setLetterSpacing(.16f);
+  date.setEllipsize(android.text.TextUtils.TruncateAt.END);time.addView(clock,lp(-1,d(62)));LinearLayout.LayoutParams dp=lp(-1,-2);dp.topMargin=d(4);time.addView(date,dp);
+  place(body,time,41,74,200,84);
   LinearLayout actions=new LinearLayout(this);actions.setGravity(Gravity.CENTER_VERTICAL);
-  TextView net=button("●  Jarvis",()->showJarvis());net.setContentDescription("Open Jarvis network diagnostics and AI assistance");net.setId(R.id.btnWifi);actions.addView(net,lp(d(82),d(44)));
-  View divider=new View(this);divider.setBackgroundColor(0x66ffffff);actions.addView(divider,lp(d(1),d(24)));
-  TextView settings=button("Settings",()->settings());android.graphics.drawable.Drawable gear=getDrawable(R.drawable.ic_settings);gear.setBounds(0,0,d(18),d(18));settings.setCompoundDrawables(gear,null,null,null);
-  settings.setCompoundDrawablePadding(d(5));settings.setPadding(d(10),0,d(5),0);settings.setId(R.id.btnSettings);actions.addView(settings,lp(d(100),d(44)));
-  header.addView(actions,new FrameLayout.LayoutParams(-2,d(44),Gravity.END|Gravity.TOP));
-  LinearLayout intro=vertical();place(body,intro,40,128,310,100);
-  greeting=text("",32,GlassUi.WHITE);greeting.setTypeface(null,Typeface.BOLD);greeting.setTag("greeting");intro.addView(greeting);
-  TextView caption=text("Your entertainment, all in one place.",18,GlassUi.WHITE);LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);
-  grid=new LoopCarousel(this);grid.setId(R.id.grid);grid.setClipToPadding(false);grid.setPadding(d(3),d(6),d(3),d(6));
+  TextView net=button("JARVIS",()->showJarvis());net.setContentDescription("Open Jarvis network diagnostics and AI assistance");net.setId(R.id.btnWifi);
+  net.setTextSize(7.5f*scale);net.setLetterSpacing(.18f);net.setBackground(pill(true));
+  android.graphics.drawable.GradientDrawable dot=new android.graphics.drawable.GradientDrawable();dot.setShape(android.graphics.drawable.GradientDrawable.OVAL);dot.setColor(0xff7fe3ff);dot.setStroke(d(1.5f),0x667fe3ff);dot.setBounds(0,0,d(7),d(7));
+  net.setCompoundDrawables(dot,null,null,null);net.setCompoundDrawablePadding(d(6));net.setPadding(d(11),0,d(11),0);
+  LinearLayout.LayoutParams netParams=lp(-2,d(26));actions.addView(net,netParams);
+  View divider=new View(this);divider.setBackgroundColor(0x59ffffff);LinearLayout.LayoutParams div=lp(d(1),d(18));div.leftMargin=d(14);div.rightMargin=d(8);actions.addView(divider,div);
+  TextView settings=button("SETTINGS",()->settings());settings.setTextSize(7.5f*scale);settings.setLetterSpacing(.18f);settings.setBackground(pill(false));
+  android.graphics.drawable.Drawable gear=getDrawable(R.drawable.ic_settings).mutate();gear.setBounds(0,0,d(15),d(15));settings.setCompoundDrawables(gear,null,null,null);
+  settings.setCompoundDrawablePadding(d(7));settings.setPadding(d(8),0,d(8),0);settings.setId(R.id.btnSettings);actions.addView(settings,lp(-2,d(26)));
+  header.addView(actions,new FrameLayout.LayoutParams(-2,d(26),Gravity.END|Gravity.TOP));
+  // Hero: "DUNIA PAPA ZOLA", rotating motivation line, then the dated birthday block.
+  hero=vertical();hero.setTag("hero-title");
+  TextView dunia=heroText("DUNIA",26,0xffffffff,0xffcfe6ff);hero.addView(dunia,lp(-2,-2));
+  TextView papa=heroText("PAPA ZOLA",37,0xffffffff,0xff8cc8ff);LinearLayout.LayoutParams pp=lp(-2,-2);pp.topMargin=-d(7);hero.addView(papa,pp);
+  Swoosh swoosh=new Swoosh(this);LinearLayout.LayoutParams sw=lp(d(132),d(9));sw.leftMargin=d(84);sw.topMargin=-d(5);hero.addView(swoosh,sw);
+  place(body,hero,37,176,300,96);
+  greeting=text("",9.5f,GlassUi.WHITE);greeting.setTag("greeting");greeting.setMaxLines(2);greeting.setEllipsize(android.text.TextUtils.TruncateAt.END);greeting.setLineSpacing(0,1.1f);
+  place(body,greeting,37,268,260,32);
+  birthdayBlock=vertical();birthdayBlock.setTag("birthday-block");
+  sceneCaption=text("HAPPY BIRTHDAY,",8,0xfff2cf7a);sceneCaption.setLetterSpacing(.22f);birthdayBlock.addView(sceneCaption);
+  sceneTitle=heroText("FAYYADH!",27,0xffffe7a3,0xffe0a133);LinearLayout.LayoutParams fp=lp(-2,-2);fp.topMargin=d(1);birthdayBlock.addView(sceneTitle,fp);
+  sceneAge=text("5 TAHUN",12,0xfff2cf7a);sceneAge.setLetterSpacing(.2f);sceneAge.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));birthdayBlock.addView(sceneAge);
+  place(body,birthdayBlock,37,314,240,80);
+  grid=new LoopCarousel(this);grid.setId(R.id.grid);grid.setClipToPadding(false);grid.setPadding(d(3),d(8),d(3),d(8));
   grid.setItemAnimator(null);
-  grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,40,400,880,112);
-  empty=text("No visible apps. Open Settings to unhide apps or install TV apps.",16,GlassUi.WHITE);empty.setGravity(Gravity.CENTER_VERTICAL);place(body,empty,46,406,868,96);
-  prayer=new PrayerPanel(this);prayer.dashboardScale(scale);place(body,prayer,40,84,390,40);
+  grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,30,432,900,80);
+  empty=text("No visible apps. Open Settings to unhide apps or install TV apps.",16,GlassUi.WHITE);empty.setGravity(Gravity.CENTER_VERTICAL);place(body,empty,44,441,872,68);
+  prayer=new PrayerPanel(this);prayer.dashboardScale(scale);place(body,prayer,252,72,480,92);
   prayer.setNextFocusUpId(R.id.btnWifi);prayer.setNextFocusDownId(R.id.grid);
   net.setNextFocusDownId(R.id.prayerPanel);settings.setNextFocusDownId(R.id.prayerPanel);
   net.setNextFocusRightId(R.id.btnSettings);settings.setNextFocusLeftId(R.id.btnWifi);
@@ -90,12 +109,39 @@ public class DashboardActivity extends Activity {
    if(key==KeyEvent.KEYCODE_DPAD_LEFT||key==KeyEvent.KEYCODE_DPAD_RIGHT)return prayer.cycle(key==KeyEvent.KEYCODE_DPAD_LEFT?-1:1);return false;});
   // Structural layout only: no weather surface/background, focus target or click handler.
   // Weather sits below the top-right actions, outside the centered clock.
-   WeatherWidget weather=new WeatherWidget(this,scale);place(body,weather,690,96,230,38);
+   WeatherWidget weather=new WeatherWidget(this,scale);place(body,weather,748,74,176,70);
   rain=new RainController(this,root);rain.attachWeather(weather);
-  hourly=new HourlyWeatherController(this);place(body,hourly.view(),690,140,230,78);
+  // Optional Open-Meteo row appears only after the user configures it; MET stays the home forecast.
+  hourly=new HourlyWeatherController(this);place(body,hourly.view(),748,150,176,78);syncHourly();
   reload();updateClock();
   if(!apps.isEmpty()){focusKey=DashboardApps.key(apps.get(0));grid.post(()->focusApp(focusKey));}else settings.requestFocus();
  }
+ private TextView heroText(String s,float size,int top,int bottom){
+  TextView t=text(s,size,GlassUi.WHITE);t.setTypeface(Typeface.create("sans-serif-black",Typeface.BOLD));t.getPaint().setTextSkewX(-.16f);t.setLetterSpacing(-.01f);t.setIncludeFontPadding(false);
+  t.setPadding(d(1),d(2),d(6),d(2));t.setShadowLayer(d(5),0,d(2),0xcc020814);
+  t.getPaint().setShader(new LinearGradient(0,0,0,t.getPaint().getTextSize(),top,bottom,Shader.TileMode.CLAMP));return t;}
+ private android.graphics.drawable.StateListDrawable pill(boolean outlined){
+  android.graphics.drawable.StateListDrawable states=new android.graphics.drawable.StateListDrawable();
+  android.graphics.drawable.GradientDrawable on=new android.graphics.drawable.GradientDrawable();on.setCornerRadius(d(13));on.setColor(0xd0245360);on.setStroke(d(1.5f),0xff7fe3ff);
+  android.graphics.drawable.GradientDrawable off=new android.graphics.drawable.GradientDrawable();off.setCornerRadius(d(13));off.setColor(outlined?0x33071322:Color.TRANSPARENT);off.setStroke(outlined?d(1):0,0x8cffffff);
+  states.addState(new int[]{android.R.attr.state_focused},on);states.addState(new int[]{android.R.attr.state_pressed},on);states.addState(new int[]{},off);return states;}
+ /** Dock focus: dark glass with a cyan neon rim and soft outer glow; idle tiles stay transparent. */
+ android.graphics.drawable.StateListDrawable dock(){
+  android.graphics.drawable.GradientDrawable glow=new android.graphics.drawable.GradientDrawable();glow.setCornerRadius(d(14));glow.setColor(Color.TRANSPARENT);glow.setStroke(d(3),0x4d38d6ff);
+  android.graphics.drawable.GradientDrawable rim=new android.graphics.drawable.GradientDrawable();rim.setCornerRadius(d(11));rim.setColor(0xb3061424);rim.setStroke(d(1.6f),0xff4fdcff);
+  android.graphics.drawable.LayerDrawable focused=new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{glow,rim});focused.setLayerInset(1,d(2.5f),d(2.5f),d(2.5f),d(2.5f));
+  android.graphics.drawable.GradientDrawable idle=new android.graphics.drawable.GradientDrawable();idle.setCornerRadius(d(11));idle.setColor(Color.TRANSPARENT);
+  android.graphics.drawable.StateListDrawable states=new android.graphics.drawable.StateListDrawable();states.addState(new int[]{android.R.attr.state_focused},focused);states.addState(new int[]{android.R.attr.state_pressed},focused);states.addState(new int[]{},idle);return states;}
+ void syncHourly(){if(hourly!=null)hourly.view().setVisibility(hourly.configured()?View.VISIBLE:View.GONE);}
+ /** FayyadhOS mountain mark: two peaks, the right one taller. */
+ static final class Peaks extends View{private final Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);private final Path path=new Path();
+  Peaks(Context c){super(c);paint.setStyle(Paint.Style.STROKE);paint.setStrokeJoin(Paint.Join.ROUND);paint.setStrokeCap(Paint.Cap.ROUND);paint.setColor(0xff7fd3ff);setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);}
+  @Override protected void onDraw(Canvas c){float w=getWidth(),h=getHeight(),s=Math.max(1.5f,h*.13f);paint.setStrokeWidth(s);path.reset();path.moveTo(s,h-s);path.lineTo(w*.32f,h*.3f);path.lineTo(w*.5f,h*.62f);path.lineTo(w*.72f,s);path.lineTo(w-s,h-s);c.drawPath(path,paint);}}
+ /** Gold brush stroke under the hero title. */
+ static final class Swoosh extends View{private final Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);private final Path path=new Path();
+  Swoosh(Context c){super(c);setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);}
+  @Override protected void onDraw(Canvas c){float w=getWidth(),h=getHeight();paint.setShader(new LinearGradient(0,0,w,0,new int[]{0x00f2a93b,0xfff2a93b,0xffffd77a},new float[]{0,.35f,1},Shader.TileMode.CLAMP));
+   path.reset();path.moveTo(0,h*.85f);path.quadTo(w*.55f,h*.55f,w,0);path.quadTo(w*.6f,h*.95f,0,h);path.close();c.drawPath(path,paint);}}
  private void place(FrameLayout parent,View child,float x,float y,float width,float height){FrameLayout.LayoutParams p=new FrameLayout.LayoutParams(d(width),d(height));p.leftMargin=d(x);p.topMargin=d(y);parent.addView(child,p);}
  private void focusApp(String key){
   if(apps.isEmpty()){findViewById(R.id.btnSettings).requestFocus();return;}
@@ -106,18 +152,38 @@ public class DashboardActivity extends Activity {
 
 
  private TextView button(String label,Runnable click){TextView t=text(label,13,GlassUi.WHITE);t.setGravity(Gravity.CENTER);t.setSingleLine(true);GlassUi.focusShortcut(t);t.setOnClickListener(v->click.run());return t;}
- void updateClock(){LocalDateTime now=LocalDateTime.now();clock.setText(now.format(DateTimeFormatter.ofLocalizedTime(java.time.format.FormatStyle.SHORT).withLocale(Locale.getDefault())));date.setText(now.format(DateTimeFormatter.ofPattern("EEEE, d MMM yyyy",Locale.getDefault())));greeting.setText(greeting(now.getHour()));}
+ /** Locale short-time pattern without the AM/PM marker, e.g. "h:mm" (US) or "HH:mm" (DE). */
+ static String clockPattern(Locale locale){String p=java.time.format.DateTimeFormatterBuilder.getLocalizedDateTimePattern(null,java.time.format.FormatStyle.SHORT,java.time.chrono.IsoChronology.INSTANCE,locale);
+  String stripped=p.replaceAll("\\s*a\\s*","").replace("\u202f","").trim();return stripped.isEmpty()?"H:mm":stripped;}
+ static final Locale MALAY=new Locale("ms","MY");
+ void updateClock(){LocalDateTime now=LocalDateTime.now();clock.setText(now.format(DateTimeFormatter.ofPattern(clockPattern(Locale.getDefault()),Locale.getDefault())));date.setText(now.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy",MALAY)));showMotivation(MotivationQuotes.at(System.currentTimeMillis()));loadWallpaper();}
+ private void showMotivation(String line){
+  if(line.contentEquals(greeting.getText()))return;
+  boolean animate=resumed&&android.provider.Settings.Global.getFloat(getContentResolver(),android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,1f)>0&&greeting.getText().length()>0;
+  greeting.setContentDescription("Kata-kata motivasi: "+line);
+  if(!animate){greeting.animate().cancel();greeting.setAlpha(1f);greeting.setText(line);return;}
+  greeting.animate().cancel();greeting.animate().alpha(0f).setDuration(350).withEndAction(()->{greeting.setText(line);greeting.animate().alpha(1f).setDuration(450).start();}).start();
+ }
  boolean automaticWallpaper(){return getSharedPreferences("fayyadh-wallpaper",0).getBoolean("automatic_weather",true);}
  void weatherWallpaper(WeatherForecast.State state){wallpaperState=state;loadWallpaper();}
  void setAutomaticWallpaper(boolean enabled){getSharedPreferences("fayyadh-wallpaper",0).edit().putBoolean("automatic_weather",enabled).apply();loadWallpaper();}
  String currentWallpaperKey(){return wallpaperKey;}
  private void loadWallpaper(){
-  String scene=automaticWallpaper()?WeatherWallpapers.asset(wallpaperState):null;
+  boolean premium=!PremiumTheme.CLASSIC.equals(PremiumTheme.selected(this));
+  boolean birthday=PremiumTheme.birthday(this,LocalDate.now(PrayerTimes.MALAYSIA));
+  if(scene!=null){scene.characters(PremiumTheme.POSE.equals(PremiumTheme.characters(this)));scene.configure(premium,birthday,PremiumTheme.motion(this));}
+  if(hero!=null){hero.setVisibility(premium?View.VISIBLE:View.INVISIBLE);birthdayBlock.setVisibility(premium&&birthday?View.VISIBLE:View.INVISIBLE);}
+  String sceneAsset=premium?PremiumTheme.asset(birthday):automaticWallpaper()?WeatherWallpapers.asset(wallpaperState):null;
   String selected=getSharedPreferences("fayyadh-wallpaper",0).getString("selected",FayyadhWallpapers.DEFAULT);
   if(!FayyadhWallpapers.contains(selected))selected=FayyadhWallpapers.DEFAULT;
-  String key=scene!=null?scene:"manual:"+selected;if(key.equals(wallpaperKey))return;
-  final String asset=scene,chosen=selected;
-  wallpaperKey=key;
+  String key=premium?"premium:"+(birthday?"birthday":automaticWallpaper()?wallpaperState.name():"neutral"):(sceneAsset!=null?sceneAsset:"manual:"+selected);
+  // A color matrix changes atmosphere without allocating more full-screen scene bitmaps.
+  if(premium&&!birthday&&automaticWallpaper()){
+   float brightness=wallpaperState==WeatherForecast.State.CLEAR?1.16f:wallpaperState==WeatherForecast.State.CLOUDY?.93f:wallpaperState==WeatherForecast.State.THUNDERSTORM_EXPECTED?.77f:1f;
+   ColorMatrix matrix=new ColorMatrix(new float[]{brightness,0,0,0,0,0,brightness,0,0,0,0,0,brightness,0,0,0,0,0,1,0});wallpaper.setColorFilter(new ColorMatrixColorFilter(matrix));
+  }else wallpaper.clearColorFilter();
+  if(key.equals(wallpaperKey))return;
+  final String asset=sceneAsset,chosen=selected;wallpaperKey=key;
   wallpaper.request(key,()->{
    Bitmap bitmap=null;
    if(asset!=null)try(java.io.InputStream in=getAssets().open(asset)){bitmap=decodeWallpaper(in);}catch(java.io.IOException ignored){}
@@ -135,12 +201,22 @@ public class DashboardActivity extends Activity {
  void wallpapers(){String selected=getSharedPreferences("fayyadh-wallpaper",0).getString("selected",FayyadhWallpapers.DEFAULT);
   show(new AlertDialog.Builder(this).setTitle("Wallpaper · Ikut cuaca: "+(automaticWallpaper()?"ON":"OFF"))
    .setSingleChoiceItems(FayyadhWallpapers.NAMES,Arrays.asList(FayyadhWallpapers.FILES).indexOf(selected),(d,i)->{
-    getSharedPreferences("fayyadh-wallpaper",0).edit().putString("selected",FayyadhWallpapers.FILES[i]).putBoolean("automatic_weather",false).apply();loadWallpaper();d.dismiss();})
+    PremiumTheme.prefs(this).edit().putString("theme",PremiumTheme.CLASSIC).apply();getSharedPreferences("fayyadh-wallpaper",0).edit().putString("selected",FayyadhWallpapers.FILES[i]).putBoolean("automatic_weather",false).apply();loadWallpaper();d.dismiss();})
    .setNeutralButton(automaticWallpaper()?"Cuaca auto: OFF":"Cuaca auto: ON",(d,i)->{setAutomaticWallpaper(!automaticWallpaper());})
    .setNegativeButton("Close",null));}
- void settings(){handler.removeCallbacks(welcomeTask);welcome.cancel();show(new AlertDialog.Builder(this).setTitle("FayyadhOS · Settings").setItems(new String[]{"Wallpaper","Hide / unhide apps","Rearrange apps","Jarvis · Network & AI","Prayer zone & options","Android settings","Set default Home",getString(R.string.rain_settings_entry),"Azan · Lima waktu","Cuaca · Sekarang / +3j / +6j",DimService.enabled(this)?"Dim 35%: ON":"Dim 35%: OFF"},(d,i)->{
-  if(i==10){toggleDim();}else if(i==9){d.dismiss();handler.post(()->hourly.settings());}else if(i==8){startActivity(new Intent(this,AzanSettingsActivity.class));}else if(i==0)wallpapers();else if(i==1)hidden();else if(i==2)message("Rearrange apps","Hold OK on an app > Move. Use the arrow keys to rearrange. Press OK or Back to finish. Your order is saved automatically.");else if(i==3)showJarvis();else if(i==4)prayer.performClick();else if(i==7){d.dismiss();handler.post(()->rain.showSettings());}else system(i==6?Settings.ACTION_HOME_SETTINGS:Settings.ACTION_SETTINGS);
+ void settings(){handler.removeCallbacks(welcomeTask);welcome.cancel();show(new AlertDialog.Builder(this).setTitle("FayyadhOS · Settings").setItems(new String[]{"Wallpaper","Hide / unhide apps","Rearrange apps","Jarvis · Network & AI","Prayer zone & options","Android settings","Set default Home",getString(R.string.rain_settings_entry),"Azan · Lima waktu","Cuaca · Sekarang / +3j / +6j",DimService.enabled(this)?"Dim 35%: ON":"Dim 35%: OFF","PapaZola · Theme & motion"},(d,i)->{
+  if(i==11){themeSettings();}else if(i==10){toggleDim();}else if(i==9){d.dismiss();handler.post(()->{hourly.settings();syncHourly();});}else if(i==8){startActivity(new Intent(this,AzanSettingsActivity.class));}else if(i==0)wallpapers();else if(i==1)hidden();else if(i==2)message("Rearrange apps","Hold OK on an app > Move. Use the arrow keys to rearrange. Press OK or Back to finish. Your order is saved automatically.");else if(i==3)showJarvis();else if(i==4)prayer.performClick();else if(i==7){d.dismiss();handler.post(()->rain.showSettings());}else system(i==6?Settings.ACTION_HOME_SETTINGS:Settings.ACTION_SETTINGS);
  }).setNegativeButton("Close",null));}
+ void themeSettings(){
+  String[] options={"PapaZola · Weather world","Birthday · Fayyadh 5 Tahun","Classic · Existing wallpapers","Motion: "+new String[]{"OFF / Reduced motion","Lite · 15 fps","Full · 30 fps"}[PremiumTheme.motion(this)],"Birthday on 30 Oct 2026: "+(PremiumTheme.prefs(this).getBoolean("birthday_auto",true)?"ON":"OFF"),"Watak: "+(PremiumTheme.POSE.equals(PremiumTheme.characters(this))?"Statik · PapaZola + Halilintar":"Lari bebas (sprite)")};
+  show(new AlertDialog.Builder(this).setTitle("PapaZola · Theme & motion").setItems(options,(dialog,index)->{
+   if(index<3)PremiumTheme.prefs(this).edit().putString("theme",new String[]{PremiumTheme.WORLD,PremiumTheme.BIRTHDAY,PremiumTheme.CLASSIC}[index]).apply();
+   else if(index==3)PremiumTheme.prefs(this).edit().putInt("motion",(PremiumTheme.motion(this)+1)%3).apply();
+   else if(index==4)PremiumTheme.prefs(this).edit().putBoolean("birthday_auto",!PremiumTheme.prefs(this).getBoolean("birthday_auto",true)).apply();
+   else PremiumTheme.prefs(this).edit().putString("characters",PremiumTheme.POSE.equals(PremiumTheme.characters(this))?PremiumTheme.RUN:PremiumTheme.POSE).apply();
+   loadWallpaper();
+  }).setNeutralButton("About",(dialog,index)->message("Theme & motion","Wallpaper and default hero pose are static. Rain-on-Glass movement is separate. Optional Lari bebas uses the supplied Halilintar still (not a generated run cycle). Full: up to 30 fps; Lite: up to 15 fps; PapaZola run poses cycle at about 15 fps. These are caps, not device benchmarks. OFF respects reduced motion. No live blur or video. Motion also respects Rain settings > Moving OFF and Android animation scale 0. Birthday characters continue animating after the ten-second confetti effect ends. Scene weather follows validated current-period MET forecast, NOT observed rain. Unknown/expired data uses a neutral scene. Birthday automatic is only 30 October 2026 in Malaysian time; manual Birthday stays selected until changed. PapaZola/background are AI fan-concept art; Halilintar is the user-supplied image. No official asset licence is implied.")).setNegativeButton("Close",null));
+ }
  void toggleDim(){
   if(DimService.enabled(this)){DimService.disable(this);Toast.makeText(this,"Dim OFF",Toast.LENGTH_SHORT).show();return;}
   if(!Settings.canDrawOverlays(this)){
@@ -179,13 +255,14 @@ public class DashboardActivity extends Activity {
   if(overlays.containsKey(dialog))return;
   if(overlays.isEmpty())overlayReturnFocus=root.findFocus();
   overlays.put(dialog,root.findFocus());
-  if(rain!=null)rain.obscured(true);if(prayer!=null)prayer.obscured(true);
+  if(scene!=null)scene.obscured(true);wallpaper.hostActive(false);if(rain!=null)rain.obscured(true);if(prayer!=null)prayer.obscured(true);
  }
  void overlayClosed(Dialog dialog){
   if(!overlays.containsKey(dialog))return;
   overlays.remove(dialog);
-  if(rain!=null)rain.obscured(!overlays.isEmpty());if(prayer!=null)prayer.obscured(!overlays.isEmpty());
+  if(scene!=null)scene.obscured(!overlays.isEmpty());wallpaper.hostActive(resumed&&overlays.isEmpty());if(rain!=null)rain.obscured(!overlays.isEmpty());if(prayer!=null)prayer.obscured(!overlays.isEmpty());
   if(!overlays.isEmpty())return;
+  syncHourly();
   View target=overlayReturnFocus;overlayReturnFocus=null;
   if(moving!=null)focusApp(moving);
   else if(target!=null&&target.isShown()&&target.isFocusable()&&target.getRootView()==root.getRootView())target.requestFocus();
@@ -216,10 +293,11 @@ public class DashboardActivity extends Activity {
   if(delta!=0){catalog.move(moving,delta);focusKey=moving;reload();return true;}return false;
  }
  private final class Tiles extends RecyclerView.Adapter<Tile> {
-  public Tile onCreateViewHolder(ViewGroup parent,int type){LinearLayout card=vertical();card.setGravity(Gravity.CENTER);card.setPadding(d(7),d(4),d(7),d(4));
-   RecyclerView.LayoutParams p=new RecyclerView.LayoutParams(d(100),d(80));p.setMargins(d(5),d(2),d(5),d(2));card.setLayoutParams(p);GlassUi.focus(card);
-   ImageView icon=new ImageView(DashboardActivity.this);icon.setScaleType(ImageView.ScaleType.FIT_CENTER);card.addView(icon,lp(d(48),d(48)));
-   TextView name=text("",12,GlassUi.WHITE);name.setGravity(Gravity.CENTER);name.setTypeface(null,Typeface.BOLD);name.setMaxLines(1);name.setEllipsize(android.text.TextUtils.TruncateAt.END);LinearLayout.LayoutParams n=lp(-1,d(20));n.topMargin=d(2);card.addView(name,n);return new Tile(card,icon,name);}
+  public Tile onCreateViewHolder(ViewGroup parent,int type){LinearLayout card=vertical();card.setGravity(Gravity.CENTER);card.setPadding(d(4),d(4),d(4),d(4));
+   RecyclerView.LayoutParams p=new RecyclerView.LayoutParams(d(80),d(58));p.setMargins(d(11),d(6),d(11),d(6));card.setLayoutParams(p);GlassUi.focus(card);card.setBackground(dock());
+   ImageView icon=new ImageView(DashboardActivity.this);icon.setScaleType(ImageView.ScaleType.FIT_CENTER);card.addView(icon,lp(d(40),d(40)));
+   // Icon-only dock like the approved mockup; the label stays available to accessibility services.
+   TextView name=text("",9,GlassUi.WHITE);name.setGravity(Gravity.CENTER);name.setTypeface(null,Typeface.BOLD);name.setMaxLines(1);name.setEllipsize(android.text.TextUtils.TruncateAt.END);name.setVisibility(View.GONE);card.addView(name,lp(-1,d(12)));return new Tile(card,icon,name);}
   public void onBindViewHolder(Tile v,int i){ResolveInfo r=apps.get(LoopCarousel.logical(i,apps.size()));String key=DashboardApps.key(r);v.name.setText(catalog.label(r));
    v.icon.setImageDrawable(null);try{v.icon.setImageDrawable(r.loadIcon(getPackageManager()));}catch(Exception ignored){v.icon.setImageDrawable(getPackageManager().getDefaultActivityIcon());}
    v.itemView.setContentDescription(catalog.label(r));v.itemView.setOnFocusChangeListener((x,has)->{if(has){lastFocusedKey=key;((LoopCarousel)grid).effects();}});v.itemView.setOnClickListener(x->open(r));v.itemView.setOnLongClickListener(x->{appOptions(r);return true;});
@@ -236,15 +314,15 @@ public class DashboardActivity extends Activity {
     return false;
    });
    v.itemView.setNextFocusUpId(R.id.prayerPanel);v.itemView.setNextFocusDownId(v.itemView.getId());
-   if(key.equals(moving))v.itemView.setBackground(GlassUi.surface(DashboardActivity.this,0xd0234b56,true));else v.itemView.setBackground(GlassUi.states(DashboardActivity.this));
+   if(key.equals(moving))v.itemView.setBackground(GlassUi.surface(DashboardActivity.this,0xd0234b56,true));else v.itemView.setBackground(dock());
 }
 
   public int getItemCount(){return LoopCarousel.count(apps.size(),moving!=null);}
  }
  private static final class Tile extends RecyclerView.ViewHolder{final ImageView icon;final TextView name;Tile(View v,ImageView i,TextView n){super(v);icon=i;name=n;}}
- @Override protected void onResume(){super.onResume();resumed=true;wallpaper.hostActive(true);if(hourly!=null)hourly.resume();restoreDim();scheduleWelcome();focusKey=lastFocusedKey!=null?lastFocusedKey:apps.isEmpty()?null:DashboardApps.key(apps.get(0));reload();prayer.start();handler.removeCallbacks(tick);handler.post(tick);rain.resume();}
- @Override protected void onPause(){if(rain!=null)rain.pause();if(hourly!=null)hourly.pause();wallpaper.hostActive(false);resumed=false;handler.removeCallbacks(welcomeTask);welcome.cancel();handler.removeCallbacks(tick);prayer.stop();if(jarvis!=null)jarvis.close();for(Dialog shown:new ArrayList<>(overlays.keySet()))shown.dismiss();super.onPause();}
- @Override protected void onDestroy(){if(rain!=null)rain.destroy();if(hourly!=null)hourly.destroy();if(screenReceiverRegistered){unregisterReceiver(screenReceiver);screenReceiverRegistered=false;}welcome.cancel();handler.removeCallbacksAndMessages(null);prayer.destroy();wallpaper.destroy();super.onDestroy();}
+ @Override protected void onResume(){super.onResume();resumed=true;wallpaper.hostActive(true);if(scene!=null){scene.screen(true);scene.audioBusy(AzanService.playing());scene.hostActive(true);}if(hourly!=null)hourly.resume();syncHourly();restoreDim();scheduleWelcome();focusKey=lastFocusedKey!=null?lastFocusedKey:apps.isEmpty()?null:DashboardApps.key(apps.get(0));reload();prayer.start();handler.removeCallbacks(tick);handler.post(tick);rain.resume();}
+ @Override protected void onPause(){if(rain!=null)rain.pause();if(hourly!=null)hourly.pause();wallpaper.hostActive(false);if(scene!=null)scene.hostActive(false);resumed=false;handler.removeCallbacks(welcomeTask);welcome.cancel();handler.removeCallbacks(tick);prayer.stop();if(jarvis!=null)jarvis.close();for(Dialog shown:new ArrayList<>(overlays.keySet()))shown.dismiss();super.onPause();}
+ @Override protected void onDestroy(){AzanService.unobservePlayback(azanPlayback);if(rain!=null)rain.destroy();if(hourly!=null)hourly.destroy();if(screenReceiverRegistered){unregisterReceiver(screenReceiver);screenReceiverRegistered=false;}welcome.cancel();handler.removeCallbacksAndMessages(null);prayer.destroy();if(scene!=null)scene.destroy();wallpaper.destroy();super.onDestroy();}
  @Override public void onBackPressed(){if(moving!=null){focusKey=moving;moving=null;reload();}else findViewById(R.id.btnSettings).requestFocus();}
  @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] results){super.onRequestPermissionsResult(request,permissions,results);if(request==72)showJarvis();if(request==73){pendingDim=false;if(results.length>0&&results[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)DimService.enable(this);else message("Dim","Notification permission is required here so the OFF notification remains available. Dim stays OFF.");}}
 }

@@ -1,0 +1,64 @@
+{
+  "version": "3.1.0-dunia-papazola",
+  "versionCode": 15,
+  "baseCommit": "b8cd2d6b3b3551d7ebb33421fd96a2c0e5c4f204",
+  "branch": "feature/papazola-premium-home",
+  "build": {
+    "assembleDebug": "PASS",
+    "testDebugUnitTest": "PASS",
+    "compileReleaseJavaWithJavac": "PASS"
+  },
+  "tests": {
+    "suites": 31,
+    "tests": 360,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "apk": {
+    "package": "dev.farred.fayyadhos.tv.jarvis.fix",
+    "signing": "Android Debug; not the installed production certificate",
+    "sha256": "43204e1d1cf4f37a8388206880f383961b5544bc6d4c259abe50e7a42fda4b50",
+    "bytes": 8936523,
+    "bundledAssets": {
+      "assets/premium/birthday.webp": 67012,
+      "assets/premium/heroes-pose.webp": 55496,
+      "assets/premium/heroes-run.webp": 467388,
+      "assets/premium/world.webp": 107056
+    },
+    "base64Packaged": false
+  },
+  "preview": {
+    "renderer": "Robolectric native graphics; fixture apps/JAKIM schedule/MET weather, not a physical TV capture",
+    "visuallyInspected": [
+      "premium-home-720.png",
+      "premium-home-1080.png",
+      "premium-home-4k.png",
+      "premium-birthday-1080.png",
+      "weather-1080.png"
+    ],
+    "checks": [
+      "Single-line full tagline at 720p",
+      "Two upcoming MET periods fit in two lines",
+      "Hero and birthday text remain clear of character layer",
+      "Icon-only dock with visible cyan focus",
+      "Unconfigured prayer zone has no invented times"
+    ],
+    "sha256": {
+      "premium-home-720.png": "66ea3402810d926818ff20e5d05b4f850b47d8d65fbdee6d5283566f3df6a7ad",
+      "premium-home-1080.png": "83e6d57b687e3dfaae1fd95b6520cd05fd6d7ccddedebe75084c20440093ff03",
+      "premium-home-4k.png": "041d7695c976e4dc71ba0cda05613e0aa35ada62d6d2add097ba71a33b3c714b",
+      "premium-birthday-1080.png": "68efe2366636334270b93a8ecb6454647888b550ae3c0a0d1a0423fe7878733e",
+      "weather-1080.png": "6bbf971e5205804fad36638147d6a74a11778ab1336a4bded912d752a8c40cc6"
+    }
+  },
+  "lint": {
+    "status": "Not rerun for 3.1; earlier 3.0 audit in RESULTS.json retains known original-file errors. No clean-lint claim."
+  },
+  "limits": [
+    "No physical-TV, audible Azan, standby/wake or measured frame-pacing acceptance",
+    "Keep stock Home enabled; never uninstall or clear data to bypass a signing mismatch",
+    "MET temperatures are daily forecast ranges; Kinarut uses the Papar forecast scope, not a hyperlocal/current observation",
+    "AI fan-concept assets, not official MONSTA assets; review rights before public/commercial distribution"
+  ]
+}

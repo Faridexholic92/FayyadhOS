@@ -64,12 +64,12 @@ public class DashboardRedesignTest {
  }}
  @Test public void localeAwareClockIsDynamic()throws Exception{Locale before=Locale.getDefault();Locale.setDefault(Locale.GERMANY);try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
   c.get().updateClock();String expected=LocalDateTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.GERMANY));
-  assertEquals(expected,text(c.get(),"clock").getText().toString());assertTrue(text(c.get(),"date").getText().toString().contains(LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE",Locale.GERMANY))));
+  assertEquals(expected,text(c.get(),"clock").getText().toString());assertTrue("Dusk home uses Malay dates",text(c.get(),"date").getText().toString().contains(LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE",DashboardActivity.MALAY))));
  }finally{Locale.setDefault(before);}}
  @Test public void dashboardDoesNotSelectSabahOrInventPrayerData()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
   PrayerPanel panel=c.get().findViewById(R.id.prayerPanel);Field field=PrayerPanel.class.getDeclaredField("values");field.setAccessible(true);
   for(TextView value:(TextView[])field.get(panel))assertEquals("--:--",value.getText().toString());
-  assertEquals("SELECT ZONE",text(panel,"heading").getText().toString());assertTrue(text(panel,"subtitle").getText().toString().contains("Press OK"));
+  assertTrue(text(panel,"heading").getText().toString().contains("Select zone"));assertTrue(text(panel,"subtitle").getText().toString().contains("Press OK"));
   assertEquals("",c.get().getSharedPreferences("solat",0).getString("zone",""));
   fixture.capture(fixture.render(c.get(),1920,1080),"dashboard-unconfigured-1080");
  }}
