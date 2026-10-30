@@ -101,14 +101,20 @@ public class PremiumHomeTest {
    }finally{frame.recycle();}
   }
  }
- @Test public void freeRunPathsStayInsideTheActionBandAndUseDepthScale() {
-  for(int character=0;character<2;character++)for(long t=0;t<FreeRunChoreography.LOOP_MS;t+=250){
-   FreeRunChoreography.Pose p=FreeRunChoreography.sample(t,character);
-   assertTrue("x is kept on-screen",p.x>=92f&&p.x<=868f);
-   assertTrue("ground stays clear of top widgets and app dock",p.groundY>=330f&&p.groundY<=423f);
-   assertTrue("depth scale stays bounded",p.scale>=0.75f&&p.scale<=0.99f);
-   assertTrue("jump offset stays bounded",p.hop>=0f&&p.hop<=16.1f);
-   assertTrue("direction is finite",Float.isFinite(p.directionX));
+ @Test public void freeRunPathsStayClearOfGreetingDockAndEachOther() {
+  for(long t=0;t<FreeRunChoreography.LOOP_MS;t+=100){
+   FreeRunChoreography.Pose papa=FreeRunChoreography.sample(t,0);
+   FreeRunChoreography.Pose boy=FreeRunChoreography.sample(t,1);
+   assertTrue("PapaZola stays clear of the left greeting column",papa.x>=360f&&papa.x<=570f);
+   assertTrue("BoBoiBoy stays inside the right action lane",boy.x>=695f&&boy.x<=890f);
+   assertTrue("two character lanes do not overlap",boy.x-papa.x>=120f);
+   for(FreeRunChoreography.Pose p:new FreeRunChoreography.Pose[]{papa,boy}){
+    assertTrue("ground stays clear of top widgets and app dock",p.groundY>=340f&&p.groundY<=425f);
+    assertTrue("depth scale stays bounded",p.scale>=0.78f&&p.scale<=0.99f);
+    assertTrue("jump offset stays bounded",p.hop>=0f&&p.hop<=18.1f);
+    assertTrue("direction is finite",Float.isFinite(p.directionX)&&Float.isFinite(p.directionY));
+    assertTrue("body lean is restrained",Math.abs(p.leanDegrees)<=4.2f);
+   }
   }
  }
  @Test public void freeRunPathIsContinuousAcrossLoopBoundary() {
@@ -119,23 +125,36 @@ public class PremiumHomeTest {
    assertTrue("vertical wrap must not teleport",Math.abs(before.groundY-after.groundY)<1.0f);
   }
  }
- @Test public void freeRunTurnsBothWaysAndHasActualJumpPhases() {
-  boolean right=false,left=false,jump=false,grounded=false;
-  for(long t=0;t<FreeRunChoreography.LOOP_MS;t+=100){
-   FreeRunChoreography.Pose p=FreeRunChoreography.sample(t,0);
-   right|=p.directionX>0.1f;left|=p.directionX< -0.1f;
-   jump|=p.hop>10f;grounded|=p.hop==0f;
+ @Test public void bothFreeRunRoutesCurveAndIncludeNaturalJumpPhases() {
+  for(int character=0;character<2;character++){
+   boolean right=false,left=false,up=false,down=false,jump=false,grounded=false;
+   for(long t=0;t<FreeRunChoreography.LOOP_MS;t+=100){
+    FreeRunChoreography.Pose p=FreeRunChoreography.sample(t,character);
+    right|=p.directionX>0.1f;left|=p.directionX< -0.1f;
+    up|=p.directionY< -0.12f;down|=p.directionY>0.12f;
+    jump|=p.hop>10f;grounded|=p.hop==0f;
+   }
+   assertTrue("route includes rightward runs",right);
+   assertTrue("route includes leftward runs",left);
+   assertTrue("route has a depth change toward the top",up);
+   assertTrue("route has a depth change toward the bottom",down);
+   assertTrue("route includes natural hops",jump);
+   assertTrue("character returns to ground between hops",grounded);
   }
-  assertTrue("route includes rightward runs",right);
-  assertTrue("route includes leftward runs",left);
-  assertTrue("route includes natural hops",jump);
-  assertTrue("character returns to ground between hops",grounded);
  }
  @Test public void bothCharactersFaceTheirDirectionOfTravel() {
   assertTrue(FreeRunChoreography.mirrorForDirection(0,-1f));
   assertFalse(FreeRunChoreography.mirrorForDirection(0,1f));
   assertTrue(FreeRunChoreography.mirrorForDirection(1,-1f));
   assertFalse(FreeRunChoreography.mirrorForDirection(1,1f));
+ }
+ @Test public void characterRunCyclesAreDesynchronised() {
+  assertNotEquals(FreeRunChoreography.spriteCellAt(0,67,0),
+          FreeRunChoreography.spriteCellAt(0,67,1));
+  assertNotEquals(FreeRunChoreography.spriteCellAt(67,67,0),
+          FreeRunChoreography.spriteCellAt(67,67,1));
+  assertNotEquals(FreeRunChoreography.spriteCellAt(0,67,1),
+          FreeRunChoreography.spriteCellAt(60,67,1));
  }
  @Test public void spriteFramesAdvanceDuringRestAndFramePacingIsVsyncFriendly() {
   assertEquals(0,PremiumSceneView.spriteCellAt(0,67));

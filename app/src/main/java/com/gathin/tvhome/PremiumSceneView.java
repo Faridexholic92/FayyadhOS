@@ -169,18 +169,23 @@ final class PremiumSceneView extends View {
         // seamlessly, but they are not a single horizontal approach/retreat. Their
         // run-cycle frames, depth scaling, turns and jumps are time-derived.
         int frameDuration = quality == 1 ? LITE_SPRITE_FRAME_MS : FULL_SPRITE_FRAME_MS;
-        int cell = spriteCellAt(elapsed, frameDuration);
         FreeRunChoreography.Pose papa = FreeRunChoreography.sample(elapsed, 0);
         FreeRunChoreography.Pose boy = FreeRunChoreography.sample(elapsed, 1);
+        int papaCell = FreeRunChoreography.spriteCellAt(elapsed, frameDuration, 0);
+        int boyCell = FreeRunChoreography.spriteCellAt(elapsed, frameDuration, 1);
         float papaBob = FreeRunChoreography.bobAt(elapsed, 0);
         float boyBob = FreeRunChoreography.bobAt(elapsed, 1);
 
+        // The left greeting remains unobstructed; the two runners occupy
+        // separate curved lanes, with depth-scaled shadows and non-synced gaits.
         groundShadow(c, papa.x, papa.groundY, 62f * papa.scale, papa.hop);
         groundShadow(c, boy.x, boy.groundY, 48f * boy.scale, boy.hop);
-        sprite(c, 0, cell, papa.x, papa.groundY - papa.hop + papaBob,
-                206f * papa.scale, FreeRunChoreography.mirrorForDirection(0, papa.directionX));
-        sprite(c, 1, cell, boy.x, boy.groundY - boy.hop + boyBob,
-                156f * boy.scale, FreeRunChoreography.mirrorForDirection(1, boy.directionX));
+        sprite(c, 0, papaCell, papa.x, papa.groundY - papa.hop + papaBob,
+                206f * papa.scale, FreeRunChoreography.mirrorForDirection(0, papa.directionX),
+                papa.leanDegrees);
+        sprite(c, 1, boyCell, boy.x, boy.groundY - boy.hop + boyBob,
+                156f * boy.scale, FreeRunChoreography.mirrorForDirection(1, boy.directionX),
+                boy.leanDegrees);
         c.restoreToCount(save);
     }
 
@@ -194,12 +199,15 @@ final class PremiumSceneView extends View {
         paint.setColor(Color.WHITE);
     }
 
-    private void sprite(Canvas c, int row, int cell, float x, float ground, float height, boolean mirror) {
+    private void sprite(Canvas c, int row, int cell, float x, float ground,
+                         float height, boolean mirror, float leanDegrees) {
         src.set(cell * 192, row * 320, (cell + 1) * 192, (row + 1) * 320);
         float width = height * 192f / 320f;
         dest.set(x - width / 2f, ground - height, x + width / 2f, ground);
+        float pivotY = ground - height * .48f;
         int save = c.save();
-        if (mirror) c.scale(-1f, 1f, x, ground - height / 2f);
+        c.rotate(leanDegrees, x, pivotY);
+        if (mirror) c.scale(-1f, 1f, x, pivotY);
         paint.setAlpha(255);
         c.drawBitmap(atlas, src, dest, paint);
         c.restoreToCount(save);
