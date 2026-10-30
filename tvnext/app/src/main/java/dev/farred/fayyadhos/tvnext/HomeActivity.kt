@@ -115,7 +115,7 @@ class HomeActivity : Activity() {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
         }
-        scroll.addView(appStrip, HorizontalScrollView.LayoutParams(-2, -1))
+        scroll.addView(appStrip, FrameLayout.LayoutParams(-2, -1))
         shell.addView(scroll, LinearLayout.LayoutParams(-1, dp(112)))
         return root
     }
