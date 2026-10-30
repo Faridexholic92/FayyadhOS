@@ -51,6 +51,21 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
+
+      - name: Run unit tests and compile release sources
+        run: bash ./gradlew --no-daemon :app:testDebugUnitTest :app:compileReleaseJavaWithJavac
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: FayyadhOS-test-reports
+          path: |
+            app/build/reports/tests/testDebugUnitTest/
+            app/build/test-results/testDebugUnitTest/
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Smoke-test launcher on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -64,6 +79,8 @@ jobs:
             set -eu
             mkdir -p emulator-output
             adb install -r app/build/outputs/apk/debug/app-debug.apk
+            # Keep Android UI transitions disabled, but allow FayyadhOS's own Choreographer motion.
+            adb shell settings put global animator_duration_scale 1.0
             adb shell am start -W -n dev.farred.fayyadhos.tv.jarvis.fix/com.gathin.tvhome.DashboardActivity
             sleep 3
             adb shell screencap -p /sdcard/fayyadhos-home.png
@@ -82,17 +99,3 @@ jobs:
           path: emulator-output/
           if-no-files-found: ignore
           retention-days: 90
-
-      - name: Run unit tests and compile release sources
-        run: bash ./gradlew --no-daemon :app:testDebugUnitTest :app:compileReleaseJavaWithJavac
-
-      - name: Upload test reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: FayyadhOS-test-reports
-          path: |
-            app/build/reports/tests/testDebugUnitTest/
-            app/build/test-results/testDebugUnitTest/
-          if-no-files-found: ignore
-          retention-days: 14
