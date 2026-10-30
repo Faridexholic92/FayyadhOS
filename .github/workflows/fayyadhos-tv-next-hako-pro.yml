@@ -1,0 +1,102 @@
+name: FayyadhOS TV Next — Hako Pro Build
+
+on:
+  push:
+    branches:
+      - feature/tv-next-hako-pro-4gb
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fayyadhos-tv-next-hako-pro-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test-emulator:
+    name: Build, unit test and emulator smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Set up Gradle 9.6
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses >/dev/null
+          sdkmanager "platform-tools" "platforms;android-37.0" "build-tools;36.0.0"
+
+      - name: Build TV Next debug APK and run unit tests
+        working-directory: tvnext
+        run: |
+          ./gradlew --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:compileReleaseKotlin
+
+      - name: Upload engineering APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: FayyadhOS-TV-Next-Hako-Pro-engineering
+          path: tvnext/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Smoke-test Home on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: |
+            set -eu
+            mkdir -p tvnext-emulator-output
+            adb install -r tvnext/app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -W -n dev.farred.fayyadhos.tv.next/dev.farred.fayyadhos.tvnext.HomeActivity
+            sleep 4
+            adb shell screencap -p /sdcard/tvnext-home.png
+            adb pull /sdcard/tvnext-home.png tvnext-emulator-output/home.png
+            adb logcat -d -t 6000 > tvnext-emulator-output/logcat.txt
+            adb shell dumpsys activity activities > tvnext-emulator-output/activities.txt
+            grep -F 'dev.farred.fayyadhos.tvnext.HomeActivity' tvnext-emulator-output/activities.txt
+
+      - name: Upload emulator smoke-test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: FayyadhOS-TV-Next-Hako-Pro-emulator-evidence
+          path: tvnext-emulator-output/
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Upload unit test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: FayyadhOS-TV-Next-Hako-Pro-test-reports
+          path: |
+            tvnext/app/build/reports/tests/testDebugUnitTest/
+            tvnext/app/build/test-results/testDebugUnitTest/
+          if-no-files-found: ignore
+          retention-days: 14

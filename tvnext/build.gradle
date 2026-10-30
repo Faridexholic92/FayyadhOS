@@ -1,0 +1,50 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'dev.farred.fayyadhos.tvnext'
+    compileSdk 37
+
+    defaultConfig {
+        applicationId 'dev.farred.fayyadhos.tv.next'
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName '0.1.0-foundation'
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ''
+            versionNameSuffix '-dev'
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
+}
+
+dependencies {
+    implementation 'com.google.android.filament:filament-android:1.75.1'
+    implementation 'com.google.android.filament:gltfio-android:1.75.1'
+    implementation 'com.google.android.filament:filament-utils-android:1.75.1'
+    testImplementation 'junit:junit:4.13.2'
+}
