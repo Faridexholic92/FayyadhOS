@@ -117,6 +117,20 @@ public class PremiumHomeTest {
    }
   }
  }
+ @Test public void routesStartAtTheirFirstKnotAndWrapWithoutTeleporting() {
+  FreeRunChoreography.Pose papaStart=FreeRunChoreography.sample(0,0);
+  FreeRunChoreography.Pose boyStart=FreeRunChoreography.sample(-2_150L,1);
+  assertEquals(370f,papaStart.x,0.5f);
+  assertEquals(880f,boyStart.x,0.5f);
+  for(int character=0;character<2;character++){
+   long offset=character==0?0L:2_150L;
+   FreeRunChoreography.Pose before=FreeRunChoreography.sample(
+           FreeRunChoreography.LOOP_MS-1-offset,character);
+   FreeRunChoreography.Pose after=FreeRunChoreography.sample(1-offset,character);
+   assertTrue("loop seam is position-continuous",Math.abs(before.x-after.x)<1.0f);
+   assertTrue("loop seam is depth-continuous",Math.abs(before.groundY-after.groundY)<1.0f);
+  }
+ }
  @Test public void freeRunPathIsContinuousAcrossLoopBoundary() {
   for(int character=0;character<2;character++){
    FreeRunChoreography.Pose before=FreeRunChoreography.sample(FreeRunChoreography.LOOP_MS-1,character);

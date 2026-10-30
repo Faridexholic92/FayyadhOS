@@ -147,18 +147,37 @@ final class FreeRunChoreography {
 
         Point sample(float fraction) {
             float target = clamp(fraction, 0f, 1f) * length;
-            int low = 0, high = cumulative.length - 1;
-            while (low < high) {
-                int mid = (low + high) >>> 1;
-                if (cumulative[mid] < target) low = mid + 1;
-                else high = mid;
+            int last = cumulative.length - 1;
+            int previous;
+            int next;
+            float startDistance;
+            float endDistance;
+            float adjustedTarget = target;
+
+            if (target >= cumulative[last]) {
+                // Final arc-length interval runs from the final sample to sample zero.
+                previous = last;
+                next = 0;
+                startDistance = cumulative[last];
+                endDistance = length;
+            } else {
+                int low = 0, high = last;
+                while (low < high) {
+                    int mid = (low + high) >>> 1;
+                    if (cumulative[mid] < target) low = mid + 1;
+                    else high = mid;
+                }
+                next = low;
+                previous = next == 0 ? last : next - 1;
+                startDistance = cumulative[previous];
+                endDistance = next == 0 ? length : cumulative[next];
+                // At the beginning of the loop, interpolate through the seam
+                // from the final sample to the first instead of clamping to the end.
+                if (next == 0) adjustedTarget += length;
             }
-            int next = low;
-            int previous = next == 0 ? cumulative.length - 1 : next - 1;
-            float startDistance = cumulative[previous];
-            float endDistance = next == 0 ? length : cumulative[next];
+
             float span = Math.max(0.001f, endDistance - startDistance);
-            float local = clamp((target - startDistance) / span, 0f, 1f);
+            float local = clamp((adjustedTarget - startDistance) / span, 0f, 1f);
             float px = lerp(x[previous], x[next], local);
             float py = lerp(y[previous], y[next], local);
             float dx = lerp(directionX[previous], directionX[next], local);
