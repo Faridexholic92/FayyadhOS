@@ -25,12 +25,12 @@ final class GlassUi {
  }
  static StateListDrawable kidsStates(Context c) {
   StateListDrawable d=new StateListDrawable();
-  GradientDrawable focused=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{0xffffd45c,0xffed7545});
-  focused.setCornerRadius(dp(c,18)); focused.setStroke(dp(c,3),0xfffff0b0);
-  GradientDrawable normal=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{0xc52b65c8,0xb51a377e});
-  normal.setCornerRadius(dp(c,18)); normal.setStroke(dp(c,1),0x99a9eaff);
-  GradientDrawable pressed=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{0xffed8b35,0xffa947a6});
-  pressed.setCornerRadius(dp(c,18)); pressed.setStroke(dp(c,2),0xffffe6a0);
+  GradientDrawable focused=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{0xf52b91d9,0xf20a3265});
+  focused.setCornerRadius(dp(c,16)); focused.setStroke(dp(c,3),0xff65e8ff);
+  GradientDrawable normal=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{0xe91a2946,0xe90a152d});
+  normal.setCornerRadius(dp(c,16)); normal.setStroke(dp(c,1),0x9976b9ed);
+  GradientDrawable pressed=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{0xf02b6595,0xf0142b50});
+  pressed.setCornerRadius(dp(c,16)); pressed.setStroke(dp(c,2),0xff8cecff);
   d.addState(new int[]{android.R.attr.state_focused},focused);
   d.addState(new int[]{android.R.attr.state_pressed},pressed);
   d.addState(new int[]{},normal); return d;
