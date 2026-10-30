@@ -61,14 +61,14 @@ This isolation keeps the old launcher build and its package untouched while the 
 
 Pin a single stable Filament release for all runtime and host-side asset tools. The official Filament repository currently documents Android Maven dependencies and warns that asset tools such as `matc` should use the same release as the runtime.
 
-**Implementation baseline: Filament v1.77.3 from Maven Central.** Maven Central currently exposes v1.77.3 for the Android runtime artifact; the public GitHub repository has a newer v1.79.0 release, but the matching Android artifacts were not yet verifiable in Maven Central at the time this baseline was written. Do not reference a dependency version that Gradle cannot resolve.
+**Implementation baseline: Filament v1.75.1 from Maven Central.** Maven Central currently exposes v1.75.1 for the Android runtime artifact; the public GitHub repository has a newer v1.79.0 release, but the matching Android artifacts were not yet verifiable in Maven Central at the time this baseline was written. Do not reference a dependency version that Gradle cannot resolve.
 
-Baseline runtime artifacts:
-- `com.google.android.filament:filament-android:1.77.3`
-- `com.google.android.filament:gltfio-android:1.77.3`
-- `com.google.android.filament:filament-utils-android:1.77.3` only if required by the selected UI host
+Baseline runtime artifacts (all pinned to the same version):
+- `com.google.android.filament:filament-android:1.75.1`
+- `com.google.android.filament:gltfio-android:1.75.1`
+- `com.google.android.filament:filament-utils-android:1.75.1` only if required by the selected UI host
 
-The exact artifacts and ABI size must be tested before they are committed to the application. Use runtime libraries and host asset tools from the same v1.77.3 release. Revisit v1.79.0 only after its required Android Maven artifacts are available and a clean build/test confirms them. Start with the OpenGL ES backend. Vulkan remains an opt-in experiment until the actual HAKO Pro driver is validated.
+The exact artifacts and ABI size must be tested before they are committed to the application. Use runtime libraries and host asset tools from the same v1.75.1 release. Revisit v1.79.0 only after its required Android Maven artifacts are available and a clean build/test confirms them. Start with the OpenGL ES backend. Vulkan remains an opt-in experiment until the actual HAKO Pro driver is validated.
 
 Sources:
 - Filament official releases: https://github.com/google/filament/releases
