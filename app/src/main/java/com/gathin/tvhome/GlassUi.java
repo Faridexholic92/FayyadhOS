@@ -23,6 +23,18 @@ final class GlassUi {
   android.graphics.drawable.LayerDrawable layers=new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{halo,surface(c,0xd0245360,true)});
   layers.setLayerInset(1,dp(c,2),dp(c,2),dp(c,2),dp(c,2));return layers;
  }
+ static StateListDrawable kidsStates(Context c) {
+  StateListDrawable d=new StateListDrawable();
+  GradientDrawable focused=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{0xffffd45c,0xffed7545});
+  focused.setCornerRadius(dp(c,18)); focused.setStroke(dp(c,3),0xfffff0b0);
+  GradientDrawable normal=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{0xc52b65c8,0xb51a377e});
+  normal.setCornerRadius(dp(c,18)); normal.setStroke(dp(c,1),0x99a9eaff);
+  GradientDrawable pressed=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{0xffed8b35,0xffa947a6});
+  pressed.setCornerRadius(dp(c,18)); pressed.setStroke(dp(c,2),0xffffe6a0);
+  d.addState(new int[]{android.R.attr.state_focused},focused);
+  d.addState(new int[]{android.R.attr.state_pressed},pressed);
+  d.addState(new int[]{},normal); return d;
+ }
  static void focus(View v){v.setFocusable(true);v.setFocusableInTouchMode(true);v.setClickable(true);v.setBackground(states(v.getContext()));}
  static void focusShortcut(View v){
   v.setFocusable(true);v.setFocusableInTouchMode(true);v.setClickable(true);
