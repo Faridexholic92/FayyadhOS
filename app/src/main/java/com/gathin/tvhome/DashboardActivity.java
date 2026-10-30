@@ -109,7 +109,7 @@ public class DashboardActivity extends Activity {
 
 
  private TextView button(String label,Runnable click){TextView t=text(label,13,GlassUi.WHITE);t.setGravity(Gravity.CENTER);t.setSingleLine(true);GlassUi.focusShortcut(t);t.setOnClickListener(v->click.run());return t;}
- void updateClock(){LocalDateTime now=LocalDateTime.now();clock.setText(now.format(DateTimeFormatter.ofLocalizedTime(java.time.format.FormatStyle.SHORT).withLocale(Locale.getDefault())));date.setText(now.format(DateTimeFormatter.ofPattern("EEEE, d MMM yyyy",Locale.getDefault())));greeting.setText("Jom Teroka!");}
+ void updateClock(){LocalDateTime now=LocalDateTime.now();clock.setText(now.format(DateTimeFormatter.ofLocalizedTime(java.time.format.FormatStyle.SHORT).withLocale(Locale.getDefault())));date.setText(now.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy",new Locale("ms","MY"))));int hour=now.getHour();String salutation=hour>=5&&hour<12?"Selamat Pagi":hour<14?"Selamat Tengah Hari":hour<19?"Selamat Petang":"Selamat Malam";greeting.setText(salutation+",\\nFayyadh!");}
  boolean automaticWallpaper(){return getSharedPreferences("fayyadh-wallpaper",0).getBoolean("automatic_weather",true);}
  void weatherWallpaper(WeatherForecast.State state){wallpaperState=state;loadWallpaper();}
  void setAutomaticWallpaper(boolean enabled){getSharedPreferences("fayyadh-wallpaper",0).edit().putBoolean("automatic_weather",enabled).apply();loadWallpaper();}
