@@ -137,10 +137,18 @@ public class PremiumHomeTest {
   DashboardActivity a=c.get();PremiumSceneView s=scene(a);s.layout(0,0,960,540);Bitmap normal=Bitmap.createBitmap(960,540,Bitmap.Config.ARGB_8888),storm=Bitmap.createBitmap(960,540,Bitmap.Config.ARGB_8888);
   try{a.weatherWallpaper(WeatherForecast.State.RAIN_EXPECTED);s.draw(new Canvas(normal));a.weatherWallpaper(WeatherForecast.State.THUNDERSTORM_EXPECTED);s.draw(new Canvas(storm));int n=normal.getPixel(400,300),t=storm.getPixel(400,300);assertTrue(Color.alpha(n)>200);assertEquals(Color.alpha(n),Color.alpha(t));assertTrue(Color.red(t)<Color.red(n));}finally{normal.recycle();storm.recycle();}
  }}
- @Test public void referenceLogoAndBlendedAtlasArePackaged()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
-  ImageView logo=c.get().findViewById(R.id.root).findViewWithTag("fayyadhos-logo");assertNotNull(logo);assertNotNull(logo.getDrawable());
-  for(String file:new String[]{"premium/fayyadhos-logo.webp","premium/heroes-blended.webp"})try(InputStream in=c.get().getAssets().open(file)){Bitmap b=BitmapFactory.decodeStream(in);assertNotNull(b);assertTrue(b.hasAlpha());b.recycle();}
+ @Test public void nativeWordmarkAndRunningAtlasReplaceCroppedLogo()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
+  FayyadhWordmarkView logo=c.get().findViewById(R.id.root).findViewWithTag("fayyadhos-logo");assertNotNull(logo);assertEquals("FayyadhOS",logo.getContentDescription());assertTrue(logo.artworkWidth()>logo.artworkHeight());
+  assertFalse(java.util.Arrays.asList(c.get().getAssets().list("premium")).contains("fayyadhos-logo.webp"));
+  for(String file:new String[]{"premium/heroes-blended.webp"})try(InputStream in=c.get().getAssets().open(file)){Bitmap b=BitmapFactory.decodeStream(in);assertNotNull(b);assertTrue(b.hasAlpha());b.recycle();}
  }}
+ @Test public void vectorLogoNeverClipsAt7201080Or4k()throws Exception{
+  Context context=RuntimeEnvironment.getApplication();
+  for(int[] size:new int[][]{{264,64},{396,96},{792,192}}){
+   FayyadhWordmarkView logo=new FayyadhWordmarkView(context);logo.layout(0,0,size[0],size[1]);Bitmap bitmap=Bitmap.createBitmap(size[0],size[1],Bitmap.Config.ARGB_8888);
+   try{logo.draw(new Canvas(bitmap));int ink=0;for(int y=0;y<size[1];y++)for(int x=0;x<size[0];x++){int alpha=Color.alpha(bitmap.getPixel(x,y));if(alpha>0)ink++;if(x==0||y==0||x==size[0]-1||y==size[1]-1)assertEquals("Lettering has transparent breathing room on every side",0,alpha);}assertTrue("Complete wordmark is drawn",ink>size[0]*size[1]/10);}finally{bitmap.recycle();}
+  }
+ }
  @Test public void staticHomeKeepsRainMovementIndependent()throws Exception{
   try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
    DashboardActivity a=c.get();PremiumSceneView s=scene(a);assertFalse(s.canAnimate());

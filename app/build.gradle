@@ -10,8 +10,8 @@ android {
         applicationId 'dev.farred.fayyadhos.tv.jarvis.fix'
         minSdk 26
         targetSdk 34
-        versionCode 17
-        versionName '3.2.0-glass-dusk'
+        versionCode 18
+        versionName '3.3.0-running-halilintar'
     }
 
     signingConfigs {
@@ -72,7 +72,10 @@ def generatePremiumAssets = tasks.register('generatePremiumAssets') {
         def target = new File(premiumAssetDir.get().asFile, 'premium')
         target.mkdirs()
         rootProject.file('art/premium').eachFileMatch(~/.*\.webp\.b64/) { source ->
-            new File(target, source.name.replace('.b64', '')).bytes = source.text.trim().decodeBase64()
+            def output = new File(target, source.name.replace('.b64', ''))
+            // Historical screenshot-keyed logo is retained in art/ for provenance only.
+            if (source.name == 'fayyadhos-logo.webp.b64') output.delete()
+            else output.bytes = source.text.trim().decodeBase64()
         }
     }
 }

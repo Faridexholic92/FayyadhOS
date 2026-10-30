@@ -1,6 +1,14 @@
-# FayyadhOS 3.2 · Glass dusk
+# FayyadhOS 3.3 · Running Halilintar + clean lettering
 
 Implementation of the approved transparent TV-home, PapaZola/BoBoiBoy action world and Fayyadh fifth-birthday concept. This is the existing native launcher, not firmware or a new WebView app.
+
+## New in 3.3 · Clean lettering + the requested running character
+
+- **FayyadhOS lettering is rebuilt as native vector text paths**, with clean warm/cyan colour, restrained blue depth and real transparent padding. It is not cropped, chroma-keyed or extracted from a screenshot. The previous raster logo remains in art/ only as historical source and is excluded from the APK.
+- BoBoiBoy now follows the **cheerful 3D running pose/face style of the supplied dusk mockup**, wearing a black/red Halilintar cap, lightning-trim costume, gloves and boots. This is an AI fan-concept costume edit guided by the user's two character references, not the old flat crouching cutout and not an official licensed character render.
+- PapaZola stays unchanged. The replacement runner is dusk-graded and follows the same weather brightness/contact-shadow treatment. Original upload and historical ungraded atlas are not presented as the new display image.
+- Wallpaper and default character pose remain **static**. Rain-on-Glass, JAKIM, MET periods, motivational quotes, app navigation/settings and the existing signing arrangement are retained.
+- Lettering is tested for transparent margins/no clipping at 720p, 1080p and 4K. The 3D character appears once in the live scene, not baked into a second character wallpaper.
 
 ## New in 3.2 · Reference logo, dusk blending and refractive glass
 
@@ -66,11 +74,11 @@ bash ./gradlew --no-daemon :app:assembleDebug :app:testDebugUnitTest
 
 `art/premium/*.webp.b64` are the canonical artwork sources. Gradle decodes them into `app/build/generated/premiumAssets/premium/` before asset merging. **Only WebP files enter the APK**, not Base64 text; no image download or Base64 work occurs at runtime. This text transport permits reproducible publishing through the connected GitHub tools. No private reference photograph, user's photo, credentials or signing material is included.
 
-See `verification/papazola/GLASS-3.2.json` for this revision’s build/test evidence; `STATIC-3.1.1.json` records the prior static patch; `DUNIA-3.1.json` records 3.1; `RESULTS.json` preserves the earlier 3.0 audit, including pre-existing lint failures. Updated legacy assertions reflect approved geometry/header/settings changes; legacy Classic weather coverage is retained, alongside dedicated Premium lifecycle and forecast-state tests. No physical TV was connected. Robolectric screenshots/video are labelled simulations with fixture apps/times/weather, not actual installed apps, live forecasts, benchmarks, audible speaker tests or TV acceptance evidence.
+See `verification/papazola/RUNNING-3.3.json` for this revision’s build/test evidence; `GLASS-3.2.json` records the prior glass revision; `STATIC-3.1.1.json` records the prior static patch; `DUNIA-3.1.json` records 3.1; `RESULTS.json` preserves the earlier 3.0 audit, including pre-existing lint failures. Updated legacy assertions reflect approved geometry/header/settings changes; legacy Classic weather coverage is retained, alongside dedicated Premium lifecycle and forecast-state tests. No physical TV was connected. Robolectric screenshots/video are labelled simulations with fixture apps/times/weather, not actual installed apps, live forecasts, benchmarks, audible speaker tests or TV acceptance evidence.
 
 ## Safe installation
 
-Package remains **dev.farred.fayyadhos.tv.jarvis.fix**, min SDK 26, target SDK 34. VersionCode **17**, versionName **3.2.0-glass-dusk**. The old non-Fix package is not migrated.
+Package remains **dev.farred.fayyadhos.tv.jarvis.fix**, min SDK 26, target SDK 34. VersionCode **18**, versionName **3.3.0-running-halilintar**. The old non-Fix package is not migrated.
 
 The delivered APK is **debug/test signed**. It is NOT signed with the installed production certificate. Never uninstall a working launcher, clear its data or disable the stock launcher to bypass a signature mismatch. A data-preserving update needs the original installed signing certificate through your secure build process. Release signing configuration is unchanged; no release key is created, uploaded or substituted.
 
@@ -78,4 +86,4 @@ Test on a spare device/emulator first. Check remote focus, real app launch/retur
 
 ## Artwork
 
-PapaZola appearance follows the reference supplied in the approval conversation (red eye mask, black hair/moustache/goatee, white/red/blue costume and P belt), correcting the earlier orange-helmet concept. PapaZola/background art is AI-generated fan-concept artwork. Halilintar is the image supplied by the user. No official MONSTA production-asset licence is implied. Character names/designs belong to their respective rights holders. Public/commercial distribution requires checking applicable rights; this change does not grant a character licence. Background and sprite artwork retain the approved concept direction, but animated poses are not a promise of pixel-identical still-mockup parity.
+PapaZola appearance follows the reference supplied in the approval conversation (red eye mask, black hair/moustache/goatee, white/red/blue costume and P belt), correcting the earlier orange-helmet concept. PapaZola/background art is AI-generated fan-concept artwork. The current 3D running Halilintar is an AI costume edit guided by the supplied running mockup and Halilintar outfit reference; it is not a pixel-identical copy of either reference. No official MONSTA production-asset licence is implied. Character names/designs belong to their respective rights holders. Public/commercial distribution requires checking applicable rights; this change does not grant a character licence. Background and sprite artwork retain the approved concept direction, but animated poses are not a promise of pixel-identical still-mockup parity.

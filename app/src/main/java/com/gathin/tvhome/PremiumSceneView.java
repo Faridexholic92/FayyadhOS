@@ -24,8 +24,8 @@ final class PremiumSceneView extends View {
     private final WallpaperDissolveView wallpaper;
     private Bitmap atlas, poseAtlas;
     private boolean pose = true;
-    // heroes-pose.webp: PapaZola plus the exact user-supplied Halilintar RGBA pixels.
-    static final Rect PAPA_POSE = new Rect(0, 0, 373, 483), BOY_POSE = new Rect(381, 0, 631, 250);
+    // heroes-blended.webp: PapaZola plus the 3D running Halilintar costume edit.
+    static final Rect PAPA_POSE = new Rect(0, 0, 373, 483), BOY_POSE = new Rect(381, 0, 755, 600);
     // 960 x 540 canvas placement: centre x, feet y, drawn height.
     static final float[] PAPA_PLACE = {400f, 462f, 318f}, BOY_PLACE = {607f, 455f, 242f};
     private static final float[][] RIBBONS = {

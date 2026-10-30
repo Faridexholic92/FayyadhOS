@@ -1,0 +1,117 @@
+{
+  "version": "3.3.0-running-halilintar",
+  "versionCode": 18,
+  "baseCommit": "6d78e4227fb9ae92ab423b169c514b543060a599",
+  "branch": "feature/papazola-premium-home",
+  "build": {
+    "testDebugUnitTest": "PASS",
+    "assembleDebug": "PASS",
+    "compileReleaseJavaWithJavac": "PASS"
+  },
+  "tests": {
+    "suites": 31,
+    "tests": 366,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "logo": {
+    "renderer": "FayyadhWordmarkView: native text contours, gradient fill, cyan edge, bounded blue extrusion",
+    "screenshotOrImageCropUsed": false,
+    "legacyRasterLogoPackaged": false,
+    "transparentPerimeterTestPixels": [
+      [
+        264,
+        64
+      ],
+      [
+        396,
+        96
+      ],
+      [
+        792,
+        192
+      ]
+    ],
+    "accessibilityLabel": "FayyadhOS"
+  },
+  "character": {
+    "description": "Cheerful 3D running child in black/red Halilintar outfit, guided by the supplied running mockup and costume reference",
+    "generation": "AI fan-concept costume/pose-style edit; not an official MONSTA render or pixel-identical reference copy",
+    "atlasDimensions": [
+      755,
+      600
+    ],
+    "papaCell": [
+      0,
+      0,
+      373,
+      483
+    ],
+    "boyCell": [
+      381,
+      0,
+      755,
+      600
+    ],
+    "matte": "Green screen keyed, connected background noise removed, edge despill and dusk/ground grading applied",
+    "oldCrouchingCutoutRendered": false,
+    "papaArtworkChanged": false,
+    "defaultScene": "Static; no wallpaper pan/zoom or character bounce"
+  },
+  "retained": [
+    "Refractive Rain-on-Glass from 3.2",
+    "JAKIM explicit zone/countdown/Azan behavior",
+    "MET daily forecast range and upcoming periods",
+    "Offline Malay motivation",
+    "Installed app dock/navigation/preferences",
+    "No new runtime permissions/dependencies"
+  ],
+  "sources": {
+    "runningMockupSha256": "dd58b2f87beda168c8f4c5c3f5018704078793af1ea1a498a9a39b6d8fd9e546",
+    "costumeReferenceSha256": "0772a148c1c9fece033f6893bf6af9b3c2f0e7b3f2e68212e6105cf6ca82e728",
+    "generatedImageSha256": "7272b79ac36f5c205a11d74b36168747d8c7e3f0b9bd93bb912e387d7c340072"
+  },
+  "apk": {
+    "package": "dev.farred.fayyadhos.tv.jarvis.fix",
+    "sha256": "c4f928898e56448cba1cdf7fa3ba8db3e69280eef366d349280f9d05a6320b00",
+    "bytes": 9119410,
+    "signing": "Android Debug; not installed production certificate",
+    "bundledAssets": {
+      "assets/premium/birthday.webp": 67012,
+      "assets/premium/heroes-blended.webp": 293498,
+      "assets/premium/heroes-pose.webp": 194974,
+      "assets/premium/heroes-run.webp": 467388,
+      "assets/premium/world.webp": 107056
+    },
+    "base64Packaged": false,
+    "signerCertificateSha256": "811839bbf4ce3b006a0bbb062394575bb59183c28ab4e0c79b300ee69b856d10",
+    "matchesEarlierLocalDebugCertificate": false
+  },
+  "visualQA": {
+    "renderer": "Robolectric native graphics simulation with fixture apps/JAKIM/MET; not physical TV capture",
+    "inspected": [
+      "premium-home-720.png",
+      "premium-home-1080.png",
+      "premium-home-4k.png",
+      "premium-birthday-1080.png",
+      "premium-glass-1080.png"
+    ],
+    "result": "PASS: clean complete lettering, cheerful 3D running black/red costume, static composited characters, no UI overlap/clipping",
+    "previewSha256": {
+      "premium-home-720.png": "01501fa58e3bead6485c84c448735b7543c915771e49f5a261c2116bcbccb279",
+      "premium-home-1080.png": "1b68e2deb1f464890ab78543d662d97bb187b7fcd2755018316dcf2a17f5efd8",
+      "premium-home-4k.png": "ef108235c1d7d64cbff40a12b1b2cef135e47a74b415c8b1fa8c96928920a9b2",
+      "premium-birthday-1080.png": "91a4830d59baedc4c0ce50f57ba608f169ddfbb9430cce73305f752e0405b2b6",
+      "premium-glass-1080.png": "106e6a4a89decae1c8a12d97f8e3e3967dc833d310a6c257595431ee1c10b223"
+    }
+  },
+  "limitations": [
+    "No physical-TV, real remote, audible Azan, standby or GPU frame-pacing acceptance",
+    "Current debug certificate differs from the earlier local APK certificate. An in-place update may be rejected; use the original signing process. Do not uninstall or clear data to bypass this.",
+    "Lint not rerun; historical original-file errors remain documented",
+    "Debug/test-signed APK; do not uninstall/clear working launcher or disable stock Home to bypass signature mismatch",
+    "AI fan-concept character/background artwork; rights review needed before public/commercial distribution",
+    "Source code goes to PR; APK supplied in chat, not uploaded to GitHub Releases"
+  ]
+}

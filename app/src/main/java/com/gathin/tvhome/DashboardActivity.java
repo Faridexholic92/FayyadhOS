@@ -59,8 +59,7 @@ public class DashboardActivity extends Activity {
   // Dusk "Dunia PapaZola" composition on a 960x540 design grid (approved TV mockup).
   FrameLayout header=new FrameLayout(this);place(body,header,37,12,884,62);
   LinearLayout brand=vertical();
-  ImageView wordmark=new ImageView(this);wordmark.setTag("fayyadhos-logo");wordmark.setContentDescription("FayyadhOS");wordmark.setScaleType(ImageView.ScaleType.FIT_START);
-  try(java.io.InputStream in=getAssets().open("premium/fayyadhos-logo.webp")){wordmark.setImageDrawable(android.graphics.drawable.Drawable.createFromStream(in,null));}catch(java.io.IOException ignored){wordmark.setImageResource(R.mipmap.ic_launcher);}
+  FayyadhWordmarkView wordmark=new FayyadhWordmarkView(this);
   brand.addView(wordmark,lp(d(198),d(48)));
   TextView edition=text("A QUIETER KIND OF SMART.",5.5f,GlassUi.WHITE);edition.setTextSize(5.5f*scale);edition.setSingleLine(true);edition.setLetterSpacing(.24f);edition.setPadding(d(2),d(2),0,0);brand.addView(edition);
   header.addView(brand,new FrameLayout.LayoutParams(d(300),-2,Gravity.START|Gravity.TOP));
