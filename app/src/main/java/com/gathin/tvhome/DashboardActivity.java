@@ -54,8 +54,7 @@ public class DashboardActivity extends Activity {
   FrameLayout body=new FrameLayout(this);body.setBackground(new android.graphics.drawable.GradientDrawable(
    android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0x45071320,0x08071320,0x28071320}));
   root.addView(body,new FrameLayout.LayoutParams(-1,-1));
-  // Draw the lightweight Kids Universe atmosphere inside the body so the root wallpaper/foreground hierarchy stays stable.
-  body.addView(new KidsUniverseBackdrop(this),new FrameLayout.LayoutParams(-1,-1));
+  // Keep the foreground child order stable for weather, overlays and accessibility layout.
   FrameLayout header=new FrameLayout(this);place(body,header,40,28,880,62);
   LinearLayout brand=vertical();TextView name=text("FayyadhOS",30,GlassUi.WHITE);
   android.text.SpannableString wordmark=new android.text.SpannableString("FayyadhOS");
