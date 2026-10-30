@@ -56,14 +56,14 @@ public class DashboardActivity extends Activity {
   root.addView(body,new FrameLayout.LayoutParams(-1,-1));
   // Keep the foreground child order stable for weather, overlays and accessibility layout.
   FrameLayout header=new FrameLayout(this);place(body,header,40,28,880,184);
-  LinearLayout brand=vertical();TextView name=text("FayyadhOS",30,GlassUi.WHITE);
-  android.text.SpannableString wordmark=new android.text.SpannableString("FayyadhOS");
-  wordmark.setSpan(new android.text.style.ForegroundColorSpan(GlassUi.CYAN),7,9,0);name.setText(wordmark);
+  LinearLayout brand=vertical();TextView name=text("♛ FayyadhOS",30,GlassUi.WHITE);
+  android.text.SpannableString wordmark=new android.text.SpannableString("♛ FayyadhOS");
+  wordmark.setSpan(new android.text.style.ForegroundColorSpan(0xffffa52e),9,11,0);name.setText(wordmark);
   name.setTypeface(null,Typeface.BOLD);brand.addView(name);
   TextView edition=text("KIDS UNIVERSE  ·  BOBOIBOY × PAPAZOLA",10,GlassUi.WHITE);edition.setLetterSpacing(.38f);edition.setPadding(d(16),d(3),0,0);brand.addView(edition);
   header.addView(brand,new FrameLayout.LayoutParams(d(230),-2,Gravity.START|Gravity.TOP));
   LinearLayout time=vertical();time.setGravity(Gravity.CENTER_HORIZONTAL);
-  clock=text("",58,GlassUi.WHITE);clock.setTypeface(null,Typeface.BOLD);date=text("",16,GlassUi.WHITE);
+  clock=text("",70,GlassUi.WHITE);clock.setTypeface(null,Typeface.BOLD);date=text("",17,GlassUi.WHITE);
   time.setGravity(Gravity.START);clock.setGravity(Gravity.START);date.setGravity(Gravity.START);date.setSingleLine(true);
   date.setEllipsize(android.text.TextUtils.TruncateAt.END);time.addView(clock);time.addView(date);
   FrameLayout.LayoutParams timePosition=new FrameLayout.LayoutParams(d(270),-2,Gravity.START|Gravity.TOP);timePosition.topMargin=d(78);header.addView(time,timePosition);
@@ -73,13 +73,13 @@ public class DashboardActivity extends Activity {
   TextView settings=button("Settings",()->settings());android.graphics.drawable.Drawable gear=getDrawable(R.drawable.ic_settings);gear.setBounds(0,0,d(18),d(18));settings.setCompoundDrawables(gear,null,null,null);
   settings.setCompoundDrawablePadding(d(5));settings.setPadding(d(10),0,d(5),0);settings.setId(R.id.btnSettings);actions.addView(settings,lp(d(100),d(44)));
   header.addView(actions,new FrameLayout.LayoutParams(-2,d(44),Gravity.END|Gravity.TOP));
-  LinearLayout intro=vertical();place(body,intro,40,286,330,90);
-  greeting=text("",38,GlassUi.WHITE);greeting.setTypeface(null,Typeface.BOLD);greeting.setTag("greeting");intro.addView(greeting);
-  TextView caption=text("Dunia pengembaraan bermula di sini!",18,GlassUi.WHITE);LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);
-  TextView heroes=text("BOBOIBOY  ✦  PAPAZOLA",13,0xffffd45c);heroes.setTypeface(null,Typeface.BOLD);heroes.setLetterSpacing(.08f);place(body,heroes,40,382,310,24);
+  LinearLayout intro=vertical();place(body,intro,40,270,350,118);
+  greeting=text("",34,GlassUi.WHITE);greeting.setTypeface(null,Typeface.BOLD);greeting.setTag("greeting");intro.addView(greeting);
+  TextView caption=text("Teruskan Pengembaraan!",17,GlassUi.WHITE);LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);
+  TextView heroes=text("BOBOIBOY  ✦  PAPAZOLA",13,0xffffd45c);heroes.setTypeface(null,Typeface.BOLD);heroes.setLetterSpacing(.08f);heroes.setVisibility(View.GONE);
   grid=new LoopCarousel(this);grid.setId(R.id.grid);grid.setClipToPadding(false);grid.setPadding(d(3),d(6),d(3),d(6));
   grid.setItemAnimator(null);
-  grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,34,414,892,108);
+  grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,28,420,904,104);
   empty=text("No visible apps. Open Settings to unhide apps or install TV apps.",16,GlassUi.WHITE);empty.setGravity(Gravity.CENTER_VERTICAL);place(body,empty,40,416,880,96);
   prayer=new PrayerPanel(this);prayer.dashboardScale(scale);place(body,prayer,292,112,405,72);
   prayer.setNextFocusUpId(R.id.btnWifi);prayer.setNextFocusDownId(R.id.grid);
@@ -219,8 +219,8 @@ public class DashboardActivity extends Activity {
   if(delta!=0){catalog.move(moving,delta);focusKey=moving;reload();return true;}return false;
  }
  private final class Tiles extends RecyclerView.Adapter<Tile> {
-  public Tile onCreateViewHolder(ViewGroup parent,int type){LinearLayout card=vertical();card.setGravity(Gravity.CENTER);card.setPadding(d(7),d(4),d(7),d(4));
-   RecyclerView.LayoutParams p=new RecyclerView.LayoutParams(d(100),d(80));p.setMargins(d(5),d(2),d(5),d(2));card.setLayoutParams(p);GlassUi.focus(card);card.setBackground(GlassUi.kidsStates(DashboardActivity.this));
+  public Tile onCreateViewHolder(ViewGroup parent,int type){LinearLayout card=vertical();card.setGravity(Gravity.CENTER);card.setPadding(d(7),d(5),d(7),d(5));
+   RecyclerView.LayoutParams p=new RecyclerView.LayoutParams(d(100),d(86));p.setMargins(d(5),d(2),d(5),d(2));card.setLayoutParams(p);GlassUi.focus(card);card.setBackground(GlassUi.kidsStates(DashboardActivity.this));
    ImageView icon=new ImageView(DashboardActivity.this);icon.setScaleType(ImageView.ScaleType.FIT_CENTER);card.addView(icon,lp(d(48),d(48)));
    TextView name=text("",12,GlassUi.WHITE);name.setGravity(Gravity.CENTER);name.setTypeface(null,Typeface.BOLD);name.setMaxLines(1);name.setEllipsize(android.text.TextUtils.TruncateAt.END);LinearLayout.LayoutParams n=lp(-1,d(20));n.topMargin=d(2);card.addView(name,n);return new Tile(card,icon,name);}
   public void onBindViewHolder(Tile v,int i){ResolveInfo r=apps.get(LoopCarousel.logical(i,apps.size()));String key=DashboardApps.key(r);v.name.setText(catalog.label(r));
