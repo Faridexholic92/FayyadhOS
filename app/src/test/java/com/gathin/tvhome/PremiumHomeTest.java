@@ -12,6 +12,16 @@ public class PremiumHomeTest {
  @Before public void defaults(){Context c=RuntimeEnvironment.getApplication();PremiumTheme.prefs(c).edit().clear().putBoolean("birthday_auto",false).commit();RainOptions.prefs(c).edit().putBoolean("moving",true).commit();Settings.Global.putFloat(c.getContentResolver(),Settings.Global.ANIMATOR_DURATION_SCALE,1);}
  PremiumSceneView scene(DashboardActivity a){return a.findViewById(R.id.root).findViewWithTag("premium-scene");}
  void field(Object o,String name,Object value)throws Exception{Field f=o.getClass().getDeclaredField(name);f.setAccessible(true);f.set(o,value);}
+ int visibleSpritePixels(Bitmap bitmap,float centerX,float bottom,float height){
+  float width=height*192f/320f;
+  int left=Math.max(0,(int)Math.floor(centerX-width/2f));
+  int right=Math.min(bitmap.getWidth(),(int)Math.ceil(centerX+width/2f));
+  int top=Math.max(0,(int)Math.floor(bottom-height));
+  int lower=Math.min(bitmap.getHeight(),(int)Math.ceil(bottom));
+  int count=0;
+  for(int y=top;y<lower;y++)for(int x=left;x<right;x++)if(Color.alpha(bitmap.getPixel(x,y))>0)count++;
+  return count;
+ }
  @Test public void birthdayUsesCleanBackdropForSingleAnimatedCharacterLayer(){
   assertEquals("premium/world.webp",PremiumTheme.asset(true));
   assertEquals("premium/world.webp",PremiumTheme.asset(false));
@@ -79,12 +89,14 @@ public class PremiumHomeTest {
    Bitmap frame=Bitmap.createBitmap(960,540,Bitmap.Config.ARGB_8888);
    try{
     s.draw(new Canvas(frame));
-    int papaPixels=0;
-    for(int y=170;y<415;y++)for(int x=285;x<460;x++)if(Color.alpha(frame.getPixel(x,y))>0)papaPixels++;
-    int boyPixels=0;
-    for(int y=220;y<420;y++)for(int x=520;x<700;x++)if(Color.alpha(frame.getPixel(x,y))>0)boyPixels++;
-    assertTrue("Birthday theme must keep drawing PapaZola after confetti expires",papaPixels>100);
-    assertTrue("Birthday theme must keep drawing BoBoiBoy after confetti expires",boyPixels>100);
+    FreeRunChoreography.Pose papaPose=FreeRunChoreography.sample(1_000L,0);
+    FreeRunChoreography.Pose boyPose=FreeRunChoreography.sample(1_000L,1);
+    float papaBottom=papaPose.groundY-papaPose.hop+FreeRunChoreography.bobAt(1_000L,0);
+    float boyBottom=boyPose.groundY-boyPose.hop+FreeRunChoreography.bobAt(1_000L,1);
+    int papaPixels=visibleSpritePixels(frame,papaPose.x,papaBottom,206f*papaPose.scale);
+    int boyPixels=visibleSpritePixels(frame,boyPose.x,boyBottom,156f*boyPose.scale);
+    assertTrue("Birthday theme must draw PapaZola at his free-run position after confetti expires",papaPixels>100);
+    assertTrue("Birthday theme must draw BoBoiBoy at his free-run position after confetti expires",boyPixels>100);
    }finally{frame.recycle();}
   }
  }
