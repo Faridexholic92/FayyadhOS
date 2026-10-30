@@ -79,14 +79,15 @@ final class PrayerPanel extends LinearLayout {
         LinearLayout row=new LinearLayout(owner); row.setPadding(0,dp(2),0,dp(2));
         for(int i=0;i<6;i++) {
             LinearLayout cell=new LinearLayout(owner); cell.setOrientation(VERTICAL);
-            labels[i]=text(10,MUTED); labels[i].setText(PrayerTimes.NAMES[i]);
-            values[i]=text(17,WHITE); values[i].setTypeface(null,Typeface.BOLD);
-            cell.addView(labels[i]); cell.addView(values[i]);
+            labels[i]=text(10,MUTED); labels[i].setText(PrayerTimes.NAMES[i]); labels[i].setSingleLine(true);
+            values[i]=text(17,WHITE); values[i].setTypeface(GlassUi.typeface(activity,Typeface.BOLD)); values[i].setSingleLine(true);
+            // Fixed compact row heights prevent font metrics from expanding the panel.
+             cell.addView(labels[i],new LayoutParams(-1,dp(14))); cell.addView(values[i],new LayoutParams(-1,dp(22)));
             row.addView(cell,new LayoutParams(0,LayoutParams.WRAP_CONTENT,1));
         }
         addView(row);
         subtitle=text(9,MUTED); subtitle.setSingleLine(true);
-        subtitle.setEllipsize(android.text.TextUtils.TruncateAt.END); addView(subtitle);
+        subtitle.setEllipsize(android.text.TextUtils.TruncateAt.END); addView(subtitle,new LayoutParams(-1,dp(12)));
         try(InputStream in=owner.getAssets().open("jakim-zones.json")) {
             byte[] raw=new byte[in.available()]; new java.io.DataInputStream(in).readFully(raw);
             JSONArray list=new JSONArray(new String(raw,java.nio.charset.StandardCharsets.UTF_8));
@@ -104,7 +105,7 @@ final class PrayerPanel extends LinearLayout {
         TextView t=new OutlinedTextView(activity); t.setTextSize(size); t.setTextColor(color); t.setIncludeFontPadding(false);
         t.setFontFeatureSettings("tnum");
         t.setShadowLayer(dp(2),0,dp(1),0xe6000000);
-        t.setTypeface(Typeface.create("sans-serif",Typeface.BOLD)); return t;
+        t.setTypeface(GlassUi.typeface(getContext(),Typeface.BOLD)); return t;
     }
     /** Thin glyph outline, not a rectangular background: readable on bright wallpapers too. */
     private final class OutlinedTextView extends TextView {
@@ -118,9 +119,9 @@ final class PrayerPanel extends LinearLayout {
                 float stroke=paint.getStrokeWidth();
                 android.graphics.Paint.Join join=paint.getStrokeJoin();
                 paint.setStyle(android.graphics.Paint.Style.STROKE);
-                paint.setStrokeWidth(0.45f*getResources().getDisplayMetrics().density);
+                paint.setStrokeWidth(0.22f*getResources().getDisplayMetrics().density);
                 paint.setStrokeJoin(android.graphics.Paint.Join.ROUND);
-                paint.setColor(0xe6000000);
+                paint.setColor(0x88000000);
                 int saved=canvas.save();
                 canvas.translate(getCompoundPaddingLeft(),getTotalPaddingTop());
                 layout.draw(canvas);

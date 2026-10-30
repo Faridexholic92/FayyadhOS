@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 /** Fixed offline collection, no network, external storage or arbitrary paths. */
 final class FayyadhWallpapers {
-    static final String DEFAULT="11-Kinabalu-Sunset.jpg";
+    static final String DEFAULT="10-Cosmic-Sunrise.jpg";
     static final String[] FILES={"01-Tropical-Morning.jpg","02-Candy-Clouds.jpg","03-Sunflower-Hills.jpg",
             "04-Coral-Reef.jpg","05-Celestial-Garden.jpg","06-Borneo-Morning.jpg","07-Citrus-Coast.jpg",
             "08-Blossom-Lake.jpg","09-Festival-Sky.jpg","10-Cosmic-Sunrise.jpg",DEFAULT};

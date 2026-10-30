@@ -20,7 +20,7 @@ final class WeatherWidget extends LinearLayout {
         addView(image,new LayoutParams(a.d(34),a.d(34)));
         LinearLayout lines=new LinearLayout(a);lines.setOrientation(VERTICAL);
         LayoutParams params=new LayoutParams(0,-2,1);params.leftMargin=a.d(9);addView(lines,params);
-        heading=text(a,16,scale);heading.setTypeface(null,Typeface.BOLD);
+        heading=text(a,16,scale);heading.setTypeface(GlassUi.typeface(a,Typeface.BOLD));
         condition=text(a,12,scale);lines.addView(heading);lines.addView(condition);
         update(null,"St502","Sabah",Instant.now(),false);
     }
