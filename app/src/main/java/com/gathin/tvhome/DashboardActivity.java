@@ -58,7 +58,7 @@ public class DashboardActivity extends Activity {
   android.text.SpannableString wordmark=new android.text.SpannableString("FayyadhOS");
   wordmark.setSpan(new android.text.style.ForegroundColorSpan(GlassUi.CYAN),7,9,0);name.setText(wordmark);
   name.setTypeface(null,Typeface.BOLD);brand.addView(name);
-  TextView edition=text("TV EDITION",10,GlassUi.WHITE);edition.setLetterSpacing(.38f);edition.setPadding(d(16),d(3),0,0);brand.addView(edition);
+  TextView edition=text("KIDS UNIVERSE  ·  BOBOIBOY × PAPAZOLA",10,GlassUi.WHITE);edition.setLetterSpacing(.38f);edition.setPadding(d(16),d(3),0,0);brand.addView(edition);
   header.addView(brand,new FrameLayout.LayoutParams(d(230),-2,Gravity.START|Gravity.TOP));
   LinearLayout time=vertical();time.setGravity(Gravity.CENTER_HORIZONTAL);
   clock=text("",34,GlassUi.WHITE);clock.setTypeface(null,Typeface.BOLD);date=text("",13,GlassUi.WHITE);
@@ -73,7 +73,7 @@ public class DashboardActivity extends Activity {
   header.addView(actions,new FrameLayout.LayoutParams(-2,d(44),Gravity.END|Gravity.TOP));
   LinearLayout intro=vertical();place(body,intro,40,128,310,100);
   greeting=text("",32,GlassUi.WHITE);greeting.setTypeface(null,Typeface.BOLD);greeting.setTag("greeting");intro.addView(greeting);
-  TextView caption=text("Your entertainment, all in one place.",18,GlassUi.WHITE);LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);
+  TextView caption=text("Dunia pengembaraan bermula di sini!",18,GlassUi.WHITE);LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);
   grid=new LoopCarousel(this);grid.setId(R.id.grid);grid.setClipToPadding(false);grid.setPadding(d(3),d(6),d(3),d(6));
   grid.setItemAnimator(null);
   grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,40,400,880,112);
@@ -106,7 +106,7 @@ public class DashboardActivity extends Activity {
 
 
  private TextView button(String label,Runnable click){TextView t=text(label,13,GlassUi.WHITE);t.setGravity(Gravity.CENTER);t.setSingleLine(true);GlassUi.focusShortcut(t);t.setOnClickListener(v->click.run());return t;}
- void updateClock(){LocalDateTime now=LocalDateTime.now();clock.setText(now.format(DateTimeFormatter.ofLocalizedTime(java.time.format.FormatStyle.SHORT).withLocale(Locale.getDefault())));date.setText(now.format(DateTimeFormatter.ofPattern("EEEE, d MMM yyyy",Locale.getDefault())));greeting.setText(greeting(now.getHour()));}
+ void updateClock(){LocalDateTime now=LocalDateTime.now();clock.setText(now.format(DateTimeFormatter.ofLocalizedTime(java.time.format.FormatStyle.SHORT).withLocale(Locale.getDefault())));date.setText(now.format(DateTimeFormatter.ofPattern("EEEE, d MMM yyyy",Locale.getDefault())));greeting.setText("Jom Teroka!");}
  boolean automaticWallpaper(){return getSharedPreferences("fayyadh-wallpaper",0).getBoolean("automatic_weather",true);}
  void weatherWallpaper(WeatherForecast.State state){wallpaperState=state;loadWallpaper();}
  void setAutomaticWallpaper(boolean enabled){getSharedPreferences("fayyadh-wallpaper",0).edit().putBoolean("automatic_weather",enabled).apply();loadWallpaper();}
