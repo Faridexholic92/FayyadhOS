@@ -54,6 +54,8 @@ public class DashboardActivity extends Activity {
   FrameLayout body=new FrameLayout(this);body.setBackground(new android.graphics.drawable.GradientDrawable(
    android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0x45071320,0x08071320,0x28071320}));
   root.addView(body,new FrameLayout.LayoutParams(-1,-1));
+  // Draw the lightweight Kids Universe atmosphere inside the body so the root wallpaper/foreground hierarchy stays stable.
+  body.addView(new KidsUniverseBackdrop(this),new FrameLayout.LayoutParams(-1,-1));
   FrameLayout header=new FrameLayout(this);place(body,header,40,28,880,62);
   LinearLayout brand=vertical();TextView name=text("FayyadhOS",30,GlassUi.WHITE);
   android.text.SpannableString wordmark=new android.text.SpannableString("FayyadhOS");
@@ -62,25 +64,25 @@ public class DashboardActivity extends Activity {
   TextView edition=text("KIDS UNIVERSE  ·  BOBOIBOY × PAPAZOLA",10,GlassUi.WHITE);edition.setLetterSpacing(.38f);edition.setPadding(d(16),d(3),0,0);brand.addView(edition);
   header.addView(brand,new FrameLayout.LayoutParams(d(230),-2,Gravity.START|Gravity.TOP));
   LinearLayout time=vertical();time.setGravity(Gravity.CENTER_HORIZONTAL);
-  clock=text("",34,GlassUi.WHITE);clock.setTypeface(null,Typeface.BOLD);date=text("",13,GlassUi.WHITE);
-  clock.setGravity(Gravity.CENTER);date.setGravity(Gravity.CENTER);date.setSingleLine(true);
+  clock=text("",58,GlassUi.WHITE);clock.setTypeface(null,Typeface.BOLD);date=text("",16,GlassUi.WHITE);
+  time.setGravity(Gravity.START);clock.setGravity(Gravity.START);date.setGravity(Gravity.START);date.setSingleLine(true);
   date.setEllipsize(android.text.TextUtils.TruncateAt.END);time.addView(clock);time.addView(date);
-  header.addView(time,new FrameLayout.LayoutParams(d(310),-2,Gravity.CENTER_HORIZONTAL|Gravity.TOP));
+  place(body,time,40,105,270,104);
   LinearLayout actions=new LinearLayout(this);actions.setGravity(Gravity.CENTER_VERTICAL);
   TextView net=button("●  Jarvis",()->showJarvis());net.setContentDescription("Open Jarvis network diagnostics and AI assistance");net.setId(R.id.btnWifi);actions.addView(net,lp(d(82),d(44)));
   View divider=new View(this);divider.setBackgroundColor(0x66ffffff);actions.addView(divider,lp(d(1),d(24)));
   TextView settings=button("Settings",()->settings());android.graphics.drawable.Drawable gear=getDrawable(R.drawable.ic_settings);gear.setBounds(0,0,d(18),d(18));settings.setCompoundDrawables(gear,null,null,null);
   settings.setCompoundDrawablePadding(d(5));settings.setPadding(d(10),0,d(5),0);settings.setId(R.id.btnSettings);actions.addView(settings,lp(d(100),d(44)));
   header.addView(actions,new FrameLayout.LayoutParams(-2,d(44),Gravity.END|Gravity.TOP));
-  LinearLayout intro=vertical();place(body,intro,40,128,310,100);
-  greeting=text("",32,GlassUi.WHITE);greeting.setTypeface(null,Typeface.BOLD);greeting.setTag("greeting");intro.addView(greeting);
+  LinearLayout intro=vertical();place(body,intro,40,286,330,90);
+  greeting=text("",38,GlassUi.WHITE);greeting.setTypeface(null,Typeface.BOLD);greeting.setTag("greeting");intro.addView(greeting);
   TextView caption=text("Dunia pengembaraan bermula di sini!",18,GlassUi.WHITE);LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);
-  TextView heroes=text("BOBOIBOY  ✦  PAPAZOLA",13,0xffffd45c);heroes.setTypeface(null,Typeface.BOLD);heroes.setLetterSpacing(.08f);place(body,heroes,40,224,310,24);
+  TextView heroes=text("BOBOIBOY  ✦  PAPAZOLA",13,0xffffd45c);heroes.setTypeface(null,Typeface.BOLD);heroes.setLetterSpacing(.08f);place(body,heroes,40,382,310,24);
   grid=new LoopCarousel(this);grid.setId(R.id.grid);grid.setClipToPadding(false);grid.setPadding(d(3),d(6),d(3),d(6));
   grid.setItemAnimator(null);
-  grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,40,400,880,112);
-  empty=text("No visible apps. Open Settings to unhide apps or install TV apps.",16,GlassUi.WHITE);empty.setGravity(Gravity.CENTER_VERTICAL);place(body,empty,46,406,868,96);
-  prayer=new PrayerPanel(this);prayer.dashboardScale(scale);place(body,prayer,40,84,390,40);
+  grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,34,414,892,108);
+  empty=text("No visible apps. Open Settings to unhide apps or install TV apps.",16,GlassUi.WHITE);empty.setGravity(Gravity.CENTER_VERTICAL);place(body,empty,40,416,880,96);
+  prayer=new PrayerPanel(this);prayer.dashboardScale(scale);place(body,prayer,292,112,405,72);
   prayer.setNextFocusUpId(R.id.btnWifi);prayer.setNextFocusDownId(R.id.grid);
   net.setNextFocusDownId(R.id.prayerPanel);settings.setNextFocusDownId(R.id.prayerPanel);
   net.setNextFocusRightId(R.id.btnSettings);settings.setNextFocusLeftId(R.id.btnWifi);
@@ -92,9 +94,9 @@ public class DashboardActivity extends Activity {
    if(key==KeyEvent.KEYCODE_DPAD_LEFT||key==KeyEvent.KEYCODE_DPAD_RIGHT)return prayer.cycle(key==KeyEvent.KEYCODE_DPAD_LEFT?-1:1);return false;});
   // Structural layout only: no weather surface/background, focus target or click handler.
   // Weather sits below the top-right actions, outside the centered clock.
-   WeatherWidget weather=new WeatherWidget(this,scale);place(body,weather,690,96,230,38);
+   WeatherWidget weather=new WeatherWidget(this,scale);place(body,weather,720,102,205,42);
   rain=new RainController(this,root);rain.attachWeather(weather);
-  hourly=new HourlyWeatherController(this);place(body,hourly.view(),690,140,230,78);
+  hourly=new HourlyWeatherController(this);place(body,hourly.view(),720,151,205,82);
   reload();updateClock();
   if(!apps.isEmpty()){focusKey=DashboardApps.key(apps.get(0));grid.post(()->focusApp(focusKey));}else settings.requestFocus();
  }
