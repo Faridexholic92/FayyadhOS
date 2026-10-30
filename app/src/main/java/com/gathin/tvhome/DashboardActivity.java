@@ -59,7 +59,7 @@ public class DashboardActivity extends Activity {
   LinearLayout brand=vertical();TextView name=text("♛ FayyadhOS",30,GlassUi.WHITE);
   android.text.SpannableString wordmark=new android.text.SpannableString("♛ FayyadhOS");
   wordmark.setSpan(new android.text.style.ForegroundColorSpan(0xffffa52e),9,11,0);name.setText(wordmark);
-  name.setTypeface(GlassUi.typeface(this,Typeface.BOLD));brand.addView(name);
+  name.setTypeface(GlassUi.typeface(DashboardActivity.this,Typeface.BOLD));brand.addView(name);
   TextView edition=text("KIDS UNIVERSE  ·  BOBOIBOY × PAPAZOLA",10,GlassUi.WHITE);edition.setLetterSpacing(.38f);edition.setPadding(d(16),d(3),0,0);brand.addView(edition);
   header.addView(brand,new FrameLayout.LayoutParams(d(230),-2,Gravity.START|Gravity.TOP));
   LinearLayout time=vertical();time.setGravity(Gravity.CENTER_HORIZONTAL);
