@@ -17,7 +17,12 @@ final class PremiumTheme {
     }
     static final String POSE="pose", RUN="run";
     /** Hero pose follows the approved dusk mockup; free-run keeps the earlier sprite choreography. */
-    static String characters(Context c){String v=prefs(c).getString("characters",POSE);return RUN.equals(v)?RUN:POSE;}
+    static String characters(Context c){
+        SharedPreferences p=prefs(c);
+        // One-time presentation-only migration: honour the request for a static Home.
+        if(!p.getBoolean("static_halilintar_v1",false))p.edit().putString("characters",POSE).putBoolean("static_halilintar_v1",true).apply();
+        String v=p.getString("characters",POSE);return RUN.equals(v)?RUN:POSE;
+    }
     static int motion(Context c){return Math.max(0,Math.min(2,prefs(c).getInt("motion",2)));} // Off / Lite / Full
     static String asset(boolean birthday){
         // The Birthday wallpaper contains characters baked into the pixels; use the clean world

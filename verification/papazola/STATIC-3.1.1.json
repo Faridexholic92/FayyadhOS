@@ -1,0 +1,70 @@
+{
+  "version": "3.1.1-static-halilintar",
+  "versionCode": 16,
+  "baseCommit": "b3bacd534174a7aa07458ab271d462b1abc6f252",
+  "build": {
+    "testDebugUnitTest": "PASS",
+    "assembleDebug": "PASS",
+    "compileReleaseJavaWithJavac": "PASS"
+  },
+  "tests": {
+    "suites": 31,
+    "tests": 361,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "staticHome": {
+    "wallpaperDriftOrZoom": false,
+    "defaultHeroBounceOrLean": false,
+    "defaultSceneAnimationCallbacks": false,
+    "staticBirthdayPixelsComparedAtMilliseconds": [
+      0,
+      5000
+    ],
+    "rainOverlayIndependent": true,
+    "optionalFreeRunStillAvailable": true,
+    "oldBoySpriteRowRendered": false
+  },
+  "suppliedAsset": {
+    "filename": "Boboiboy_Halilintar.webp",
+    "sha256": "0772a148c1c9fece033f6893bf6af9b3c2f0e7b3f2e68212e6105cf6ca82e728",
+    "dimensions": [
+      250,
+      250
+    ],
+    "atlasDimensions": [
+      631,
+      483
+    ],
+    "boyCell": [
+      381,
+      0,
+      631,
+      250
+    ],
+    "decodedRgbaPreservedExactly": true
+  },
+  "apk": {
+    "package": "dev.farred.fayyadhos.tv.jarvis.fix",
+    "sha256": "ba66a8a66c7888faae803fcec038afa1863f4c38256725f84b625cea3c3b7e2b",
+    "bytes": 8823122,
+    "signing": "Android Debug; not production certificate"
+  },
+  "visualQA": {
+    "renderer": "Robolectric simulation with fixture apps, prayer schedule and MET data; not a physical TV capture",
+    "inspected": [
+      "premium-home-720.png",
+      "premium-home-1080.png",
+      "premium-home-4k.png",
+      "premium-birthday-1080.png"
+    ],
+    "result": "PASS; supplied Halilintar visible, no UI clipping/overlap"
+  },
+  "limitations": [
+    "No physical-TV, remote, audible Azan or standby acceptance",
+    "Existing lint failures are historical; lint not rerun for this patch",
+    "Rain-on-Glass is a decorative effect driven by forecast or explicit Preview, not confirmation of actual rain",
+    "Original signing certificate is required for a safe in-place production update"
+  ]
+}

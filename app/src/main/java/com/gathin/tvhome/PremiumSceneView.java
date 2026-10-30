@@ -22,8 +22,8 @@ final class PremiumSceneView extends View {
     private final WallpaperDissolveView wallpaper;
     private Bitmap atlas, poseAtlas;
     private boolean pose = true;
-    // heroes-pose.webp: PapaZola cell then BoBoiBoy cell, matching the approved dusk mockup.
-    static final Rect PAPA_POSE = new Rect(0, 0, 373, 483), BOY_POSE = new Rect(381, 0, 626, 367);
+    // heroes-pose.webp: PapaZola plus the exact user-supplied Halilintar RGBA pixels.
+    static final Rect PAPA_POSE = new Rect(0, 0, 373, 483), BOY_POSE = new Rect(381, 0, 631, 250);
     // 960 x 540 canvas placement: centre x, feet y, drawn height.
     static final float[] PAPA_PLACE = {400f, 462f, 318f}, BOY_PLACE = {607f, 455f, 242f};
     private static final float[][] RIBBONS = {
@@ -72,7 +72,7 @@ final class PremiumSceneView extends View {
         }
     }
 
-    void characters(boolean heroPose) { if (pose != heroPose) { pose = heroPose; invalidate(); } }
+    void characters(boolean heroPose) { if (pose != heroPose) { pose = heroPose; sync(); } }
     boolean heroPose() { return pose && poseAtlas != null; }
 
     void configure(boolean enabled, boolean birthday, int quality) {
@@ -92,7 +92,7 @@ final class PremiumSceneView extends View {
 
     boolean canAnimate() {
         // Confetti has its own ten-second lifetime; it must not stop the character loop.
-        return !closed && enabled && active && interactive && !obscured && !audioBusy
+        return !heroPose() && !closed && enabled && active && interactive && !obscured && !audioBusy
                 && quality > 0 && isAttachedToWindow()
                 && RainOptions.prefs(getContext()).getBoolean("moving", true)
                 && Settings.Global.getFloat(getContext().getContentResolver(),
@@ -153,13 +153,8 @@ final class PremiumSceneView extends View {
     }
 
     private void drift() {
-        if (quality < 2) {
-            resetDrift();
-            return;
-        }
-        wallpaper.setScaleX(1.018f);
-        wallpaper.setScaleY(1.018f);
-        wallpaper.setTranslationX((float) Math.sin(elapsed / 16000.0) * getWidth() * .003f);
+        // The wallpaper is always static, independently of the Rain-on-Glass overlay.
+        resetDrift();
     }
 
     private void resetDrift() {
@@ -224,28 +219,26 @@ final class PremiumSceneView extends View {
     private void sprite(Canvas c, int row, int cell, float x, float ground,
                          float height, boolean mirror, float leanDegrees) {
         src.set(cell * 192, row * 320, (cell + 1) * 192, (row + 1) * 320);
-        float width = height * 192f / 320f;
+        if (row == 1 && poseAtlas == null) return;
+        float width = row == 1 ? height * BOY_POSE.width() / (float) BOY_POSE.height() : height * 192f / 320f;
         dest.set(x - width / 2f, ground - height, x + width / 2f, ground);
         float pivotY = ground - height * .48f;
         int save = c.save();
         c.rotate(leanDegrees, x, pivotY);
         if (mirror) c.scale(-1f, 1f, x, pivotY);
         paint.setAlpha(255);
-        c.drawBitmap(atlas, src, dest, paint);
+        if (row == 1) c.drawBitmap(poseAtlas, BOY_POSE, dest, paint);
+        else c.drawBitmap(atlas, src, dest, paint);
         c.restoreToCount(save);
     }
 
-    /** Run-in-place bounce: time derived, frozen when motion is unavailable. */
-    static float poseBob(long elapsedMs, int character) {
-        double period = character == 0 ? 760.0 : 640.0, amplitude = character == 0 ? 5.0 : 4.2;
-        double phase = (elapsedMs + (character == 0 ? 0 : 230)) / period * Math.PI * 2.0;
-        return (float) (-Math.abs(Math.sin(phase / 2.0)) * amplitude);
-    }
+    /** Static hero pose: no time-based bounce, even when rain movement is enabled. */
+    static float poseBob(long elapsedMs, int character) { return 0f; }
 
     private void drawHeroPose(Canvas c) {
         float papaBob = poseBob(elapsed, 0), boyBob = poseBob(elapsed, 1);
-        float papaLean = (float) Math.sin(elapsed / 760.0 * Math.PI) * 1.1f;
-        float boyLean = (float) Math.sin((elapsed + 230) / 640.0 * Math.PI) * 1.4f;
+        float papaLean = 0f;
+        float boyLean = 0f;
         groundShadow(c, BOY_PLACE[0], BOY_PLACE[1], 64f, -boyBob * 2f);
         heroCell(c, BOY_POSE, BOY_PLACE, boyBob, boyLean);
         groundShadow(c, PAPA_PLACE[0], PAPA_PLACE[1], 86f, -papaBob * 2f);

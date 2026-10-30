@@ -28,13 +28,13 @@ public class PremiumHomeTest {
  }
  @Test public void datedBirthdayNeverRepeatsNextYear(){assertTrue(PremiumTheme.birthday(PremiumTheme.WORLD,true,LocalDate.of(2026,10,30)));assertFalse(PremiumTheme.birthday(PremiumTheme.WORLD,true,LocalDate.of(2027,10,30)));assertFalse(PremiumTheme.birthday(PremiumTheme.WORLD,false,LocalDate.of(2026,10,30)));assertFalse(PremiumTheme.birthday(PremiumTheme.CLASSIC,true,LocalDate.of(2026,10,30)));assertTrue(PremiumTheme.birthday(PremiumTheme.BIRTHDAY,false,LocalDate.of(2026,10,29)));}
  @Test public void packagedArtAndAtlasHaveBoundedDecodedSize()throws Exception{try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
-  for(String asset:new String[]{"premium/world.webp","premium/birthday.webp","premium/heroes-run.webp","premium/heroes-pose.webp"})try(InputStream in=c.get().getAssets().open(asset)){Bitmap b=BitmapFactory.decodeStream(in);assertNotNull(asset,b);assertTrue(b.getWidth()<=1920);assertTrue(b.getHeight()<=1080);if(asset.contains("heroes")){assertTrue(b.hasAlpha());if(asset.contains("-run")){assertEquals(1152,b.getWidth());assertEquals(640,b.getHeight());}else{assertEquals(626,b.getWidth());assertEquals(483,b.getHeight());}}b.recycle();}
+  for(String asset:new String[]{"premium/world.webp","premium/birthday.webp","premium/heroes-run.webp","premium/heroes-pose.webp"})try(InputStream in=c.get().getAssets().open(asset)){Bitmap b=BitmapFactory.decodeStream(in);assertNotNull(asset,b);assertTrue(b.getWidth()<=1920);assertTrue(b.getHeight()<=1080);if(asset.contains("heroes")){assertTrue(b.hasAlpha());if(asset.contains("-run")){assertEquals(1152,b.getWidth());assertEquals(640,b.getHeight());}else{assertEquals(631,b.getWidth());assertEquals(483,b.getHeight());}}b.recycle();}
  }}
  @Test public void motionStopsForOverlayPauseScreenAudioAndDestroy(){try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
-  PremiumSceneView s=scene(c.get());assertTrue(s.hasFrame());s.obscured(true);assertFalse(s.hasFrame());s.obscured(false);assertTrue(s.hasFrame());s.screen(false);assertFalse(s.hasFrame());s.screen(true);assertTrue(s.hasFrame());s.audioBusy(true);assertFalse(s.hasFrame());s.audioBusy(false);assertTrue(s.hasFrame());s.hostActive(false);assertFalse(s.hasFrame());s.hostActive(true);assertTrue(s.hasFrame());s.destroy();assertFalse(s.hasFrame());assertFalse(s.canAnimate());
+  PremiumSceneView s=scene(c.get());s.characters(false);assertTrue(s.hasFrame());s.obscured(true);assertFalse(s.hasFrame());s.obscured(false);assertTrue(s.hasFrame());s.screen(false);assertFalse(s.hasFrame());s.screen(true);assertTrue(s.hasFrame());s.audioBusy(true);assertFalse(s.hasFrame());s.audioBusy(false);assertTrue(s.hasFrame());s.hostActive(false);assertFalse(s.hasFrame());s.hostActive(true);assertTrue(s.hasFrame());s.destroy();assertFalse(s.hasFrame());assertFalse(s.canAnimate());
  }}
  @Test public void offLiteAndSystemReducedMotionAreHonoured(){try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
-  PremiumSceneView s=scene(c.get());s.configure(true,false,0);assertFalse(s.hasFrame());s.configure(true,false,1);assertTrue(s.hasFrame());Settings.Global.putFloat(c.get().getContentResolver(),Settings.Global.ANIMATOR_DURATION_SCALE,0);s.configure(true,false,2);assertFalse(s.hasFrame());Settings.Global.putFloat(c.get().getContentResolver(),Settings.Global.ANIMATOR_DURATION_SCALE,1);RainOptions.prefs(c.get()).edit().putBoolean("moving",false).commit();s.configure(true,false,2);assertFalse(s.hasFrame());
+  PremiumSceneView s=scene(c.get());s.characters(false);s.configure(true,false,0);assertFalse(s.hasFrame());s.configure(true,false,1);assertTrue(s.hasFrame());Settings.Global.putFloat(c.get().getContentResolver(),Settings.Global.ANIMATOR_DURATION_SCALE,0);s.configure(true,false,2);assertFalse(s.hasFrame());Settings.Global.putFloat(c.get().getContentResolver(),Settings.Global.ANIMATOR_DURATION_SCALE,1);RainOptions.prefs(c.get()).edit().putBoolean("moving",false).commit();s.configure(true,false,2);assertFalse(s.hasFrame());
  }}
  @Test public void azanPlaybackUsesPrivateInProcessObserverAndRemovesIt()throws Exception{
   final java.util.concurrent.atomic.AtomicInteger calls=new java.util.concurrent.atomic.AtomicInteger();Runnable callback=calls::incrementAndGet;AzanService.observePlayback(callback);
@@ -49,7 +49,7 @@ public class PremiumHomeTest {
   c.get().weatherWallpaper(WeatherForecast.State.UNKNOWN);assertTrue(c.get().currentWallpaperKey().endsWith("UNKNOWN"));
  }}
  @Test public void overlayAndThemeSettingsPreserveRemoteFocus(){helper.demoApps();try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
-  DashboardActivity a=c.get();View root=helper.render(a,1920,1080);View before=root.findFocus();assertNotNull(before);a.themeSettings();assertFalse(scene(a).hasFrame());AlertDialog dialog=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();assertEquals(6,dialog.getListView().getCount());dialog.dismiss();Shadows.shadowOf(Looper.getMainLooper()).idle();assertTrue("Scene resumes after dialog dismissal",scene(a).hasFrame());assertSame(before,root.findFocus());
+  DashboardActivity a=c.get();PremiumTheme.prefs(a).edit().putString("characters",PremiumTheme.RUN).commit();a.weatherWallpaper(WeatherForecast.State.CLEAR);View root=helper.render(a,1920,1080);View before=root.findFocus();assertNotNull(before);a.themeSettings();assertFalse(scene(a).hasFrame());AlertDialog dialog=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();assertEquals(6,dialog.getListView().getCount());dialog.dismiss();Shadows.shadowOf(Looper.getMainLooper()).idle();assertTrue("Scene resumes after dialog dismissal",scene(a).hasFrame());assertSame(before,root.findFocus());
  }}
  @Test public void noZoneMeansNoInventedTimeAndExplicitAzanOff(){try(var c=Robolectric.buildActivity(DashboardActivity.class).setup()){
   TextView next=c.get().findViewById(R.id.root).findViewWithTag("next-prayer");assertTrue(next.getText().toString().contains("Select zone"));TextView azan=c.get().findViewById(R.id.root).findViewWithTag("azan-status");assertEquals("AZAN OFF",azan.getText().toString());
@@ -107,24 +107,35 @@ public class PremiumHomeTest {
  }
  @Test public void heroPoseIsDefaultAndDrawsBothCharactersAtMockupPlaces()throws Exception{
   try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
-   PremiumSceneView s=scene(c.get());assertTrue("Dusk hero pose is the default character style",s.heroPose());
+   PremiumSceneView s=scene(c.get());assertTrue("Static hero pose is the default character style",s.heroPose());assertFalse("Static Home must not schedule scene animation",s.hasFrame());
    s.configure(true,false,2);s.layout(0,0,960,540);Bitmap frame=Bitmap.createBitmap(960,540,Bitmap.Config.ARGB_8888);
    try{s.draw(new Canvas(frame));
     assertTrue(frame.getPixel((int)PremiumSceneView.PAPA_PLACE[0],(int)(PremiumSceneView.PAPA_PLACE[1]-PremiumSceneView.PAPA_PLACE[2]*.55f))>>>24>200);
-    assertTrue(frame.getPixel((int)PremiumSceneView.BOY_PLACE[0],(int)(PremiumSceneView.BOY_PLACE[1]-PremiumSceneView.BOY_PLACE[2]*.55f))>>>24>200);
+    assertTrue("Supplied Halilintar is drawn",visibleSpritePixels(frame,PremiumSceneView.BOY_PLACE[0],PremiumSceneView.BOY_PLACE[1],PremiumSceneView.BOY_PLACE[2])>100);
     assertEquals("left hero column stays clear of characters",0,frame.getPixel(120,300)>>>24);
    }finally{frame.recycle();}
    PremiumTheme.prefs(c.get()).edit().putString("characters",PremiumTheme.RUN).commit();c.get().weatherWallpaper(WeatherForecast.State.CLEAR);assertFalse(s.heroPose());
   }
  }
- @Test public void heroPoseBounceIsBoundedAndTimeDerived(){
-  for(long t=0;t<4000;t+=40){float a=PremiumSceneView.poseBob(t,0),b=PremiumSceneView.poseBob(t,1);assertTrue(a<=0&&a>=-5.01f);assertTrue(b<=0&&b>=-4.21f);}
+ @Test public void heroPoseIsStaticAtEveryTimestamp(){
+  for(long t=0;t<4000;t+=40){float a=PremiumSceneView.poseBob(t,0),b=PremiumSceneView.poseBob(t,1);assertEquals(0f,a,0f);assertEquals(0f,b,0f);}
   assertEquals(PremiumSceneView.poseBob(1234,0),PremiumSceneView.poseBob(1234,0),0f);
  }
  @Test public void motivationRotatesThroughOfflineQuotes(){
   assertEquals(MotivationQuotes.LINES[0],MotivationQuotes.at(0));assertEquals(MotivationQuotes.LINES[1],MotivationQuotes.at(MotivationQuotes.ROTATE_MS));
   assertEquals(MotivationQuotes.LINES[0],MotivationQuotes.at(MotivationQuotes.ROTATE_MS*MotivationQuotes.LINES.length));
   for(String line:MotivationQuotes.LINES)assertTrue(line.length()<=60);
+ }
+ @Test public void staticHomeKeepsRainMovementIndependent()throws Exception{
+  try(var c=Robolectric.buildActivity(DashboardActivity.class).setup().visible()){
+   DashboardActivity a=c.get();PremiumSceneView s=scene(a);assertFalse(s.canAnimate());
+   s.configure(true,true,2);s.layout(0,0,960,540);
+   Bitmap first=Bitmap.createBitmap(960,540,Bitmap.Config.ARGB_8888),later=Bitmap.createBitmap(960,540,Bitmap.Config.ARGB_8888);
+   try{field(s,"elapsed",0L);s.draw(new Canvas(first));field(s,"elapsed",5000L);s.draw(new Canvas(later));assertTrue("Default scene stays pixel-identical over time",first.sameAs(later));}finally{first.recycle();later.recycle();}
+   View wallpaper=a.findViewById(R.id.root).findViewWithTag("premium-scene");assertNotNull(wallpaper);
+   RainGlassView rain=new RainGlassView(a);rain.layout(0,0,960,540);rain.configure(new RainOptions(RainOptions.prefs(a)));rain.setHostActive(true);rain.setRain(true);
+   try{assertTrue("Flowing rain remains enabled with a static Home",rain.activeMovingCount()>0);assertTrue(rain.hasScheduledFrame());}finally{rain.destroy();}
+  }
  }
  @Test public void freeRunPathsStayClearOfGreetingDockAndEachOther() {
   for(long t=0;t<FreeRunChoreography.LOOP_MS;t+=100){

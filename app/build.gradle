@@ -10,8 +10,8 @@ android {
         applicationId 'dev.farred.fayyadhos.tv.jarvis.fix'
         minSdk 26
         targetSdk 34
-        versionCode 15
-        versionName '3.1.0-dunia-papazola'
+        versionCode 16
+        versionName '3.1.1-static-halilintar'
     }
 
     signingConfigs {
