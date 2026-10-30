@@ -118,9 +118,9 @@ final class PrayerPanel extends LinearLayout {
                 float stroke=paint.getStrokeWidth();
                 android.graphics.Paint.Join join=paint.getStrokeJoin();
                 paint.setStyle(android.graphics.Paint.Style.STROKE);
-                paint.setStrokeWidth(0.45f*getResources().getDisplayMetrics().density);
+                paint.setStrokeWidth(0.22f*getResources().getDisplayMetrics().density);
                 paint.setStrokeJoin(android.graphics.Paint.Join.ROUND);
-                paint.setColor(0xe6000000);
+                paint.setColor(0x88000000);
                 int saved=canvas.save();
                 canvas.translate(getCompoundPaddingLeft(),getTotalPaddingTop());
                 layout.draw(canvas);

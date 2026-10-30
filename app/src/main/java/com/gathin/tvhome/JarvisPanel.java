@@ -41,7 +41,7 @@ final class JarvisPanel {
   android.graphics.drawable.GradientDrawable surface=GlassUi.surface(activity,0xff041522,false);surface.setStroke(Math.max(1,dp(1)),GlassUi.CYAN);
   scroll=new ScrollView(activity);scroll.setBackground(surface);scroll.setFillViewport(true);FrameLayout pages=new FrameLayout(activity);pages.addView(box);scroll.addView(pages);dialog.setContentView(scroll);
   LinearLayout top=new LinearLayout(activity);top.setGravity(Gravity.CENTER_VERTICAL);box.addView(top);
-  top.addView(new Radar(activity),lp(dp(38),dp(38)));LinearLayout heading=column();TextView title=text("Jarvis",22,GlassUi.WHITE);title.setTypeface(null,Typeface.BOLD);heading.addView(title);heading.addView(text("Your Smart Assistant",10,GlassUi.MUTED));
+  top.addView(new Radar(activity),lp(dp(38),dp(38)));LinearLayout heading=column();TextView title=text("Jarvis",22,GlassUi.WHITE);title.setTypeface(GlassUi.typeface(activity,Typeface.BOLD));heading.addView(title);heading.addView(text("Your Smart Assistant",10,GlassUi.MUTED));
   LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(0,-2,1);hp.leftMargin=dp(7);top.addView(heading,hp);TextView close=button("Close",()->close());close.setContentDescription("Close Jarvis");top.addView(close,lp(dp(42),dp(32)));
   spacer(box,12);
   actionRow(box,new String[]{"Cuaca "+new RainOptions(RainOptions.prefs(activity)).locationName,"Speedtest"},new Runnable[]{()->activity.weatherDetails(),()->openSpeedtest()});
@@ -86,9 +86,9 @@ final class JarvisPanel {
   if(speedBox==null){
    speedBox=column();speedBox.setPadding(dp(12),dp(12),dp(12),dp(12));((FrameLayout)mainBox.getParent()).addView(speedBox);
    LinearLayout top=new LinearLayout(activity);top.setGravity(Gravity.CENTER_VERTICAL);speedBox.addView(top);
-   top.addView(new Radar(activity),lp(dp(38),dp(38)));TextView heading=text("Jarvis",22,GlassUi.WHITE);heading.setTypeface(null,Typeface.BOLD);LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(0,-2,1);hp.leftMargin=dp(7);top.addView(heading,hp);top.addView(button("Close",()->close()),lp(dp(42),dp(32)));
+   top.addView(new Radar(activity),lp(dp(38),dp(38)));TextView heading=text("Jarvis",22,GlassUi.WHITE);heading.setTypeface(GlassUi.typeface(activity,Typeface.BOLD));LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(0,-2,1);hp.leftMargin=dp(7);top.addView(heading,hp);top.addView(button("Close",()->close()),lp(dp(42),dp(32)));
    spacer(speedBox,12);speedBox.addView(button("‹ Diagnostik",()->leaveSpeedtest()),lp(-1,dp(30)));line(speedBox);
-   TextView title=text("Speedtest",18,GlassUi.WHITE);title.setTypeface(null,Typeface.BOLD);speedBox.addView(title);
+   TextView title=text("Speedtest",18,GlassUi.WHITE);title.setTypeface(GlassUi.typeface(activity,Typeface.BOLD));speedBox.addView(title);
    testState=text("Sedia untuk diuji",11,GlassUi.CYAN);spacer(speedBox,6);speedBox.addView(testState);
    FrameLayout meterFrame=new FrameLayout(activity);testMeter=new SpeedMeter(activity);meterFrame.addView(testMeter,new FrameLayout.LayoutParams(-1,-1));LinearLayout.LayoutParams mp=lp(dp(118),dp(118));mp.gravity=Gravity.CENTER_HORIZONTAL;mp.topMargin=dp(10);speedBox.addView(meterFrame,mp);
    testValue=text("—\nMbps",20,GlassUi.WHITE);testValue.setGravity(Gravity.CENTER);meterFrame.addView(testValue,new FrameLayout.LayoutParams(-1,-1));

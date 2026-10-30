@@ -36,7 +36,7 @@ public class DashboardActivity extends Activity {
  private final Runnable tick=new Runnable(){public void run(){updateClock();handler.postDelayed(this,30000);}};
  int d(float n){return GlassUi.dp(this,n*scale);}
  static String greeting(int hour){return hour>=5&&hour<12?"Good morning":hour<14&&hour>=12?"Good afternoon":hour>=14&&hour<19?"Good evening":"Good night";}
- private TextView text(String s,float size,int color){TextView t=GlassUi.text(this,s,Math.max(8,size*scale),color);t.setShadowLayer(GlassUi.dp(this,2),0,GlassUi.dp(this,1),0xd9000000);return t;}
+ private TextView text(String s,float size,int color){TextView t=GlassUi.text(this,s,Math.max(8,size*scale),color);t.setShadowLayer(GlassUi.dp(this,2),0,GlassUi.dp(this,1),0x99000000);return t;}
  private LinearLayout vertical(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.VERTICAL);return l;}
  private LinearLayout.LayoutParams lp(int w,int h){return new LinearLayout.LayoutParams(w,h);}
  @Override public void onCreate(Bundle b){super.onCreate(b);
@@ -59,11 +59,11 @@ public class DashboardActivity extends Activity {
   LinearLayout brand=vertical();TextView name=text("♛ FayyadhOS",30,GlassUi.WHITE);
   android.text.SpannableString wordmark=new android.text.SpannableString("♛ FayyadhOS");
   wordmark.setSpan(new android.text.style.ForegroundColorSpan(0xffffa52e),9,11,0);name.setText(wordmark);
-  name.setTypeface(GlassUi.typeface(DashboardActivity.this,Typeface.BOLD));brand.addView(name);
+  name.setTypeface(GlassUi.typeface(DashboardActivity.this,Typeface.BOLD_ITALIC));brand.addView(name);
   TextView edition=text("KIDS UNIVERSE  ·  BOBOIBOY × PAPAZOLA",10,GlassUi.WHITE);edition.setLetterSpacing(.38f);edition.setPadding(d(16),d(3),0,0);brand.addView(edition);
   header.addView(brand,new FrameLayout.LayoutParams(d(230),-2,Gravity.START|Gravity.TOP));
   LinearLayout time=vertical();time.setGravity(Gravity.CENTER_HORIZONTAL);
-  clock=text("",70,GlassUi.WHITE);clock.setTypeface(GlassUi.typeface(this,Typeface.BOLD));date=text("",17,GlassUi.WHITE);
+  clock=text("",70,GlassUi.WHITE);clock.setTypeface(GlassUi.typeface(this,Typeface.BOLD));date=text("",17,GlassUi.WHITE);date.setTypeface(GlassUi.typeface(this,Typeface.BOLD));
   time.setGravity(Gravity.START);clock.setGravity(Gravity.START);date.setGravity(Gravity.START);date.setSingleLine(true);
   date.setEllipsize(android.text.TextUtils.TruncateAt.END);time.addView(clock);time.addView(date);
   FrameLayout.LayoutParams timePosition=new FrameLayout.LayoutParams(d(270),-2,Gravity.START|Gravity.TOP);timePosition.topMargin=d(78);header.addView(time,timePosition);
@@ -75,7 +75,7 @@ public class DashboardActivity extends Activity {
   header.addView(actions,new FrameLayout.LayoutParams(-2,d(44),Gravity.END|Gravity.TOP));
   LinearLayout intro=vertical();place(body,intro,40,270,350,118);
   greeting=text("",34,GlassUi.WHITE);greeting.setTypeface(GlassUi.typeface(this,Typeface.BOLD));greeting.setTag("greeting");intro.addView(greeting);
-  TextView caption=text("Teruskan Pengembaraan!",17,GlassUi.WHITE);LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);
+  TextView caption=text("Teruskan Pengembaraan!",17,GlassUi.WHITE);caption.setTypeface(GlassUi.typeface(this,Typeface.BOLD));LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);
   TextView heroes=text("BOBOIBOY  ✦  PAPAZOLA",13,0xffffd45c);heroes.setTypeface(GlassUi.typeface(this,Typeface.BOLD));heroes.setLetterSpacing(.08f);heroes.setVisibility(View.GONE);
   grid=new LoopCarousel(this);grid.setId(R.id.grid);grid.setClipToPadding(false);grid.setPadding(d(3),d(6),d(3),d(6));
   grid.setItemAnimator(null);
@@ -108,7 +108,7 @@ public class DashboardActivity extends Activity {
  }
 
 
- private TextView button(String label,Runnable click){TextView t=text(label,13,GlassUi.WHITE);t.setGravity(Gravity.CENTER);t.setSingleLine(true);GlassUi.focusShortcut(t);t.setOnClickListener(v->click.run());return t;}
+ private TextView button(String label,Runnable click){TextView t=text(label,13,GlassUi.WHITE);t.setTypeface(GlassUi.typeface(DashboardActivity.this,Typeface.BOLD));t.setGravity(Gravity.CENTER);t.setSingleLine(true);GlassUi.focusShortcut(t);t.setOnClickListener(v->click.run());return t;}
  void updateClock(){LocalDateTime now=LocalDateTime.now();clock.setText(now.format(DateTimeFormatter.ofLocalizedTime(java.time.format.FormatStyle.SHORT).withLocale(Locale.getDefault())));date.setText(now.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy",Locale.getDefault())));int hour=now.getHour();String salutation=hour>=5&&hour<12?"Selamat Pagi":hour<14?"Selamat Tengah Hari":hour<19?"Selamat Petang":"Selamat Malam";String welcome=salutation+",\nFayyadh!";android.text.SpannableString styled=new android.text.SpannableString(welcome);styled.setSpan(new android.text.style.ForegroundColorSpan(0xffffd84d),salutation.length()+2,welcome.length(),android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);styled.setSpan(new android.text.style.StyleSpan(Typeface.BOLD_ITALIC),salutation.length()+2,welcome.length(),android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);greeting.setText(styled);}
  boolean automaticWallpaper(){return getSharedPreferences("fayyadh-wallpaper",0).getBoolean("automatic_weather",true);}
  void weatherWallpaper(WeatherForecast.State state){wallpaperState=state;loadWallpaper();}
