@@ -41,17 +41,18 @@ Native Views are the initial choice to preserve deterministic TV focus and keep 
 
 Pin a single stable Filament release for all runtime and host-side asset tools. The official Filament repository currently documents Android Maven dependencies and warns that asset tools such as `matc` should use the same release as the runtime.
 
-Initial candidate: **Filament v1.79.0**, released 26 October 2026:
-https://github.com/google/filament/releases/tag/v1.79.0
+**Implementation baseline: Filament v1.77.3 from Maven Central.** Maven Central currently exposes v1.77.3 for the Android runtime artifact; the public GitHub repository has a newer v1.79.0 release, but the matching Android artifacts were not yet verifiable in Maven Central at the time this baseline was written. Do not reference a dependency version that Gradle cannot resolve.
 
-Candidate runtime artifacts:
-- `com.google.android.filament:filament-android:1.79.0`
-- `com.google.android.filament:gltfio-android:1.79.0`
-- `com.google.android.filament:filament-utils-android:1.79.0` if required by the selected UI host
+Baseline runtime artifacts:
+- `com.google.android.filament:filament-android:1.77.3`
+- `com.google.android.filament:gltfio-android:1.77.3`
+- `com.google.android.filament:filament-utils-android:1.77.3` only if required by the selected UI host
 
-The exact artifacts and ABI size must be tested before they are committed to the application. Use runtime libraries and host asset tools from the same release. Start with the OpenGL ES backend. Vulkan remains an opt-in experiment until the actual HAKO Pro driver is validated.
+The exact artifacts and ABI size must be tested before they are committed to the application. Use runtime libraries and host asset tools from the same v1.77.3 release. Revisit v1.79.0 only after its required Android Maven artifacts are available and a clean build/test confirms them. Start with the OpenGL ES backend. Vulkan remains an opt-in experiment until the actual HAKO Pro driver is validated.
 
-Official source: https://github.com/google/filament
+Sources:
+- Filament official releases: https://github.com/google/filament/releases
+- Maven Central artifact: https://central.sonatype.com/artifact/com.google.android.filament/filament-android
 
 ## 4. Renderer integration boundary
 
