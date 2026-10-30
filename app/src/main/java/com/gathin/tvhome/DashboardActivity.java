@@ -79,7 +79,7 @@ public class DashboardActivity extends Activity {
   TextView heroes=text("BOBOIBOY  ✦  PAPAZOLA",13,0xffffd45c);heroes.setTypeface(null,Typeface.BOLD);heroes.setLetterSpacing(.08f);heroes.setVisibility(View.GONE);
   grid=new LoopCarousel(this);grid.setId(R.id.grid);grid.setClipToPadding(false);grid.setPadding(d(3),d(6),d(3),d(6));
   grid.setItemAnimator(null);
-  grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,28,420,904,104);
+  grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,28,414,904,100);
   empty=text("No visible apps. Open Settings to unhide apps or install TV apps.",16,GlassUi.WHITE);empty.setGravity(Gravity.CENTER_VERTICAL);place(body,empty,40,416,880,96);
   prayer=new PrayerPanel(this);prayer.dashboardScale(scale);place(body,prayer,292,112,405,72);
   prayer.setNextFocusUpId(R.id.btnWifi);prayer.setNextFocusDownId(R.id.grid);
