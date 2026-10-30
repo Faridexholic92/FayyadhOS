@@ -48,7 +48,8 @@ public class DashboardActivity extends Activity {
   scale=Math.min(w/960f,h/540f);catalog=new DashboardApps(this);
   getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY|View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
   root=new FrameLayout(this);root.setId(R.id.root);root.setBackgroundColor(0xff0b1923);setContentView(root);
-  wallpaper=new WallpaperDissolveView(this);wallpaper.setScaleType(ImageView.ScaleType.CENTER_CROP);root.addView(wallpaper,new FrameLayout.LayoutParams(-1,-1));\n  root.addView(new KidsUniverseBackdrop(this),new FrameLayout.LayoutParams(-1,-1));loadWallpaper();
+  wallpaper=new WallpaperDissolveView(this);wallpaper.setScaleType(ImageView.ScaleType.CENTER_CROP);root.addView(wallpaper,new FrameLayout.LayoutParams(-1,-1));
+  root.addView(new KidsUniverseBackdrop(this),new FrameLayout.LayoutParams(-1,-1));loadWallpaper();
   // A uniform 960x540 design space keeps the reference composition at 720p/1080p/4K.
   FrameLayout body=new FrameLayout(this);body.setBackground(new android.graphics.drawable.GradientDrawable(
    android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0x45071320,0x08071320,0x28071320}));
@@ -73,7 +74,8 @@ public class DashboardActivity extends Activity {
   header.addView(actions,new FrameLayout.LayoutParams(-2,d(44),Gravity.END|Gravity.TOP));
   LinearLayout intro=vertical();place(body,intro,40,128,310,100);
   greeting=text("",32,GlassUi.WHITE);greeting.setTypeface(null,Typeface.BOLD);greeting.setTag("greeting");intro.addView(greeting);
-  TextView caption=text("Dunia pengembaraan bermula di sini!",18,GlassUi.WHITE);LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);\n  TextView heroes=text("BOBOIBOY  ✦  PAPAZOLA",13,0xffffd45c);heroes.setTypeface(null,Typeface.BOLD);heroes.setLetterSpacing(.08f);place(body,heroes,40,224,310,24);
+  TextView caption=text("Dunia pengembaraan bermula di sini!",18,GlassUi.WHITE);LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);
+  TextView heroes=text("BOBOIBOY  ✦  PAPAZOLA",13,0xffffd45c);heroes.setTypeface(null,Typeface.BOLD);heroes.setLetterSpacing(.08f);place(body,heroes,40,224,310,24);
   grid=new LoopCarousel(this);grid.setId(R.id.grid);grid.setClipToPadding(false);grid.setPadding(d(3),d(6),d(3),d(6));
   grid.setItemAnimator(null);
   grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,40,400,880,112);
