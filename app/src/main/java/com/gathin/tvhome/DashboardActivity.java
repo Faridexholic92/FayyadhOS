@@ -48,7 +48,7 @@ public class DashboardActivity extends Activity {
   scale=Math.min(w/960f,h/540f);catalog=new DashboardApps(this);
   getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY|View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
   root=new FrameLayout(this);root.setId(R.id.root);root.setBackgroundColor(0xff0b1923);setContentView(root);
-  wallpaper=new WallpaperDissolveView(this);wallpaper.setScaleType(ImageView.ScaleType.CENTER_CROP);root.addView(wallpaper,new FrameLayout.LayoutParams(-1,-1));loadWallpaper();
+  wallpaper=new WallpaperDissolveView(this);wallpaper.setScaleType(ImageView.ScaleType.CENTER_CROP);root.addView(wallpaper,new FrameLayout.LayoutParams(-1,-1));\n  root.addView(new KidsUniverseBackdrop(this),new FrameLayout.LayoutParams(-1,-1));loadWallpaper();
   // A uniform 960x540 design space keeps the reference composition at 720p/1080p/4K.
   FrameLayout body=new FrameLayout(this);body.setBackground(new android.graphics.drawable.GradientDrawable(
    android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0x45071320,0x08071320,0x28071320}));
@@ -73,7 +73,7 @@ public class DashboardActivity extends Activity {
   header.addView(actions,new FrameLayout.LayoutParams(-2,d(44),Gravity.END|Gravity.TOP));
   LinearLayout intro=vertical();place(body,intro,40,128,310,100);
   greeting=text("",32,GlassUi.WHITE);greeting.setTypeface(null,Typeface.BOLD);greeting.setTag("greeting");intro.addView(greeting);
-  TextView caption=text("Dunia pengembaraan bermula di sini!",18,GlassUi.WHITE);LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);
+  TextView caption=text("Dunia pengembaraan bermula di sini!",18,GlassUi.WHITE);LinearLayout.LayoutParams cap=lp(-1,-2);cap.topMargin=d(4);intro.addView(caption,cap);\n  TextView heroes=text("BOBOIBOY  ✦  PAPAZOLA",13,0xffffd45c);heroes.setTypeface(null,Typeface.BOLD);heroes.setLetterSpacing(.08f);place(body,heroes,40,224,310,24);
   grid=new LoopCarousel(this);grid.setId(R.id.grid);grid.setClipToPadding(false);grid.setPadding(d(3),d(6),d(3),d(6));
   grid.setItemAnimator(null);
   grid.setOverScrollMode(View.OVER_SCROLL_NEVER);place(body,grid,40,400,880,112);
@@ -217,7 +217,7 @@ public class DashboardActivity extends Activity {
  }
  private final class Tiles extends RecyclerView.Adapter<Tile> {
   public Tile onCreateViewHolder(ViewGroup parent,int type){LinearLayout card=vertical();card.setGravity(Gravity.CENTER);card.setPadding(d(7),d(4),d(7),d(4));
-   RecyclerView.LayoutParams p=new RecyclerView.LayoutParams(d(100),d(80));p.setMargins(d(5),d(2),d(5),d(2));card.setLayoutParams(p);GlassUi.focus(card);
+   RecyclerView.LayoutParams p=new RecyclerView.LayoutParams(d(100),d(80));p.setMargins(d(5),d(2),d(5),d(2));card.setLayoutParams(p);GlassUi.focus(card);card.setBackground(GlassUi.kidsStates(DashboardActivity.this));
    ImageView icon=new ImageView(DashboardActivity.this);icon.setScaleType(ImageView.ScaleType.FIT_CENTER);card.addView(icon,lp(d(48),d(48)));
    TextView name=text("",12,GlassUi.WHITE);name.setGravity(Gravity.CENTER);name.setTypeface(null,Typeface.BOLD);name.setMaxLines(1);name.setEllipsize(android.text.TextUtils.TruncateAt.END);LinearLayout.LayoutParams n=lp(-1,d(20));n.topMargin=d(2);card.addView(name,n);return new Tile(card,icon,name);}
   public void onBindViewHolder(Tile v,int i){ResolveInfo r=apps.get(LoopCarousel.logical(i,apps.size()));String key=DashboardApps.key(r);v.name.setText(catalog.label(r));
@@ -236,7 +236,7 @@ public class DashboardActivity extends Activity {
     return false;
    });
    v.itemView.setNextFocusUpId(R.id.prayerPanel);v.itemView.setNextFocusDownId(v.itemView.getId());
-   if(key.equals(moving))v.itemView.setBackground(GlassUi.surface(DashboardActivity.this,0xd0234b56,true));else v.itemView.setBackground(GlassUi.states(DashboardActivity.this));
+   if(key.equals(moving))v.itemView.setBackground(GlassUi.surface(DashboardActivity.this,0xd0234b56,true));else v.itemView.setBackground(GlassUi.kidsStates(DashboardActivity.this));
 }
 
   public int getItemCount(){return LoopCarousel.count(apps.size(),moving!=null);}
