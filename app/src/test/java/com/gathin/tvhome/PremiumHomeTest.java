@@ -118,6 +118,12 @@ public class PremiumHomeTest {
   assertTrue("route includes natural hops",jump);
   assertTrue("character returns to ground between hops",grounded);
  }
+ @Test public void bothCharactersFaceTheirDirectionOfTravel() {
+  assertTrue(FreeRunChoreography.mirrorForDirection(0,-1f));
+  assertFalse(FreeRunChoreography.mirrorForDirection(0,1f));
+  assertTrue(FreeRunChoreography.mirrorForDirection(1,-1f));
+  assertFalse(FreeRunChoreography.mirrorForDirection(1,1f));
+ }
  @Test public void spriteFramesAdvanceDuringRestAndFramePacingIsVsyncFriendly() {
   assertEquals(0,PremiumSceneView.spriteCellAt(0,67));
   assertEquals(1,PremiumSceneView.spriteCellAt(67,67));

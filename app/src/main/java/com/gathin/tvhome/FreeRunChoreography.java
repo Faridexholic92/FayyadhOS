@@ -75,8 +75,8 @@ final class FreeRunChoreography {
     }
 
     static boolean mirrorForDirection(int character, float directionX) {
-        // The PapaZola atlas faces right by default; the BoBoiBoy row faces left.
-        return character == 0 ? directionX < 0f : directionX > 0f;
+        // Both source rows face right; mirror either character when travelling left.
+        return directionX < 0f;
     }
 
     static float bobAt(long elapsedMs, int character) {
